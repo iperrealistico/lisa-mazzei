@@ -1,6 +1,6 @@
 [Projects]
 privateoutland
-countrymysteries
+countrymisteries
 narrative
 other
 
