@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ============================================ -->
+    <!-- CONFIGURATION SECTION - EDIT VALUES BELOW    -->
+    <!-- ============================================ -->
+    
+    <!-- Basic Site Information -->
+    <title>Lisa Mazzei</title>
+    <meta name="description" content="Portfolio showcasing artistic work by Lisa Mazzei, photographer and artist based in Italy">
+    <meta name="author" content="Lisa Mazzei">
+    
+    <!-- SEO and Social Media -->
+    <meta property="og:title" content="Lisa Mazzei">
+    <meta property="og:description" content="Portfolio showcasing artistic work by Lisa Mazzei, photographer and artist based in Italy">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.lisamazzei.it">
+    <meta property="og:image" content="https://www.lisamazzei.it/home/img/img1.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Favicon - Multiple formats for better compatibility -->
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/ico" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico?">
+    
+    <!-- Styling Configuration -->
+    <style>
+        :root {
+            /* EDIT THESE VALUES TO CUSTOMIZE APPEARANCE */
+            --background-color: #ffffff;
+            --text-color: #000000;
+            --font-family: 'Courier New', Courier, monospace; /* Typewriter font */
+            --font-size: 16px;
+            --line-height: 1.6;
+            --footer-text: '© 2025 Lisa Mazzei. All rights reserved.'; /* Edit footer text */
+            --site-title: 'Lisa Mazzei'; /* Edit site title that appears in navigation */
+            --sidebar-width: 250px;
+            --transition-duration: 0.5s;
+            --text-position: 'below'; /* 'above' or 'below' - position of text relative to images */
+            --external-links-new-tab: true; /* true or false - open external links in new tab */
+            
+            /* Gallery Configuration */
+            --gallery-photos-per-row: 3; /* Number of photos per row on desktop */
+            --gallery-photos-per-row-tablet: 2; /* Number of photos per row on tablet */
+            --gallery-photos-per-row-mobile: 1; /* Number of photos per row on mobile */
+            --gallery-padding: 40px; /* Padding around gallery */
+            --gallery-gap: 15px; /* Gap between photos */
+            --gallery-height: 400px; /* Fixed height for all photos */
+        }
+        
+        /* Page Preloader - Shows immediately */
+        .page-preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        }
+        
+        .page-preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* Minimal circular preloader */
+        .preloader-container {
+            position: relative;
+            width: 48px;
+            height: 48px;
+        }
+        
+        /* Background circle */
+        .preloader-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid #f0f0f0;
+        }
+        
+        /* Animated fill circle */
+        .preloader-fill {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: #d0d0d0;
+            animation: preloader-spin 0.8s linear infinite;
+        }
+        
+        @keyframes preloader-spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Hide content initially to prevent flash */
+        body {
+            visibility: hidden;
+        }
+        
+        body.loaded {
+            visibility: visible;
+        }
+    </style>
+    
+    <!-- ============================================ -->
+    <!-- END OF CONFIGURATION - DO NOT EDIT BELOW     -->
+    <!-- ============================================ -->
+    
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-size: var(--font-size);
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-family);
+            color: var(--text-color);
+            background-color: var(--background-color);
+            line-height: var(--line-height);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: var(--background-color);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        
+        /* Site Title in Sidebar */
+        .site-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 40px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+            transition: opacity var(--transition-duration);
+        }
+        
+        .site-title::before {
+            content: var(--site-title);
+        }
+        
+        .site-title:hover {
+            opacity: 0.7;
+        }
+        
+        /* Navigation Groups */
+        .nav-group {
+            margin-bottom: 30px;
+        }
+        
+        .nav-group-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .nav-item {
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: opacity var(--transition-duration);
+            padding: 5px 0;
+            display: block;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            opacity: 0.6;
+        }
+        
+        .nav-item.active {
+            font-weight: bold;
+        }
+        
+        .nav-item.active::before {
+            content: '>';
+            position: absolute;
+            left: -15px;
+        }
+        
+        .nav-item.external::after {
+            content: '↗';
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 0.8em;
+        }
+        
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 30px;
+            height: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            z-index: 1001;
+        }
+        
+        .menu-toggle span {
+            display: block;
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .menu-toggle span:nth-child(1) {
+            top: 0;
+        }
+        
+        .menu-toggle span:nth-child(2) {
+            top: 11px;
+        }
+        
+        .menu-toggle span:nth-child(3) {
+            bottom: 0;
+        }
+        
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg);
+            top: 11px;
+        }
+        
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg);
+            bottom: 11px;
+        }
+        
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.3);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .mobile-overlay.active {
+            opacity: 1;
+        }
+        
+        /* Main Content */
+        .main-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        main {
+            flex: 1;
+            padding: 40px;
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Content Wrapper for flexible ordering */
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .content-wrapper.text-above {
+            flex-direction: column-reverse;
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            opacity: 0;
+            animation: fade-in 0.3s ease-out 0.3s forwards;
+        }
+        
+        .loading-spinner::after {
+            content: '';
+            display: block;
+            width: 32px;
+            height: 32px;
+            margin: 4px;
+            border-radius: 50%;
+            border: 2px solid var(--text-color);
+            border-color: var(--text-color) transparent var(--text-color) transparent;
+            animation: loading-spinner 1.2s linear infinite;
+        }
+        
+        @keyframes loading-spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 0.4;
+            }
+        }
+        
+        /* Gallery - Horizontal Grid */
+        .gallery-container {
+            position: relative;
+            width: 100%;
+            padding: var(--gallery-padding);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--gallery-photos-per-row), 1fr);
+            gap: var(--gallery-gap);
+            width: 100%;
+        }
+        
+        /* Single Photo Display (when only one photo) */
+        .single-photo-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--gallery-padding);
+        }
+        
+        .single-photo-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 66.67%; /* 3:2 aspect ratio */
+            background-color: var(--background-color);
+        }
+        
+        .single-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        /* Gallery Photos */
+        .photo-item {
+            position: relative;
+            height: var(--gallery-height);
+            overflow: hidden;
+            cursor: pointer;
+            transition: opacity var(--transition-duration);
+        }
+        
+        .photo-item:hover {
+            opacity: 0.8;
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lightbox-content {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        /* Lightbox Controls */
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .lightbox-close:hover {
+            opacity: 1;
+        }
+        
+        .lightbox-close::before,
+        .lightbox-close::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 2px;
+            background-color: white;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+        
+        .lightbox-close::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+        
+        /* Lightbox Navigation */
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity var(--transition-duration);
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        
+        .lightbox-nav:hover {
+            opacity: 1;
+        }
+        
+        .lightbox-nav.prev {
+            left: 20px;
+        }
+        
+        .lightbox-nav.next {
+            right: 20px;
+        }
+        
+        .lightbox-nav svg {
+            width: 100%;
+            height: 100%;
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        /* Text Content */
+        .text-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--gallery-padding);
+        }
+        
+        .text-content h1, .text-content h2, .text-content h3 {
+            margin: 1.5em 0 0.5em;
+            font-weight: bold;
+        }
+        
+        .text-content h1:first-child,
+        .text-content h2:first-child,
+        .text-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .text-content p {
+            margin-bottom: 1em;
+        }
+        
+        .text-content a {
+            color: var(--text-color);
+            text-decoration: underline;
+        }
+        
+        .text-content center {
+            display: block;
+            text-align: center;
+        }
+        
+        .text-content ul, .text-content ol {
+            margin-bottom: 1em;
+            padding-left: 2em;
+        }
+        
+        .text-content li {
+            margin-bottom: 0.5em;
+        }
+        
+        .text-content u {
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        footer::before {
+            content: var(--footer-text);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .gallery-grid {
+                grid-template-columns: repeat(var(--gallery-photos-per-row-tablet), 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            :root {
+                --gallery-padding: 20px;
+                --gallery-height: 300px;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .mobile-overlay {
+                display: block;
+                pointer-events: none;
+            }
+            
+            .mobile-overlay.active {
+                pointer-events: auto;
+            }
+            
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            main {
+                padding: 60px 20px 20px;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: repeat(var(--gallery-photos-per-row-mobile), 1fr);
+            }
+            
+            .lightbox-content {
+                width: 100%;
+                height: 100%;
+            }
+            
+            .lightbox-nav {
+                opacity: 1;
+            }
+        }
+        
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Remove focus outline for mouse users, keep for keyboard */
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+        
+        *:focus-visible {
+            outline: 2px solid var(--text-color);
+            outline-offset: 2px;
+        }
+        
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Preloader -->
+    <div class="page-preloader" id="page-preloader">
+        <div class="preloader-container">
+            <div class="preloader-track"></div>
+            <div class="preloader-fill"></div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="#" class="site-title" id="site-title" aria-label="Home"></a>
+        <div id="navigation-groups"></div>
+    </nav>
+    
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <main role="main" id="main-content">
+            <!-- Content will be loaded here -->
+        </main>
+        
+        <footer role="contentinfo"></footer>
+    </div>
+    
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <img class="lightbox-image" id="lightbox-image" alt="">
+            <button class="lightbox-close" id="lightbox-close" aria-label="Close lightbox"></button>
+            <button class="lightbox-nav prev" id="lightbox-prev" aria-label="Previous photo">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button class="lightbox-nav next" id="lightbox-next" aria-label="Next photo">
+                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration for folder structure
+        const CONFIG = {
+            projects: [], // Will be populated dynamically
+            groups: {}, // Will store project groups
+            currentProject: 'home',
+            photos: [],
+            lightboxIndex: 0,
+            mobileMenuOpen: false,
+            loadingAbortController: null // For cancelling ongoing loads
+        };
+        
+        // Silent fetch that doesn't log errors
+        async function silentFetch(url, options = {}) {
+            try {
+                const response = await fetch(url, options);
+                return response;
+            } catch (error) {
+                return { ok: false };
+            }
+        }
+        
+        // Initialize the application
+        async function init() {
+            try {
+                await loadProjects();
+                setupNavigation();
+                setupMobileMenu();
+                setupLightbox();
+                setupKeyboardNavigation();
+                
+                // Setup site title click
+                document.getElementById('site-title').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navigateToProject('home');
+                });
+                
+                // Check URL for project
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectFromUrl = urlParams.get('project') || 'home';
+                
+                // Load project from URL or default to home
+                loadProject(projectFromUrl);
+                
+                // Remove preloader after content is ready
+                setTimeout(() => {
+                    const preloader = document.getElementById('page-preloader');
+                    if (preloader) {
+                        preloader.classList.add('fade-out');
+                        document.body.classList.add('loaded');
+                        setTimeout(() => {
+                            preloader.remove();
+                        }, 300);
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('main-content').innerHTML = '<p>Error loading content. Please ensure files are served from a web server.</p>';
+                // Still remove preloader on error
+                const preloader = document.getElementById('page-preloader');
+                if (preloader) {
+                    preloader.classList.add('fade-out');
+                    document.body.classList.add('loaded');
+                    setTimeout(() => {
+                        preloader.remove();
+                    }, 300);
+                }
+            }
+        }
+        
+        // Navigate to project and update URL
+        function navigateToProject(projectName) {
+            const url = new URL(window.location);
+            url.searchParams.set('project', projectName);
+            window.history.pushState({project: projectName}, '', url);
+            loadProject(projectName);
+            closeMobileMenu();
+        }
+        
+        // Load available projects from projects.txt
+        async function loadProjects() {
+            try {
+                // Fetch the projects.txt file
+                const response = await silentFetch('projects.txt');
+                if (!response.ok) {
+                    throw new Error('projects.txt not found');
+                }
+                
+                const text = await response.text();
+                // Parse projects and groups
+                const lines = text.split('\n').map(line => line.trim());
+                let currentGroup = 'ungrouped';
+                
+                for (const line of lines) {
+                    if (!line || line.startsWith('#')) continue;
+                    
+                    // Check if it's a group header
+                    if (line.startsWith('[') && line.endsWith(']')) {
+                        currentGroup = line.slice(1, -1);
+                        if (!CONFIG.groups[currentGroup]) {
+                            CONFIG.groups[currentGroup] = [];
+                        }
+                        continue;
+                    }
+                    
+                    // Process project folder
+                    const folder = line;
+                    try {
+                        // Check if it's an external link project
+                        const linkResponse = await silentFetch(`${folder}/link.txt`);
+                        if (linkResponse.ok) {
+                            const linkUrl = (await linkResponse.text()).trim();
+                            const titleResponse = await silentFetch(`${folder}/title.txt`);
+                            const title = titleResponse.ok ? 
+                                (await titleResponse.text()).trim().split('\n')[0] : 
+                                folder.charAt(0).toUpperCase() + folder.slice(1);
+                            
+                            const project = { 
+                                folder: folder, 
+                                title: title,
+                                isExternal: true,
+                                link: linkUrl,
+                                group: currentGroup
+                            };
+                            CONFIG.projects.push(project);
+                            if (!CONFIG.groups[currentGroup]) {
+                                CONFIG.groups[currentGroup] = [];
+                            }
+                            CONFIG.groups[currentGroup].push(project);
+                        } else {
+                            // Regular project
+                            const titleResponse = await silentFetch(`${folder}/title.txt`);
+                            const title = titleResponse.ok ? 
+                                (await titleResponse.text()).trim().split('\n')[0] : 
+                                folder.charAt(0).toUpperCase() + folder.slice(1);
+                            
+                            const project = { 
+                                folder: folder, 
+                                title: title,
+                                isExternal: false,
+                                group: currentGroup
+                            };
+                            CONFIG.projects.push(project);
+                            if (!CONFIG.groups[currentGroup]) {
+                                CONFIG.groups[currentGroup] = [];
+                            }
+                            CONFIG.groups[currentGroup].push(project);
+                        }
+                    } catch (e) {
+                        console.warn(`Error loading project ${folder}:`, e);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error loading projects.txt:', error);
+                // Fallback: try to load just 'home' if projects.txt doesn't exist
+                CONFIG.projects.push({ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped' });
+                CONFIG.groups['ungrouped'] = [{ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped' }];
+            }
+        }
+        
+        // Setup navigation menu
+        function setupNavigation() {
+            const navGroups = document.getElementById('navigation-groups');
+            navGroups.innerHTML = '';
+            
+            // Process each group
+            Object.entries(CONFIG.groups).forEach(([groupName, projects]) => {
+                // Skip home projects and empty groups
+                const filteredProjects = projects.filter(p => p.folder !== 'home');
+                if (filteredProjects.length === 0) return;
+                
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'nav-group';
+                
+                // Add group title if not ungrouped
+                if (groupName !== 'ungrouped') {
+                    const groupTitle = document.createElement('div');
+                    groupTitle.className = 'nav-group-title';
+                    groupTitle.textContent = groupName;
+                    groupDiv.appendChild(groupTitle);
+                }
+                
+                const navContainer = document.createElement('div');
+                navContainer.className = 'nav-container';
+                
+                filteredProjects.forEach(project => {
+                    const link = document.createElement('a');
+                    link.className = 'nav-item';
+                    if (project.isExternal) {
+                        link.className += ' external';
+                    }
+                    link.textContent = project.title;
+                    link.setAttribute('role', 'button');
+                    link.setAttribute('tabindex', '0');
+                    
+                    if (project.isExternal) {
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            const openInNewTab = getComputedStyle(document.documentElement)
+                                .getPropertyValue('--external-links-new-tab').trim() === 'true';
+                            if (openInNewTab) {
+                                window.open(project.link, '_blank', 'noopener,noreferrer');
+                            } else {
+                                window.location.href = project.link;
+                            }
+                        };
+                    } else {
+                        link.onclick = () => {
+                            navigateToProject(project.folder);
+                        };
+                    }
+                    
+                    link.onkeypress = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            link.onclick(e);
+                        }
+                    };
+                    
+                    if (project.folder === CONFIG.currentProject && !project.isExternal) {
+                        link.classList.add('active');
+                    }
+                    
+                    navContainer.appendChild(link);
+                });
+                
+                groupDiv.appendChild(navContainer);
+                navGroups.appendChild(groupDiv);
+            });
+        }
+        
+        // Setup mobile menu
+        function setupMobileMenu() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            menuToggle.addEventListener('click', () => {
+                CONFIG.mobileMenuOpen = !CONFIG.mobileMenuOpen;
+                menuToggle.classList.toggle('active');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                menuToggle.setAttribute('aria-expanded', CONFIG.mobileMenuOpen);
+                
+                // Prevent scrolling when menu is open
+                document.body.style.overflow = CONFIG.mobileMenuOpen ? 'hidden' : '';
+            });
+            
+            overlay.addEventListener('click', closeMobileMenu);
+        }
+        
+        function closeMobileMenu() {
+            CONFIG.mobileMenuOpen = false;
+            document.getElementById('menu-toggle').classList.remove('active');
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('mobile-overlay').classList.remove('active');
+            document.getElementById('menu-toggle').setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+        
+        // Load a specific project
+        async function loadProject(projectName) {
+            // Cancel any ongoing loading operations
+            if (CONFIG.loadingAbortController) {
+                CONFIG.loadingAbortController.abort();
+            }
+            
+            // Create new abort controller for this load
+            CONFIG.loadingAbortController = new AbortController();
+            const signal = CONFIG.loadingAbortController.signal;
+            
+            CONFIG.currentProject = projectName;
+            CONFIG.photos = [];
+            
+            // Update active navigation
+            document.querySelectorAll('.nav-item').forEach((item) => {
+                const project = CONFIG.projects.find(p => p.title === item.textContent);
+                item.classList.toggle('active', project?.folder === projectName && !project?.isExternal);
+            });
+            
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = '<div class="loading-spinner"></div>';
+            
+            // Small delay for loading animation
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            if (signal.aborted) return;
+            
+            mainContent.innerHTML = '';
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'content-wrapper';
+            
+            // Check text position configuration
+            const textPosition = getComputedStyle(document.documentElement)
+                .getPropertyValue('--text-position').trim().replace(/['"]/g, '');
+            if (textPosition === 'above') {
+                contentWrapper.classList.add('text-above');
+            }
+            
+            mainContent.appendChild(contentWrapper);
+            
+            // Load and display text content first
+            let hasText = false;
+            try {
+                if (signal.aborted) return;
+                
+                const textResponse = await silentFetch(`${projectName}/text.txt`);
+                if (textResponse.ok) {
+                    const textContent = await textResponse.text();
+                    if (textContent.trim()) {
+                        hasText = true;
+                        const textDiv = document.createElement('div');
+                        textDiv.className = 'text-content';
+                        textDiv.innerHTML = parseMarkdown(textContent);
+                        contentWrapper.appendChild(textDiv);
+                    }
+                }
+            } catch (e) {
+                // No text file, that's ok
+            }
+            
+            // Load photos
+            if (!signal.aborted) {
+                await loadPhotos(projectName, contentWrapper, textPosition === 'above' && hasText, signal);
+            }
+        }
+        
+        // Load photos for gallery
+        async function loadPhotos(projectName, contentWrapper, insertAtEnd, signal) {
+            const photos = [];
+            
+            // First try to load photos.txt for custom names
+            const photosResponse = await silentFetch(`${projectName}/photos.txt`);
+            if (photosResponse.ok) {
+                const photosText = await photosResponse.text();
+                const photoFiles = photosText.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0 && !line.startsWith('#'));
+                
+                for (const photoFile of photoFiles) {
+                    if (signal.aborted) return;
+                    const photoPath = `${projectName}/${photoFile}`;
+                    const exists = await tryLoadImage(photoPath, signal);
+                    if (exists) {
+                        photos.push(photoPath);
+                    }
+                }
+            } else {
+                // Use standard naming pattern
+                const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+                let consecutiveNotFound = 0;
+                const maxConsecutiveNotFound = 3;
+                const maxImages = 50;
+                
+                for (let i = 1; i <= maxImages && consecutiveNotFound < maxConsecutiveNotFound; i++) {
+                    if (signal.aborted) return;
+                    
+                    let found = false;
+                    for (const ext of extensions) {
+                        const photoPath = `${projectName}/img/img${i}.${ext}`;
+                        const exists = await tryLoadImage(photoPath, signal);
+                        if (exists) {
+                            photos.push(photoPath);
+                            found = true;
+                            consecutiveNotFound = 0;
+                            break;
+                        }
+                    }
+                    
+                    if (!found) {
+                        consecutiveNotFound++;
+                    }
+                }
+            }
+            
+            if (photos.length > 0) {
+                CONFIG.photos = photos;
+                createGallery(contentWrapper, photos, insertAtEnd);
+            }
+        }
+        
+        // Try to load an image using Image object
+        async function tryLoadImage(src, signal) {
+            return new Promise((resolve) => {
+                if (signal && signal.aborted) {
+                    resolve(false);
+                    return;
+                }
+                
+                const img = new Image();
+                
+                const cleanup = () => {
+                    img.onload = null;
+                    img.onerror = null;
+                };
+                
+                img.onload = () => {
+                    cleanup();
+                    resolve(true);
+                };
+                
+                img.onerror = () => {
+                    cleanup();
+                    resolve(false);
+                };
+                
+                // Handle abort
+                if (signal) {
+                    signal.addEventListener('abort', () => {
+                        cleanup();
+                        resolve(false);
+                    });
+                }
+                
+                img.src = src;
+            });
+        }
+        
+        // Create gallery
+        function createGallery(contentWrapper, photos, insertAtEnd) {
+            const galleryContainer = document.createElement('div');
+            galleryContainer.className = 'gallery-container';
+            
+            if (photos.length === 1) {
+                // Single photo display
+                galleryContainer.className = 'single-photo-container';
+                galleryContainer.innerHTML = `
+                    <div class="single-photo-wrapper">
+                        <img src="${photos[0]}" alt="Photo" class="single-photo">
+                    </div>
+                `;
+            } else {
+                // Multi-photo grid
+                const galleryGrid = document.createElement('div');
+                galleryGrid.className = 'gallery-grid';
+                
+                photos.forEach((photo, index) => {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-item';
+                    photoItem.innerHTML = `<img src="${photo}" alt="Photo ${index + 1}" loading="lazy">`;
+                    photoItem.onclick = () => openLightbox(index);
+                    galleryGrid.appendChild(photoItem);
+                });
+                
+                galleryContainer.appendChild(galleryGrid);
+            }
+            
+            if (insertAtEnd) {
+                contentWrapper.appendChild(galleryContainer);
+            } else {
+                contentWrapper.insertBefore(galleryContainer, contentWrapper.firstChild);
+            }
+        }
+        
+        // Lightbox functionality
+        function setupLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxClose = document.getElementById('lightbox-close');
+            const lightboxPrev = document.getElementById('lightbox-prev');
+            const lightboxNext = document.getElementById('lightbox-next');
+            
+            lightboxClose.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+            
+            lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+            lightboxNext.addEventListener('click', () => navigateLightbox(1));
+        }
+        
+        function openLightbox(index) {
+            CONFIG.lightboxIndex = index;
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightbox-image');
+            
+            lightboxImage.src = CONFIG.photos[index];
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Update navigation visibility
+            updateLightboxNavigation();
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function navigateLightbox(direction) {
+            CONFIG.lightboxIndex = (CONFIG.lightboxIndex + direction + CONFIG.photos.length) % CONFIG.photos.length;
+            document.getElementById('lightbox-image').src = CONFIG.photos[CONFIG.lightboxIndex];
+            updateLightboxNavigation();
+        }
+        
+        function updateLightboxNavigation() {
+            const prevBtn = document.getElementById('lightbox-prev');
+            const nextBtn = document.getElementById('lightbox-next');
+            
+            if (CONFIG.photos.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+            }
+        }
+        
+        // Enhanced Markdown parser
+        function parseMarkdown(text) {
+            // Escape HTML
+            const escapeHtml = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+            
+            // Process the text line by line for better control
+            const lines = text.split('\n');
+            let html = '';
+            let inList = false;
+            let inParagraph = false;
+            let inCenter = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                // Check for center tags
+                if (line.trim().toLowerCase() === '<center>') {
+                    if (inParagraph) {
+                        html += '</p>';
+                        inParagraph = false;
+                    }
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += '<center>';
+                    inCenter = true;
+                    continue;
+                }
+                
+                if (line.trim().toLowerCase() === '</center>') {
+                    html += '</center>';
+                    inCenter = false;
+                    continue;
+                }
+                
+                // Headers (must be at start of line)
+                if (line.match(/^#{1,6}\s/)) {
+                    if (inParagraph) {
+                        html += '</p>';
+                        inParagraph = false;
+                    }
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    
+                    const level = line.match(/^(#{1,6})\s/)[1].length;
+                    const content = line.replace(/^#{1,6}\s+/, '');
+                    html += `<h${level}>${processInlineMarkdown(content)}</h${level}>`;
+                    continue;
+                }
+                
+                // Lists
+                if (line.match(/^\*\s+/)) {
+                    if (inParagraph) {
+                        html += '</p>';
+                        inParagraph = false;
+                    }
+                    if (!inList) {
+                        html += '<ul>';
+                        inList = true;
+                    }
+                    const content = line.replace(/^\*\s+/, '');
+                    html += `<li>${processInlineMarkdown(content)}</li>`;
+                    continue;
+                }
+                
+                // Empty line
+                if (line.trim() === '') {
+                    if (inParagraph && !inCenter) {
+                        html += '</p>';
+                        inParagraph = false;
+                    }
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    continue;
+                }
+                
+                // Regular paragraph
+                if (inList) {
+                    html += '</ul>';
+                    inList = false;
+                }
+                
+                if (!inParagraph && !inCenter) {
+                    html += '<p>';
+                    inParagraph = true;
+                }
+                
+                html += processInlineMarkdown(line) + ' ';
+            }
+            
+            // Close any open tags
+            if (inParagraph) html += '</p>';
+            if (inList) html += '</ul>';
+            
+            return html;
+        }
+        
+        // Process inline markdown (bold, italic, links, etc.)
+        function processInlineMarkdown(text) {
+            // Escape HTML first
+            text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // Bold + Italic (***text***)
+            text = text.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            
+            // Bold (**text**)
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Italic (*text*)
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Underline (__text__)
+            text = text.replace(/__(.*?)__/g, '<u>$1</u>');
+            
+            // Links with text [text](url)
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+            
+            // Standalone URLs (http:// or https://)
+            text = text.replace(/(^|[^"'])(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+            
+            // Email addresses
+            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>');
+            
+            // Social media handles (@username)
+            text = text.replace(/(^|[^@\w])@(\w{1,15})\b/g, '$1@$2');
+            
+            return text;
+        }
+        
+        // Keyboard navigation
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', (e) => {
+                const lightbox = document.getElementById('lightbox');
+                
+                if (lightbox.classList.contains('active')) {
+                    if (e.key === 'Escape') {
+                        closeLightbox();
+                    } else if (e.key === 'ArrowLeft') {
+                        navigateLightbox(-1);
+                    } else if (e.key === 'ArrowRight') {
+                        navigateLightbox(1);
+                    }
+                }
+            });
+        }
+        
+        // Start the application
+        window.addEventListener('DOMContentLoaded', init);
+        
+        // Handle browser back/forward
+        window.addEventListener('popstate', (e) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const project = urlParams.get('project') || 'home';
+            loadProject(project);
+        });
+    </script>
+</body>
+</html>
