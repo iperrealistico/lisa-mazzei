@@ -21,6 +21,11 @@
     <meta property="og:image" content="https://www.lisamazzei.it/home/img/img1.jpg">
     <meta name="twitter:card" content="summary_large_image">
     
+    <!-- Preload critical images -->
+    <link rel="preload" as="image" href="home/img/img1.jpg">
+    <link rel="preload" as="image" href="home/img/img2.jpg">
+    <link rel="preload" as="image" href="home/img/img3.jpg">
+    
     <!-- Favicon - will be added dynamically if exists -->
     <script>
         // Check for favicon and add it if exists
@@ -55,7 +60,8 @@
             --line-height: 1.6;
             --footer-text: '© 2025 Lisa Mazzei. All rights reserved.'; /* Edit footer text */
             --site-title: 'Lisa Mazzei'; /* Edit site title that appears in navigation */
-            --header-height: 80px;
+            --header-padding-vertical: 40px; /* Increased vertical padding */
+            --header-padding-horizontal: 40px;
             --transition-duration: 0.5s;
             --text-position: 'below'; /* 'above' or 'below' - position of text relative to images */
             --external-links-new-tab: true; /* true or false - open external links in new tab */
@@ -159,19 +165,21 @@
             overflow-x: hidden;
         }
         
-        /* Header Navigation */
+        /* Header Navigation - Now scrolls with page */
         header {
-            position: fixed;
+            position: relative;
             top: 0;
             left: 0;
             right: 0;
-            height: var(--header-height);
+            min-height: 120px; /* Increased from fixed height */
             background-color: var(--background-color);
             border-bottom: 1px solid rgba(0,0,0,0.1);
             z-index: 1000;
             display: flex;
             align-items: center;
-            padding: 0 40px;
+            padding: var(--header-padding-vertical) var(--header-padding-horizontal);
+            flex-wrap: wrap;
+            gap: 20px;
         }
         
         /* Site Title in Header */
@@ -183,6 +191,7 @@
             color: var(--text-color);
             margin-right: 60px;
             transition: opacity var(--transition-duration);
+            flex-shrink: 0;
         }
         
         .site-title::before {
@@ -199,6 +208,8 @@
             gap: 40px;
             align-items: flex-start;
             flex: 1;
+            flex-wrap: wrap;
+            padding: 10px 0; /* Extra internal padding */
         }
         
         /* Navigation Groups as Columns */
@@ -206,6 +217,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            min-width: 0; /* Allow shrinking */
         }
         
         .nav-group-title {
@@ -218,6 +230,7 @@
             color: var(--text-color);
             text-decoration: none;
             display: block;
+            white-space: nowrap;
         }
         
         .nav-group-title.clickable {
@@ -237,6 +250,7 @@
             display: block;
             position: relative;
             font-size: 0.9em;
+            white-space: nowrap;
         }
         
         .nav-item:hover {
@@ -271,6 +285,7 @@
             border: none;
             padding: 0;
             margin-left: auto;
+            flex-shrink: 0;
         }
         
         .menu-toggle span {
@@ -311,14 +326,11 @@
         /* Mobile Navigation */
         .mobile-nav {
             display: none;
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            right: 0;
+            position: relative;
             background-color: var(--background-color);
             border-bottom: 1px solid rgba(0,0,0,0.1);
             padding: 20px 40px;
-            max-height: calc(100vh - var(--header-height));
+            max-height: 60vh;
             overflow-y: auto;
             opacity: 0;
             transform: translateY(-20px);
@@ -337,7 +349,7 @@
         /* Main Content */
         main {
             flex: 1;
-            padding: calc(var(--header-height) + 40px) 0 40px;
+            padding: 40px 0;
             width: 100%;
             position: relative;
             display: flex;
@@ -556,6 +568,12 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .single-photo.loaded {
+            opacity: 1;
         }
         
         /* Text Content */
@@ -620,11 +638,13 @@
             :root {
                 --gallery-padding: 20px;
                 --gallery-height: 50vh;
-                --header-height: 60px;
+                --header-padding-vertical: 30px;
+                --header-padding-horizontal: 20px;
             }
             
             header {
-                padding: 0 20px;
+                min-height: auto;
+                padding: var(--header-padding-vertical) var(--header-padding-horizontal);
             }
             
             .site-title {
@@ -645,7 +665,7 @@
             }
             
             main {
-                padding: calc(var(--header-height) + 20px) 0 20px;
+                padding: 20px 0;
             }
             
             .gallery-nav::before {
@@ -735,7 +755,8 @@
                 velocity: 0,
                 timestamp: 0,
                 ticker: null
-            }
+            },
+            preloadedImages: new Set() // Track preloaded images
         };
         
         // Silent fetch that doesn't log errors
@@ -762,6 +783,21 @@
             }
         }
         
+        // Preload an image
+        function preloadImage(src) {
+            if (CONFIG.preloadedImages.has(src)) return Promise.resolve();
+            
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    CONFIG.preloadedImages.add(src);
+                    resolve();
+                };
+                img.onerror = resolve; // Resolve even on error to not block
+                img.src = src;
+            });
+        }
+        
         // Initialize the application
         async function init() {
             try {
@@ -779,6 +815,9 @@
                 // Check URL for project
                 const urlParams = new URLSearchParams(window.location.search);
                 const projectFromUrl = urlParams.get('project') || 'home';
+                
+                // Start preloading first images of default project
+                preloadProjectImages(projectFromUrl);
                 
                 // Load project from URL or default to home
                 loadProject(projectFromUrl);
@@ -808,6 +847,23 @@
                     }, 300);
                 }
             }
+        }
+        
+        // Preload first few images of a project
+        async function preloadProjectImages(projectName) {
+            const imagesToPreload = 3;
+            const promises = [];
+            
+            for (let i = 1; i <= imagesToPreload; i++) {
+                const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+                for (const ext of extensions) {
+                    const url = `${projectName}/img/img${i}.${ext}`;
+                    promises.push(preloadImage(url));
+                }
+            }
+            
+            // Don't wait for all to complete, just start the process
+            Promise.all(promises).catch(() => {}); // Ignore errors
         }
         
         // Navigate to project and update URL
@@ -916,112 +972,117 @@
             desktopNav.innerHTML = '';
             mobileNav.innerHTML = '';
             
+            // Get all group names first
+            const allGroups = Object.keys(CONFIG.groups);
+            
             // Process each group
-            Object.entries(CONFIG.groups).forEach(([groupName, projects]) => {
+            allGroups.forEach((groupName) => {
+                const projects = CONFIG.groups[groupName];
+                
                 // Skip home projects for navigation items
                 const filteredProjects = projects.filter(p => p.folder !== 'home');
                 
-                // Create desktop navigation group
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'nav-group';
-                
-                // Create mobile navigation group
-                const mobileGroupDiv = document.createElement('div');
-                mobileGroupDiv.className = 'nav-group';
-                
-                // Add group title
-                if (groupName !== 'ungrouped') {
-                    const groupTitle = document.createElement('div');
-                    groupTitle.className = 'nav-group-title';
-                    groupTitle.textContent = groupName;
+                // Always create the group, even if empty (except ungrouped without projects)
+                if (groupName !== 'ungrouped' || filteredProjects.length > 0) {
+                    // Create desktop navigation group
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'nav-group';
                     
-                    const mobileGroupTitle = groupTitle.cloneNode(true);
+                    // Create mobile navigation group
+                    const mobileGroupDiv = document.createElement('div');
+                    mobileGroupDiv.className = 'nav-group';
                     
-                    // Check if group has a link
-                    if (CONFIG.groupLinks[groupName]) {
-                        groupTitle.classList.add('clickable');
-                        mobileGroupTitle.classList.add('clickable');
+                    // Add group title for all non-ungrouped groups
+                    if (groupName !== 'ungrouped') {
+                        const groupTitle = document.createElement('div');
+                        groupTitle.className = 'nav-group-title';
+                        groupTitle.textContent = groupName;
                         
-                        const handleGroupClick = (e) => {
+                        const mobileGroupTitle = groupTitle.cloneNode(true);
+                        
+                        // Check if group has a link
+                        if (CONFIG.groupLinks[groupName]) {
+                            groupTitle.classList.add('clickable');
+                            mobileGroupTitle.classList.add('clickable');
+                            
+                            const handleGroupClick = (e) => {
+                                e.preventDefault();
+                                const link = CONFIG.groupLinks[groupName];
+                                if (link.startsWith('http')) {
+                                    const openInNewTab = getComputedStyle(document.documentElement)
+                                        .getPropertyValue('--external-links-new-tab').trim() === 'true';
+                                    if (openInNewTab) {
+                                        window.open(link, '_blank', 'noopener,noreferrer');
+                                    } else {
+                                        window.location.href = link;
+                                    }
+                                } else {
+                                    navigateToProject(link);
+                                }
+                            };
+                            
+                            groupTitle.onclick = handleGroupClick;
+                            mobileGroupTitle.onclick = handleGroupClick;
+                        }
+                        
+                        groupDiv.appendChild(groupTitle);
+                        mobileGroupDiv.appendChild(mobileGroupTitle);
+                    }
+                    
+                    // Add projects
+                    filteredProjects.forEach(project => {
+                        const link = document.createElement('a');
+                        link.className = 'nav-item';
+                        if (project.isExternal) {
+                            link.className += ' external';
+                        }
+                        link.textContent = project.title;
+                        link.setAttribute('role', 'button');
+                        link.setAttribute('tabindex', '0');
+                        
+                        const mobileLink = link.cloneNode(true);
+                        
+                        const handleClick = (e) => {
                             e.preventDefault();
-                            const link = CONFIG.groupLinks[groupName];
-                            if (link.startsWith('http')) {
+                            if (project.isExternal) {
                                 const openInNewTab = getComputedStyle(document.documentElement)
                                     .getPropertyValue('--external-links-new-tab').trim() === 'true';
                                 if (openInNewTab) {
-                                    window.open(link, '_blank', 'noopener,noreferrer');
+                                    window.open(project.link, '_blank', 'noopener,noreferrer');
                                 } else {
-                                    window.location.href = link;
+                                    window.location.href = project.link;
                                 }
                             } else {
-                                navigateToProject(link);
+                                navigateToProject(project.folder);
                             }
                         };
                         
-                        groupTitle.onclick = handleGroupClick;
-                        mobileGroupTitle.onclick = handleGroupClick;
-                    }
-                    
-                    groupDiv.appendChild(groupTitle);
-                    mobileGroupDiv.appendChild(mobileGroupTitle);
-                }
-                
-                // Add projects
-                filteredProjects.forEach(project => {
-                    const link = document.createElement('a');
-                    link.className = 'nav-item';
-                    if (project.isExternal) {
-                        link.className += ' external';
-                    }
-                    link.textContent = project.title;
-                    link.setAttribute('role', 'button');
-                    link.setAttribute('tabindex', '0');
-                    
-                    const mobileLink = link.cloneNode(true);
-                    
-                    const handleClick = (e) => {
-                        e.preventDefault();
-                        if (project.isExternal) {
-                            const openInNewTab = getComputedStyle(document.documentElement)
-                                .getPropertyValue('--external-links-new-tab').trim() === 'true';
-                            if (openInNewTab) {
-                                window.open(project.link, '_blank', 'noopener,noreferrer');
-                            } else {
-                                window.location.href = project.link;
+                        link.onclick = handleClick;
+                        mobileLink.onclick = handleClick;
+                        
+                        link.onkeypress = (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                link.onclick(e);
                             }
-                        } else {
-                            navigateToProject(project.folder);
+                        };
+                        
+                        mobileLink.onkeypress = (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                mobileLink.onclick(e);
+                            }
+                        };
+                        
+                        if (project.folder === CONFIG.currentProject && !project.isExternal) {
+                            link.classList.add('active');
+                            mobileLink.classList.add('active');
                         }
-                    };
+                        
+                        groupDiv.appendChild(link);
+                        mobileGroupDiv.appendChild(mobileLink);
+                    });
                     
-                    link.onclick = handleClick;
-                    mobileLink.onclick = handleClick;
-                    
-                    link.onkeypress = (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            link.onclick(e);
-                        }
-                    };
-                    
-                    mobileLink.onkeypress = (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            mobileLink.onclick(e);
-                        }
-                    };
-                    
-                    if (project.folder === CONFIG.currentProject && !project.isExternal) {
-                        link.classList.add('active');
-                        mobileLink.classList.add('active');
-                    }
-                    
-                    groupDiv.appendChild(link);
-                    mobileGroupDiv.appendChild(mobileLink);
-                });
-                
-                // Add groups even if empty (except ungrouped)
-                if (groupName !== 'ungrouped' || filteredProjects.length > 0) {
                     desktopNav.appendChild(groupDiv);
                     mobileNav.appendChild(mobileGroupDiv);
                 }
@@ -1139,48 +1200,52 @@
             }
             
             // Fallback to checking standard pattern
-            // Start with .jpg as it's the most common, then check other extensions
+            // Use Promise.all for parallel checking
+            const checkPromises = [];
             const extensions = ['jpg', 'jpeg', 'png', 'webp'];
-            let foundAny = false;
-            let consecutiveNotFound = 0;
-            const maxConsecutiveNotFound = 3;
             
-            for (let i = 1; i <= 50 && consecutiveNotFound < maxConsecutiveNotFound; i++) {
-                if (signal.aborted) return photoUrls;
-                
-                let found = false;
+            // Check first 10 images in parallel
+            for (let i = 1; i <= 10; i++) {
                 for (const ext of extensions) {
                     const photoPath = `${projectName}/img/img${i}.${ext}`;
-                    
-                    // Use a more efficient check that doesn't create promises for all extensions
-                    const exists = await checkImageExists(photoPath, signal);
-                    if (exists) {
-                        photoUrls.push(photoPath);
-                        found = true;
-                        foundAny = true;
-                        consecutiveNotFound = 0;
-                        break; // Don't check other extensions for this number
-                    }
-                }
-                
-                if (!found) {
-                    // Only count consecutive not found after we've found at least one image
-                    if (foundAny) {
-                        consecutiveNotFound++;
-                    }
+                    checkPromises.push(
+                        tryLoadImage(photoPath, signal).then(exists => exists ? photoPath : null)
+                    );
                 }
             }
             
-            return photoUrls;
-        }
-        
-        // More efficient image existence check
-        async function checkImageExists(src, signal) {
-            if (signal && signal.aborted) return false;
+            const results = await Promise.all(checkPromises);
+            const foundUrls = results.filter(url => url !== null);
             
-            // For servers that don't support HEAD requests, 
-            // fall back to trying to load the image
-            return tryLoadImage(src, signal);
+            // If we found images, continue checking sequentially
+            if (foundUrls.length > 0) {
+                photoUrls.push(...foundUrls);
+                
+                // Continue checking from 11 onwards
+                let consecutiveNotFound = 0;
+                for (let i = 11; i <= 50 && consecutiveNotFound < 3; i++) {
+                    if (signal.aborted) break;
+                    
+                    let found = false;
+                    for (const ext of extensions) {
+                        const photoPath = `${projectName}/img/img${i}.${ext}`;
+                        if (await tryLoadImage(photoPath, signal)) {
+                            photoUrls.push(photoPath);
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    consecutiveNotFound = found ? 0 : consecutiveNotFound + 1;
+                }
+            }
+            
+            // Sort by image number
+            return photoUrls.sort((a, b) => {
+                const numA = parseInt(a.match(/img(\d+)/)?.[1] || 0);
+                const numB = parseInt(b.match(/img(\d+)/)?.[1] || 0);
+                return numA - numB;
+            });
         }
         
         // Load photos for gallery
@@ -1195,6 +1260,9 @@
         
         // Try to load an image using Image object
         async function tryLoadImage(src, signal) {
+            // Check if already preloaded
+            if (CONFIG.preloadedImages.has(src)) return true;
+            
             return new Promise((resolve) => {
                 if (signal && signal.aborted) {
                     resolve(false);
@@ -1210,6 +1278,7 @@
                 
                 img.onload = () => {
                     cleanup();
+                    CONFIG.preloadedImages.add(src);
                     resolve(true);
                 };
                 
@@ -1236,11 +1305,25 @@
                 // Single photo display
                 const galleryContainer = document.createElement('div');
                 galleryContainer.className = 'single-photo-container';
-                galleryContainer.innerHTML = `
-                    <div class="single-photo-wrapper">
-                        <img src="${photos[0]}" alt="Photo" class="single-photo">
-                    </div>
-                `;
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'single-photo-wrapper';
+                
+                const img = document.createElement('img');
+                img.src = photos[0];
+                img.alt = 'Photo';
+                img.className = 'single-photo';
+                
+                // Add loading state
+                if (!CONFIG.preloadedImages.has(photos[0])) {
+                    img.onload = () => img.classList.add('loaded');
+                } else {
+                    img.classList.add('loaded');
+                }
+                
+                wrapper.appendChild(img);
+                galleryContainer.appendChild(wrapper);
+                
                 if (insertAtEnd) {
                     contentWrapper.appendChild(galleryContainer);
                 } else {
@@ -1259,45 +1342,57 @@
             const gallerySlider = document.createElement('div');
             gallerySlider.className = 'gallery-slider';
             
-            // Create photo items with lazy loading
+            // Create photo items with optimized lazy loading
             photos.forEach((photo, index) => {
                 const photoItem = document.createElement('div');
-                photoItem.className = 'photo-item loading';
+                photoItem.className = 'photo-item';
                 
                 const img = document.createElement('img');
                 img.alt = `Photo ${index + 1}`;
-                img.dataset.src = photo;
                 
-                // Load image
-                const loadImage = () => {
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        img.src = photo;
-                        img.classList.add('loaded');
-                        photoItem.classList.remove('loading');
-                    };
-                    tempImg.onerror = () => {
-                        // Remove loading state even on error
-                        photoItem.classList.remove('loading');
-                        console.warn(`Failed to load image: ${photo}`);
-                    };
-                    tempImg.src = photo;
-                };
-                
-                // Load immediately for first few images, lazy load the rest
-                if (index < 3) {
-                    loadImage();
+                // Check if already preloaded
+                if (CONFIG.preloadedImages.has(photo)) {
+                    img.src = photo;
+                    img.classList.add('loaded');
                 } else {
-                    // Create intersection observer for lazy loading
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                loadImage();
-                                observer.unobserve(entry.target);
-                            }
-                        });
-                    }, { rootMargin: '100px' });
-                    observer.observe(photoItem);
+                    photoItem.classList.add('loading');
+                    
+                    // Load immediately for first 5 images
+                    if (index < 5) {
+                        const tempImg = new Image();
+                        tempImg.onload = () => {
+                            img.src = photo;
+                            img.classList.add('loaded');
+                            photoItem.classList.remove('loading');
+                            CONFIG.preloadedImages.add(photo);
+                        };
+                        tempImg.onerror = () => {
+                            photoItem.classList.remove('loading');
+                        };
+                        tempImg.src = photo;
+                    } else {
+                        // Lazy load the rest
+                        img.dataset.src = photo;
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    const tempImg = new Image();
+                                    tempImg.onload = () => {
+                                        img.src = photo;
+                                        img.classList.add('loaded');
+                                        photoItem.classList.remove('loading');
+                                        CONFIG.preloadedImages.add(photo);
+                                    };
+                                    tempImg.onerror = () => {
+                                        photoItem.classList.remove('loading');
+                                    };
+                                    tempImg.src = photo;
+                                    observer.unobserve(entry.target);
+                                }
+                            });
+                        }, { rootMargin: '200px' });
+                        observer.observe(photoItem);
+                    }
                 }
                 
                 photoItem.appendChild(img);
