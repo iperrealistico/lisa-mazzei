@@ -21,11 +21,6 @@
     <meta property="og:image" content="https://www.lisamazzei.it/home/img/img1.jpg">
     <meta name="twitter:card" content="summary_large_image">
     
-    <!-- Preload critical images -->
-    <link rel="preload" as="image" href="home/img/img1.jpg">
-    <link rel="preload" as="image" href="home/img/img2.jpg">
-    <link rel="preload" as="image" href="home/img/img3.jpg">
-    
     <!-- Favicon - will be added dynamically if exists -->
     <script>
         // Check for favicon and add it if exists
@@ -330,16 +325,16 @@
             background-color: var(--background-color);
             border-bottom: 1px solid rgba(0,0,0,0.1);
             padding: 20px 40px;
-            max-height: 60vh;
-            overflow-y: auto;
+            max-height: 0;
+            overflow: hidden;
             opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
         }
         
         .mobile-nav.active {
             opacity: 1;
-            transform: translateY(0);
+            max-height: 60vh;
+            overflow-y: auto;
         }
         
         .mobile-nav .nav-group {
@@ -448,6 +443,10 @@
             height: 100%;
             position: relative;
             overflow: hidden;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .photo-item img {
@@ -463,15 +462,32 @@
             opacity: 1;
         }
         
-        .photo-item.loading::before {
+        /* Individual photo preloader */
+        .photo-preloader {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .photo-preloader.hidden {
+            opacity: 0;
+        }
+        
+        .photo-preloader::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 24px;
-            height: 24px;
+            inset: 0;
             border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+        }
+        
+        .photo-preloader::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
             border-top-color: rgba(0,0,0,0.3);
             border-radius: 50%;
             animation: loading-spinner 0.8s linear infinite;
@@ -559,6 +575,9 @@
             width: 100%;
             padding-bottom: 66.67%; /* 3:2 aspect ratio */
             background-color: var(--background-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .single-photo {
@@ -638,7 +657,7 @@
             :root {
                 --gallery-padding: 20px;
                 --gallery-height: 50vh;
-                --header-padding-vertical: 30px;
+                --header-padding-vertical: 20px;
                 --header-padding-horizontal: 20px;
             }
             
@@ -662,6 +681,11 @@
             
             .mobile-nav {
                 display: block;
+                padding: 0 20px;
+            }
+            
+            .mobile-nav.active {
+                padding: 20px;
             }
             
             main {
@@ -755,8 +779,7 @@
                 velocity: 0,
                 timestamp: 0,
                 ticker: null
-            },
-            preloadedImages: new Set() // Track preloaded images
+            }
         };
         
         // Silent fetch that doesn't log errors
@@ -783,21 +806,6 @@
             }
         }
         
-        // Preload an image
-        function preloadImage(src) {
-            if (CONFIG.preloadedImages.has(src)) return Promise.resolve();
-            
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    CONFIG.preloadedImages.add(src);
-                    resolve();
-                };
-                img.onerror = resolve; // Resolve even on error to not block
-                img.src = src;
-            });
-        }
-        
         // Initialize the application
         async function init() {
             try {
@@ -815,9 +823,6 @@
                 // Check URL for project
                 const urlParams = new URLSearchParams(window.location.search);
                 const projectFromUrl = urlParams.get('project') || 'home';
-                
-                // Start preloading first images of default project
-                preloadProjectImages(projectFromUrl);
                 
                 // Load project from URL or default to home
                 loadProject(projectFromUrl);
@@ -847,23 +852,6 @@
                     }, 300);
                 }
             }
-        }
-        
-        // Preload first few images of a project
-        async function preloadProjectImages(projectName) {
-            const imagesToPreload = 3;
-            const promises = [];
-            
-            for (let i = 1; i <= imagesToPreload; i++) {
-                const extensions = ['jpg', 'jpeg', 'png', 'webp'];
-                for (const ext of extensions) {
-                    const url = `${projectName}/img/img${i}.${ext}`;
-                    promises.push(preloadImage(url));
-                }
-            }
-            
-            // Don't wait for all to complete, just start the process
-            Promise.all(promises).catch(() => {}); // Ignore errors
         }
         
         // Navigate to project and update URL
@@ -910,22 +898,28 @@
                     
                     // Process project folder
                     const folder = line;
+                    
+                    // Check if line starts with ! to hide from menu
+                    const hideFromMenu = folder.startsWith('!');
+                    const cleanFolder = hideFromMenu ? folder.substring(1) : folder;
+                    
                     try {
                         // Check if it's an external link project
-                        const linkResponse = await silentFetch(`${folder}/link.txt`);
+                        const linkResponse = await silentFetch(`${cleanFolder}/link.txt`);
                         if (linkResponse.ok) {
                             const linkUrl = (await linkResponse.text()).trim();
-                            const titleResponse = await silentFetch(`${folder}/title.txt`);
+                            const titleResponse = await silentFetch(`${cleanFolder}/title.txt`);
                             const title = titleResponse.ok ? 
                                 (await titleResponse.text()).trim().split('\n')[0] : 
-                                folder.charAt(0).toUpperCase() + folder.slice(1);
+                                cleanFolder.charAt(0).toUpperCase() + cleanFolder.slice(1);
                             
                             const project = { 
-                                folder: folder, 
+                                folder: cleanFolder, 
                                 title: title,
                                 isExternal: true,
                                 link: linkUrl,
-                                group: currentGroup
+                                group: currentGroup,
+                                hideFromMenu: hideFromMenu
                             };
                             CONFIG.projects.push(project);
                             if (!CONFIG.groups[currentGroup]) {
@@ -934,16 +928,17 @@
                             CONFIG.groups[currentGroup].push(project);
                         } else {
                             // Regular project
-                            const titleResponse = await silentFetch(`${folder}/title.txt`);
+                            const titleResponse = await silentFetch(`${cleanFolder}/title.txt`);
                             const title = titleResponse.ok ? 
                                 (await titleResponse.text()).trim().split('\n')[0] : 
-                                folder.charAt(0).toUpperCase() + folder.slice(1);
+                                cleanFolder.charAt(0).toUpperCase() + cleanFolder.slice(1);
                             
                             const project = { 
-                                folder: folder, 
+                                folder: cleanFolder, 
                                 title: title,
                                 isExternal: false,
-                                group: currentGroup
+                                group: currentGroup,
+                                hideFromMenu: hideFromMenu
                             };
                             CONFIG.projects.push(project);
                             if (!CONFIG.groups[currentGroup]) {
@@ -952,15 +947,15 @@
                             CONFIG.groups[currentGroup].push(project);
                         }
                     } catch (e) {
-                        console.warn(`Error loading project ${folder}:`, e);
+                        console.warn(`Error loading project ${cleanFolder}:`, e);
                     }
                 }
                 
             } catch (error) {
                 console.error('Error loading projects.txt:', error);
                 // Fallback: try to load just 'home' if projects.txt doesn't exist
-                CONFIG.projects.push({ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped' });
-                CONFIG.groups['ungrouped'] = [{ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped' }];
+                CONFIG.projects.push({ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped', hideFromMenu: false });
+                CONFIG.groups['ungrouped'] = [{ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped', hideFromMenu: false }];
             }
         }
         
@@ -979,11 +974,14 @@
             allGroups.forEach((groupName) => {
                 const projects = CONFIG.groups[groupName];
                 
-                // Skip home projects for navigation items
-                const filteredProjects = projects.filter(p => p.folder !== 'home');
+                // Filter out home projects and hidden projects
+                const filteredProjects = projects.filter(p => p.folder !== 'home' && !p.hideFromMenu);
                 
-                // Always create the group, even if empty (except ungrouped without projects)
-                if (groupName !== 'ungrouped' || filteredProjects.length > 0) {
+                // Check if there are any visible projects in the group
+                const hasVisibleProjects = projects.some(p => !p.hideFromMenu);
+                
+                // Always create the group if it's not ungrouped or if it has any projects (even hidden ones)
+                if (groupName !== 'ungrouped' || hasVisibleProjects) {
                     // Create desktop navigation group
                     const groupDiv = document.createElement('div');
                     groupDiv.className = 'nav-group';
@@ -1029,7 +1027,7 @@
                         mobileGroupDiv.appendChild(mobileGroupTitle);
                     }
                     
-                    // Add projects
+                    // Add visible projects only
                     filteredProjects.forEach(project => {
                         const link = document.createElement('a');
                         link.className = 'nav-item';
@@ -1200,52 +1198,35 @@
             }
             
             // Fallback to checking standard pattern
-            // Use Promise.all for parallel checking
-            const checkPromises = [];
             const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+            let foundAny = false;
+            let consecutiveNotFound = 0;
+            const maxConsecutiveNotFound = 3;
             
-            // Check first 10 images in parallel
-            for (let i = 1; i <= 10; i++) {
+            for (let i = 1; i <= 50 && consecutiveNotFound < maxConsecutiveNotFound; i++) {
+                if (signal.aborted) return photoUrls;
+                
+                let found = false;
                 for (const ext of extensions) {
                     const photoPath = `${projectName}/img/img${i}.${ext}`;
-                    checkPromises.push(
-                        tryLoadImage(photoPath, signal).then(exists => exists ? photoPath : null)
-                    );
-                }
-            }
-            
-            const results = await Promise.all(checkPromises);
-            const foundUrls = results.filter(url => url !== null);
-            
-            // If we found images, continue checking sequentially
-            if (foundUrls.length > 0) {
-                photoUrls.push(...foundUrls);
-                
-                // Continue checking from 11 onwards
-                let consecutiveNotFound = 0;
-                for (let i = 11; i <= 50 && consecutiveNotFound < 3; i++) {
-                    if (signal.aborted) break;
                     
-                    let found = false;
-                    for (const ext of extensions) {
-                        const photoPath = `${projectName}/img/img${i}.${ext}`;
-                        if (await tryLoadImage(photoPath, signal)) {
-                            photoUrls.push(photoPath);
-                            found = true;
-                            break;
-                        }
+                    // Quick check with fetch HEAD
+                    const response = await silentFetch(photoPath, { method: 'HEAD', signal });
+                    if (response.ok) {
+                        photoUrls.push(photoPath);
+                        found = true;
+                        foundAny = true;
+                        consecutiveNotFound = 0;
+                        break;
                     }
-                    
-                    consecutiveNotFound = found ? 0 : consecutiveNotFound + 1;
+                }
+                
+                if (!found && foundAny) {
+                    consecutiveNotFound++;
                 }
             }
             
-            // Sort by image number
-            return photoUrls.sort((a, b) => {
-                const numA = parseInt(a.match(/img(\d+)/)?.[1] || 0);
-                const numB = parseInt(b.match(/img(\d+)/)?.[1] || 0);
-                return numA - numB;
-            });
+            return photoUrls;
         }
         
         // Load photos for gallery
@@ -1254,53 +1235,12 @@
             
             if (photoUrls.length > 0) {
                 CONFIG.photos = photoUrls;
-                createGallery(contentWrapper, photoUrls, insertAtEnd);
+                createGallery(contentWrapper, photoUrls, insertAtEnd, signal);
             }
         }
         
-        // Try to load an image using Image object
-        async function tryLoadImage(src, signal) {
-            // Check if already preloaded
-            if (CONFIG.preloadedImages.has(src)) return true;
-            
-            return new Promise((resolve) => {
-                if (signal && signal.aborted) {
-                    resolve(false);
-                    return;
-                }
-                
-                const img = new Image();
-                
-                const cleanup = () => {
-                    img.onload = null;
-                    img.onerror = null;
-                };
-                
-                img.onload = () => {
-                    cleanup();
-                    CONFIG.preloadedImages.add(src);
-                    resolve(true);
-                };
-                
-                img.onerror = () => {
-                    cleanup();
-                    resolve(false);
-                };
-                
-                // Handle abort
-                if (signal) {
-                    signal.addEventListener('abort', () => {
-                        cleanup();
-                        resolve(false);
-                    });
-                }
-                
-                img.src = src;
-            });
-        }
-        
-        // Create horizontal slider gallery
-        function createGallery(contentWrapper, photos, insertAtEnd) {
+        // Create horizontal slider gallery with progressive loading
+        function createGallery(contentWrapper, photos, insertAtEnd, signal) {
             if (photos.length === 1) {
                 // Single photo display
                 const galleryContainer = document.createElement('div');
@@ -1309,17 +1249,28 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = 'single-photo-wrapper';
                 
+                // Add preloader
+                const preloader = document.createElement('div');
+                preloader.className = 'photo-preloader';
+                wrapper.appendChild(preloader);
+                
                 const img = document.createElement('img');
-                img.src = photos[0];
                 img.alt = 'Photo';
                 img.className = 'single-photo';
                 
-                // Add loading state
-                if (!CONFIG.preloadedImages.has(photos[0])) {
-                    img.onload = () => img.classList.add('loaded');
-                } else {
-                    img.classList.add('loaded');
-                }
+                // Load the single image
+                const tempImg = new Image();
+                tempImg.onload = () => {
+                    if (!signal.aborted) {
+                        img.src = photos[0];
+                        img.classList.add('loaded');
+                        preloader.classList.add('hidden');
+                    }
+                };
+                tempImg.onerror = () => {
+                    preloader.classList.add('hidden');
+                };
+                tempImg.src = photos[0];
                 
                 wrapper.appendChild(img);
                 galleryContainer.appendChild(wrapper);
@@ -1342,61 +1293,25 @@
             const gallerySlider = document.createElement('div');
             gallerySlider.className = 'gallery-slider';
             
-            // Create photo items with optimized lazy loading
-            photos.forEach((photo, index) => {
+            // Create all photo items with preloaders first
+            const photoItems = photos.map((photo, index) => {
                 const photoItem = document.createElement('div');
                 photoItem.className = 'photo-item';
                 
+                // Add preloader
+                const preloader = document.createElement('div');
+                preloader.className = 'photo-preloader';
+                photoItem.appendChild(preloader);
+                
                 const img = document.createElement('img');
                 img.alt = `Photo ${index + 1}`;
-                
-                // Check if already preloaded
-                if (CONFIG.preloadedImages.has(photo)) {
-                    img.src = photo;
-                    img.classList.add('loaded');
-                } else {
-                    photoItem.classList.add('loading');
-                    
-                    // Load immediately for first 5 images
-                    if (index < 5) {
-                        const tempImg = new Image();
-                        tempImg.onload = () => {
-                            img.src = photo;
-                            img.classList.add('loaded');
-                            photoItem.classList.remove('loading');
-                            CONFIG.preloadedImages.add(photo);
-                        };
-                        tempImg.onerror = () => {
-                            photoItem.classList.remove('loading');
-                        };
-                        tempImg.src = photo;
-                    } else {
-                        // Lazy load the rest
-                        img.dataset.src = photo;
-                        const observer = new IntersectionObserver((entries) => {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    const tempImg = new Image();
-                                    tempImg.onload = () => {
-                                        img.src = photo;
-                                        img.classList.add('loaded');
-                                        photoItem.classList.remove('loading');
-                                        CONFIG.preloadedImages.add(photo);
-                                    };
-                                    tempImg.onerror = () => {
-                                        photoItem.classList.remove('loading');
-                                    };
-                                    tempImg.src = photo;
-                                    observer.unobserve(entry.target);
-                                }
-                            });
-                        }, { rootMargin: '200px' });
-                        observer.observe(photoItem);
-                    }
-                }
+                img.dataset.src = photo;
+                img.dataset.index = index;
                 
                 photoItem.appendChild(img);
                 gallerySlider.appendChild(photoItem);
+                
+                return { photoItem, img, preloader, photo, index };
             });
             
             galleryContainer.appendChild(gallerySlider);
@@ -1429,6 +1344,46 @@
             
             // Update navigation visibility
             setTimeout(() => updateGalleryNavigation(gallerySection, gallerySlider), 100);
+            
+            // Load images sequentially
+            loadImagesSequentially(photoItems, signal);
+        }
+        
+        // Load images one by one in sequence
+        async function loadImagesSequentially(photoItems, signal) {
+            for (const item of photoItems) {
+                if (signal && signal.aborted) break;
+                
+                const { img, preloader, photo } = item;
+                
+                // Create new image to test loading
+                const tempImg = new Image();
+                
+                await new Promise((resolve) => {
+                    tempImg.onload = () => {
+                        if (!signal || !signal.aborted) {
+                            img.src = photo;
+                            img.classList.add('loaded');
+                            preloader.classList.add('hidden');
+                        }
+                        resolve();
+                    };
+                    
+                    tempImg.onerror = () => {
+                        preloader.classList.add('hidden');
+                        console.warn(`Failed to load image: ${photo}`);
+                        resolve();
+                    };
+                    
+                    // Start loading
+                    tempImg.src = photo;
+                });
+                
+                // Small delay between loads to prevent overwhelming the browser
+                if (!signal || !signal.aborted) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+            }
         }
         
         // Setup drag/swipe functionality
