@@ -55,7 +55,7 @@
             --line-height: 1.6;
             --footer-text: '© 2025 Lisa Mazzei. All rights reserved.'; /* Edit footer text */
             --site-title: 'Lisa Mazzei'; /* Edit site title that appears in navigation */
-            --sidebar-width: 250px;
+            --header-height: 80px;
             --transition-duration: 0.5s;
             --text-position: 'below'; /* 'above' or 'below' - position of text relative to images */
             --external-links-new-tab: true; /* true or false - open external links in new tab */
@@ -64,6 +64,7 @@
             --gallery-padding: 40px; /* Padding around gallery */
             --gallery-gap: 15px; /* Gap between photos */
             --gallery-height: 60vh; /* Height of photos in slider */
+            --gallery-margin-bottom: 60px; /* Space between gallery and text */
         }
         
         /* Page Preloader - Shows immediately */
@@ -154,37 +155,33 @@
             line-height: var(--line-height);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             overflow-x: hidden;
         }
         
-        /* Sidebar Navigation */
-        .sidebar {
+        /* Header Navigation */
+        header {
             position: fixed;
             top: 0;
             left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
+            right: 0;
+            height: var(--header-height);
             background-color: var(--background-color);
-            border-right: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
             z-index: 1000;
-            overflow-y: auto;
-            padding: 40px 30px;
-            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
         }
         
-        .sidebar.hidden {
-            transform: translateX(-100%);
-        }
-        
-        /* Site Title in Sidebar */
+        /* Site Title in Header */
         .site-title {
             font-size: 1.5em;
             font-weight: bold;
-            margin-bottom: 40px;
             cursor: pointer;
             text-decoration: none;
             color: var(--text-color);
-            display: block;
+            margin-right: 60px;
             transition: opacity var(--transition-duration);
         }
         
@@ -196,23 +193,40 @@
             opacity: 0.7;
         }
         
-        /* Navigation Groups */
+        /* Navigation Container */
+        .nav-wrapper {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex: 1;
+        }
+        
+        /* Navigation Groups as Columns */
         .nav-group {
-            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
         .nav-group-title {
             font-weight: bold;
-            margin-bottom: 10px;
             text-transform: uppercase;
             font-size: 0.9em;
             letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            cursor: default;
+            color: var(--text-color);
+            text-decoration: none;
+            display: block;
         }
         
-        .nav-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .nav-group-title.clickable {
+            cursor: pointer;
+            transition: opacity var(--transition-duration);
+        }
+        
+        .nav-group-title.clickable:hover {
+            opacity: 0.6;
         }
         
         .nav-item {
@@ -220,9 +234,9 @@
             text-decoration: none;
             color: var(--text-color);
             transition: opacity var(--transition-duration);
-            padding: 5px 0;
             display: block;
             position: relative;
+            font-size: 0.9em;
         }
         
         .nav-item:hover {
@@ -249,16 +263,14 @@
         /* Mobile Menu Toggle */
         .menu-toggle {
             display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
+            position: relative;
             width: 30px;
             height: 24px;
             cursor: pointer;
             background: none;
             border: none;
             padding: 0;
-            z-index: 1001;
+            margin-left: auto;
         }
         
         .menu-toggle span {
@@ -296,37 +308,36 @@
             bottom: 11px;
         }
         
-        /* Mobile Overlay */
-        .mobile-overlay {
+        /* Mobile Navigation */
+        .mobile-nav {
             display: none;
             position: fixed;
-            top: 0;
+            top: var(--header-height);
             left: 0;
             right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.3);
-            z-index: 999;
+            background-color: var(--background-color);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 20px 40px;
+            max-height: calc(100vh - var(--header-height));
+            overflow-y: auto;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
         
-        .mobile-overlay.active {
+        .mobile-nav.active {
             opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .mobile-nav .nav-group {
+            margin-bottom: 20px;
         }
         
         /* Main Content */
-        .main-wrapper {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            width: calc(100% - var(--sidebar-width));
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        
         main {
             flex: 1;
-            padding: 40px 0;
+            padding: calc(var(--header-height) + 40px) 0 40px;
             width: 100%;
             position: relative;
             display: flex;
@@ -386,6 +397,11 @@
             }
         }
         
+        /* Gallery Section */
+        .gallery-section {
+            margin-bottom: var(--gallery-margin-bottom);
+        }
+        
         /* Horizontal Gallery Slider */
         .gallery-container {
             position: relative;
@@ -420,7 +436,6 @@
             height: 100%;
             position: relative;
             overflow: hidden;
-            cursor: pointer;
         }
         
         .photo-item img {
@@ -450,47 +465,72 @@
             animation: loading-spinner 0.8s linear infinite;
         }
         
-        /* Navigation Arrows */
+        /* Gallery Navigation Arrows */
+        .gallery-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--gallery-padding);
+            margin-top: 30px;
+            height: 30px;
+        }
+        
         .gallery-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
             background: none;
             border: none;
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.3s ease;
-            z-index: 10;
             padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            height: 30px;
         }
         
         .gallery-nav.visible {
-            opacity: 0.5;
-        }
-        
-        .gallery-nav:hover {
             opacity: 1;
         }
         
+        .gallery-nav:hover {
+            opacity: 0.6;
+        }
+        
         .gallery-nav.prev {
-            left: 10px;
+            justify-content: flex-start;
         }
         
         .gallery-nav.next {
-            right: 10px;
+            justify-content: flex-end;
         }
         
-        .gallery-nav svg {
-            width: 24px;
-            height: 24px;
-            stroke: var(--text-color);
-            stroke-width: 2;
-            fill: none;
+        /* Minimal arrow design */
+        .gallery-nav::before {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 1px;
+            background-color: var(--text-color);
+            position: relative;
+        }
+        
+        .gallery-nav::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-top: 1px solid var(--text-color);
+            border-right: 1px solid var(--text-color);
+        }
+        
+        .gallery-nav.prev::after {
+            left: var(--gallery-padding);
+            transform: rotate(-135deg);
+        }
+        
+        .gallery-nav.next::after {
+            right: var(--gallery-padding);
+            transform: rotate(45deg);
         }
         
         /* Single Photo Display */
@@ -498,8 +538,8 @@
             position: relative;
             width: 100%;
             max-width: 900px;
-            margin: 0 auto;
-            padding: var(--gallery-padding);
+            margin: 0 auto var(--gallery-margin-bottom);
+            padding: 0 var(--gallery-padding);
         }
         
         .single-photo-wrapper {
@@ -518,117 +558,11 @@
             object-fit: contain;
         }
         
-        /* Lightbox */
-        .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .lightbox.active {
-            display: flex;
-            opacity: 1;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .lightbox-content {
-            position: relative;
-            width: 90%;
-            height: 90%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .lightbox-image {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        
-        /* Lightbox Controls */
-        .lightbox-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-        
-        .lightbox-close:hover {
-            opacity: 1;
-        }
-        
-        .lightbox-close::before,
-        .lightbox-close::after {
-            content: '';
-            position: absolute;
-            width: 30px;
-            height: 2px;
-            background-color: white;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(45deg);
-        }
-        
-        .lightbox-close::after {
-            transform: translate(-50%, -50%) rotate(-45deg);
-        }
-        
-        /* Lightbox Navigation */
-        .lightbox-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity var(--transition-duration);
-            background: none;
-            border: none;
-            padding: 0;
-        }
-        
-        .lightbox-nav:hover {
-            opacity: 1;
-        }
-        
-        .lightbox-nav.prev {
-            left: 20px;
-        }
-        
-        .lightbox-nav.next {
-            right: 20px;
-        }
-        
-        .lightbox-nav svg {
-            width: 100%;
-            height: 100%;
-            stroke: white;
-            stroke-width: 2;
-            fill: none;
-        }
-        
         /* Text Content */
         .text-content {
             max-width: 900px;
             margin: 0 auto;
-            padding: 0 var(--gallery-padding) 40px;
+            padding: 0 var(--gallery-padding);
         }
         
         .text-content h1, .text-content h2, .text-content h3 {
@@ -686,45 +620,36 @@
             :root {
                 --gallery-padding: 20px;
                 --gallery-height: 50vh;
+                --header-height: 60px;
             }
             
-            .sidebar {
-                transform: translateX(-100%);
+            header {
+                padding: 0 20px;
             }
             
-            .sidebar.active {
-                transform: translateX(0);
+            .site-title {
+                margin-right: auto;
+                font-size: 1.2em;
+            }
+            
+            .nav-wrapper {
+                display: none;
             }
             
             .menu-toggle {
                 display: block;
             }
             
-            .mobile-overlay {
+            .mobile-nav {
                 display: block;
-                pointer-events: none;
-            }
-            
-            .mobile-overlay.active {
-                pointer-events: auto;
-            }
-            
-            .main-wrapper {
-                margin-left: 0;
-                width: 100%;
             }
             
             main {
-                padding: 60px 0 20px;
+                padding: calc(var(--header-height) + 20px) 0 20px;
             }
             
-            .lightbox-content {
-                width: 100%;
-                height: 100%;
-            }
-            
-            .lightbox-nav {
-                opacity: 1;
+            .gallery-nav::before {
+                width: 40px;
             }
         }
         
@@ -768,53 +693,39 @@
         </div>
     </div>
     
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <!-- Header Navigation -->
+    <header role="banner">
         <a href="#" class="site-title" id="site-title" aria-label="Home"></a>
-        <div id="navigation-groups"></div>
+        <nav class="nav-wrapper" id="desktop-nav" role="navigation" aria-label="Main navigation">
+            <!-- Navigation groups will be inserted here -->
+        </nav>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Mobile navigation">
+        <!-- Mobile navigation will be inserted here -->
     </nav>
     
-    <!-- Mobile Menu Toggle -->
-    <button class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <!-- Main Content -->
+    <main role="main" id="main-content">
+        <!-- Content will be loaded here -->
+    </main>
     
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobile-overlay"></div>
-    
-    <!-- Main Content Wrapper -->
-    <div class="main-wrapper">
-        <main role="main" id="main-content">
-            <!-- Content will be loaded here -->
-        </main>
-        
-        <footer role="contentinfo"></footer>
-    </div>
-    
-    <!-- Lightbox -->
-    <div class="lightbox" id="lightbox">
-        <div class="lightbox-content">
-            <img class="lightbox-image" id="lightbox-image" alt="">
-            <button class="lightbox-close" id="lightbox-close" aria-label="Close lightbox"></button>
-            <button class="lightbox-nav prev" id="lightbox-prev" aria-label="Previous photo">
-                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            </button>
-            <button class="lightbox-nav next" id="lightbox-next" aria-label="Next photo">
-                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
-        </div>
-    </div>
+    <footer role="contentinfo"></footer>
     
     <script>
         // Configuration for folder structure
         const CONFIG = {
             projects: [], // Will be populated dynamically
             groups: {}, // Will store project groups
+            groupLinks: {}, // Will store links for groups
             currentProject: 'home',
             photos: [],
-            lightboxIndex: 0,
             mobileMenuOpen: false,
             loadingAbortController: null, // For cancelling ongoing loads
             galleryState: {
@@ -857,7 +768,6 @@
                 await loadProjects();
                 setupNavigation();
                 setupMobileMenu();
-                setupLightbox();
                 setupKeyboardNavigation();
                 
                 // Setup site title click
@@ -928,9 +838,16 @@
                     
                     // Check if it's a group header
                     if (line.startsWith('[') && line.endsWith(']')) {
-                        currentGroup = line.slice(1, -1);
+                        // Check if group has a link/page
+                        const groupParts = line.slice(1, -1).split('|');
+                        currentGroup = groupParts[0].trim();
+                        
                         if (!CONFIG.groups[currentGroup]) {
                             CONFIG.groups[currentGroup] = [];
+                        }
+                        
+                        if (groupParts[1]) {
+                            CONFIG.groupLinks[currentGroup] = groupParts[1].trim();
                         }
                         continue;
                     }
@@ -993,29 +910,63 @@
         
         // Setup navigation menu
         function setupNavigation() {
-            const navGroups = document.getElementById('navigation-groups');
-            navGroups.innerHTML = '';
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileNav = document.getElementById('mobile-nav');
+            
+            desktopNav.innerHTML = '';
+            mobileNav.innerHTML = '';
             
             // Process each group
             Object.entries(CONFIG.groups).forEach(([groupName, projects]) => {
-                // Skip home projects and empty groups
+                // Skip home projects for navigation items
                 const filteredProjects = projects.filter(p => p.folder !== 'home');
-                if (filteredProjects.length === 0) return;
                 
+                // Create desktop navigation group
                 const groupDiv = document.createElement('div');
                 groupDiv.className = 'nav-group';
                 
-                // Add group title if not ungrouped
+                // Create mobile navigation group
+                const mobileGroupDiv = document.createElement('div');
+                mobileGroupDiv.className = 'nav-group';
+                
+                // Add group title
                 if (groupName !== 'ungrouped') {
                     const groupTitle = document.createElement('div');
                     groupTitle.className = 'nav-group-title';
                     groupTitle.textContent = groupName;
+                    
+                    const mobileGroupTitle = groupTitle.cloneNode(true);
+                    
+                    // Check if group has a link
+                    if (CONFIG.groupLinks[groupName]) {
+                        groupTitle.classList.add('clickable');
+                        mobileGroupTitle.classList.add('clickable');
+                        
+                        const handleGroupClick = (e) => {
+                            e.preventDefault();
+                            const link = CONFIG.groupLinks[groupName];
+                            if (link.startsWith('http')) {
+                                const openInNewTab = getComputedStyle(document.documentElement)
+                                    .getPropertyValue('--external-links-new-tab').trim() === 'true';
+                                if (openInNewTab) {
+                                    window.open(link, '_blank', 'noopener,noreferrer');
+                                } else {
+                                    window.location.href = link;
+                                }
+                            } else {
+                                navigateToProject(link);
+                            }
+                        };
+                        
+                        groupTitle.onclick = handleGroupClick;
+                        mobileGroupTitle.onclick = handleGroupClick;
+                    }
+                    
                     groupDiv.appendChild(groupTitle);
+                    mobileGroupDiv.appendChild(mobileGroupTitle);
                 }
                 
-                const navContainer = document.createElement('div');
-                navContainer.className = 'nav-container';
-                
+                // Add projects
                 filteredProjects.forEach(project => {
                     const link = document.createElement('a');
                     link.className = 'nav-item';
@@ -1026,9 +977,11 @@
                     link.setAttribute('role', 'button');
                     link.setAttribute('tabindex', '0');
                     
-                    if (project.isExternal) {
-                        link.onclick = (e) => {
-                            e.preventDefault();
+                    const mobileLink = link.cloneNode(true);
+                    
+                    const handleClick = (e) => {
+                        e.preventDefault();
+                        if (project.isExternal) {
                             const openInNewTab = getComputedStyle(document.documentElement)
                                 .getPropertyValue('--external-links-new-tab').trim() === 'true';
                             if (openInNewTab) {
@@ -1036,12 +989,13 @@
                             } else {
                                 window.location.href = project.link;
                             }
-                        };
-                    } else {
-                        link.onclick = () => {
+                        } else {
                             navigateToProject(project.folder);
-                        };
-                    }
+                        }
+                    };
+                    
+                    link.onclick = handleClick;
+                    mobileLink.onclick = handleClick;
                     
                     link.onkeypress = (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
@@ -1050,43 +1004,50 @@
                         }
                     };
                     
+                    mobileLink.onkeypress = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            mobileLink.onclick(e);
+                        }
+                    };
+                    
                     if (project.folder === CONFIG.currentProject && !project.isExternal) {
                         link.classList.add('active');
+                        mobileLink.classList.add('active');
                     }
                     
-                    navContainer.appendChild(link);
+                    groupDiv.appendChild(link);
+                    mobileGroupDiv.appendChild(mobileLink);
                 });
                 
-                groupDiv.appendChild(navContainer);
-                navGroups.appendChild(groupDiv);
+                // Add groups even if empty (except ungrouped)
+                if (groupName !== 'ungrouped' || filteredProjects.length > 0) {
+                    desktopNav.appendChild(groupDiv);
+                    mobileNav.appendChild(mobileGroupDiv);
+                }
             });
         }
         
         // Setup mobile menu
         function setupMobileMenu() {
             const menuToggle = document.getElementById('menu-toggle');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobile-overlay');
+            const mobileNav = document.getElementById('mobile-nav');
             
             menuToggle.addEventListener('click', () => {
                 CONFIG.mobileMenuOpen = !CONFIG.mobileMenuOpen;
                 menuToggle.classList.toggle('active');
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
+                mobileNav.classList.toggle('active');
                 menuToggle.setAttribute('aria-expanded', CONFIG.mobileMenuOpen);
                 
                 // Prevent scrolling when menu is open
                 document.body.style.overflow = CONFIG.mobileMenuOpen ? 'hidden' : '';
             });
-            
-            overlay.addEventListener('click', closeMobileMenu);
         }
         
         function closeMobileMenu() {
             CONFIG.mobileMenuOpen = false;
             document.getElementById('menu-toggle').classList.remove('active');
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('mobile-overlay').classList.remove('active');
+            document.getElementById('mobile-nav').classList.remove('active');
             document.getElementById('menu-toggle').setAttribute('aria-expanded', 'false');
             document.body.style.overflow = '';
         }
@@ -1217,16 +1178,9 @@
         async function checkImageExists(src, signal) {
             if (signal && signal.aborted) return false;
             
-            try {
-                const response = await fetch(src, { 
-                    method: 'HEAD',
-                    signal: signal 
-                });
-                return response.ok;
-            } catch {
-                // If HEAD fails, fall back to loading the image
-                return tryLoadImage(src, signal);
-            }
+            // For servers that don't support HEAD requests, 
+            // fall back to trying to load the image
+            return tryLoadImage(src, signal);
         }
         
         // Load photos for gallery
@@ -1296,6 +1250,9 @@
             }
             
             // Multi-photo horizontal slider
+            const gallerySection = document.createElement('div');
+            gallerySection.className = 'gallery-section';
+            
             const galleryContainer = document.createElement('div');
             galleryContainer.className = 'gallery-container';
             
@@ -1310,7 +1267,6 @@
                 const img = document.createElement('img');
                 img.alt = `Photo ${index + 1}`;
                 img.dataset.src = photo;
-                img.addEventListener('click', () => openLightbox(index));
                 
                 // Load image
                 const loadImage = () => {
@@ -1349,32 +1305,35 @@
             });
             
             galleryContainer.appendChild(gallerySlider);
+            gallerySection.appendChild(galleryContainer);
             
-            // Add navigation arrows
+            // Add navigation arrows container
+            const navContainer = document.createElement('div');
+            navContainer.className = 'gallery-nav-container';
+            
             const prevBtn = document.createElement('button');
             prevBtn.className = 'gallery-nav prev';
-            prevBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>';
             prevBtn.addEventListener('click', () => scrollGallery(-1));
             
             const nextBtn = document.createElement('button');
             nextBtn.className = 'gallery-nav next';
-            nextBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>';
             nextBtn.addEventListener('click', () => scrollGallery(1));
             
-            galleryContainer.appendChild(prevBtn);
-            galleryContainer.appendChild(nextBtn);
+            navContainer.appendChild(prevBtn);
+            navContainer.appendChild(nextBtn);
+            gallerySection.appendChild(navContainer);
             
             if (insertAtEnd) {
-                contentWrapper.appendChild(galleryContainer);
+                contentWrapper.appendChild(gallerySection);
             } else {
-                contentWrapper.insertBefore(galleryContainer, contentWrapper.firstChild);
+                contentWrapper.insertBefore(gallerySection, contentWrapper.firstChild);
             }
             
             // Setup drag/swipe functionality
             setupGalleryDrag(galleryContainer, gallerySlider);
             
             // Update navigation visibility
-            setTimeout(() => updateGalleryNavigation(galleryContainer, gallerySlider), 100);
+            setTimeout(() => updateGalleryNavigation(gallerySection, gallerySlider), 100);
         }
         
         // Setup drag/swipe functionality
@@ -1425,7 +1384,7 @@
                 
                 const walk = (x - startX) * 1.5;
                 setScrollLeft(slider, scrollLeft - walk);
-                updateGalleryNavigation(container, slider);
+                updateGalleryNavigation(container.closest('.gallery-section'), slider);
             };
             
             const handleEnd = () => {
@@ -1440,7 +1399,7 @@
                     applyMomentum(slider, velocity * 1000);
                 }
                 
-                updateGalleryNavigation(container, slider);
+                updateGalleryNavigation(container.closest('.gallery-section'), slider);
             };
             
             // Mouse events
@@ -1498,106 +1457,32 @@
         
         // Scroll gallery by direction
         function scrollGallery(direction) {
-            const container = document.querySelector('.gallery-container');
-            const slider = document.querySelector('.gallery-slider');
-            if (!container || !slider) return;
+            const gallerySection = document.querySelector('.gallery-section');
+            const slider = gallerySection.querySelector('.gallery-slider');
+            if (!gallerySection || !slider) return;
             
-            const containerWidth = container.offsetWidth;
+            const containerWidth = gallerySection.querySelector('.gallery-container').offsetWidth;
             const currentScroll = getScrollLeft(slider);
             const scrollAmount = containerWidth * 0.8 * direction;
             
             slider.classList.remove('dragging');
             setScrollLeft(slider, currentScroll + scrollAmount);
             
-            setTimeout(() => updateGalleryNavigation(container, slider), 300);
+            setTimeout(() => updateGalleryNavigation(gallerySection, slider), 300);
         }
         
         // Update gallery navigation visibility
-        function updateGalleryNavigation(container, slider) {
-            const prevBtn = container.querySelector('.gallery-nav.prev');
-            const nextBtn = container.querySelector('.gallery-nav.next');
+        function updateGalleryNavigation(gallerySection, slider) {
+            const prevBtn = gallerySection.querySelector('.gallery-nav.prev');
+            const nextBtn = gallerySection.querySelector('.gallery-nav.next');
             if (!prevBtn || !nextBtn) return;
             
+            const container = gallerySection.querySelector('.gallery-container');
             const scrollLeft = getScrollLeft(slider);
             const maxScroll = slider.scrollWidth - container.offsetWidth;
             
             prevBtn.classList.toggle('visible', scrollLeft > 10);
             nextBtn.classList.toggle('visible', scrollLeft < maxScroll - 10);
-        }
-        
-        // Lightbox functionality
-        function setupLightbox() {
-            const lightbox = document.getElementById('lightbox');
-            const lightboxClose = document.getElementById('lightbox-close');
-            const lightboxPrev = document.getElementById('lightbox-prev');
-            const lightboxNext = document.getElementById('lightbox-next');
-            
-            lightboxClose.addEventListener('click', closeLightbox);
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox) {
-                    closeLightbox();
-                }
-            });
-            
-            lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
-            lightboxNext.addEventListener('click', () => navigateLightbox(1));
-            
-            // Add swipe support for lightbox
-            let touchStartX = 0;
-            lightbox.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-            });
-            
-            lightbox.addEventListener('touchend', (e) => {
-                const touchEndX = e.changedTouches[0].clientX;
-                const diff = touchStartX - touchEndX;
-                
-                if (Math.abs(diff) > 50) {
-                    if (diff > 0) {
-                        navigateLightbox(1); // Next
-                    } else {
-                        navigateLightbox(-1); // Previous
-                    }
-                }
-            });
-        }
-        
-        function openLightbox(index) {
-            CONFIG.lightboxIndex = index;
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImage = document.getElementById('lightbox-image');
-            
-            lightboxImage.src = CONFIG.photos[index];
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            // Update navigation visibility
-            updateLightboxNavigation();
-        }
-        
-        function closeLightbox() {
-            const lightbox = document.getElementById('lightbox');
-            lightbox.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        
-        function navigateLightbox(direction) {
-            CONFIG.lightboxIndex = (CONFIG.lightboxIndex + direction + CONFIG.photos.length) % CONFIG.photos.length;
-            document.getElementById('lightbox-image').src = CONFIG.photos[CONFIG.lightboxIndex];
-            updateLightboxNavigation();
-        }
-        
-        function updateLightboxNavigation() {
-            const prevBtn = document.getElementById('lightbox-prev');
-            const nextBtn = document.getElementById('lightbox-next');
-            
-            if (CONFIG.photos.length <= 1) {
-                prevBtn.style.display = 'none';
-                nextBtn.style.display = 'none';
-            } else {
-                prevBtn.style.display = 'block';
-                nextBtn.style.display = 'block';
-            }
         }
         
         // Enhanced Markdown parser
@@ -1741,23 +1626,11 @@
         // Keyboard navigation
         function setupKeyboardNavigation() {
             document.addEventListener('keydown', (e) => {
-                const lightbox = document.getElementById('lightbox');
-                
-                if (lightbox.classList.contains('active')) {
-                    if (e.key === 'Escape') {
-                        closeLightbox();
-                    } else if (e.key === 'ArrowLeft') {
-                        navigateLightbox(-1);
-                    } else if (e.key === 'ArrowRight') {
-                        navigateLightbox(1);
-                    }
-                } else {
-                    // Gallery navigation with arrow keys
-                    if (e.key === 'ArrowLeft') {
-                        scrollGallery(-1);
-                    } else if (e.key === 'ArrowRight') {
-                        scrollGallery(1);
-                    }
+                // Gallery navigation with arrow keys
+                if (e.key === 'ArrowLeft') {
+                    scrollGallery(-1);
+                } else if (e.key === 'ArrowRight') {
+                    scrollGallery(1);
                 }
             });
         }
@@ -1777,10 +1650,10 @@
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                const container = document.querySelector('.gallery-container');
+                const gallerySection = document.querySelector('.gallery-section');
                 const slider = document.querySelector('.gallery-slider');
-                if (container && slider) {
-                    updateGalleryNavigation(container, slider);
+                if (gallerySection && slider) {
+                    updateGalleryNavigation(gallerySection, slider);
                 }
             }, 100);
         });
