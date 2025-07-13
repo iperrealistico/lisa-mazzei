@@ -10,7 +10,8 @@ nuovestrade
 apocalissitascabili
 pdu
 
-[More]
-film
-shop
-about
+[Films|https://lyzardfilm.com]
+
+[Shop|https://lyzardfilm.com]
+
+[About/Contact|https://lyzardfilm.com]
