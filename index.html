@@ -43,12 +43,9 @@
             --external-links-new-tab: true; /* true or false - open external links in new tab */
             
             /* Gallery Configuration */
-            --gallery-photos-per-row: 3; /* Number of photos per row on desktop */
-            --gallery-photos-per-row-tablet: 2; /* Number of photos per row on tablet */
-            --gallery-photos-per-row-mobile: 1; /* Number of photos per row on mobile */
             --gallery-padding: 40px; /* Padding around gallery */
             --gallery-gap: 15px; /* Gap between photos */
-            --gallery-height: 400px; /* Fixed height for all photos */
+            --gallery-height: 60vh; /* Height of photos in slider */
         }
         
         /* Page Preloader - Shows immediately */
@@ -311,7 +308,7 @@
         
         main {
             flex: 1;
-            padding: 40px;
+            padding: 40px 0;
             width: 100%;
             position: relative;
             display: flex;
@@ -320,11 +317,9 @@
         
         /* Content Wrapper for flexible ordering */
         .content-wrapper {
-            max-width: 1400px;
-            margin: 0 auto;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            width: 100%;
         }
         
         .content-wrapper.text-above {
@@ -373,21 +368,114 @@
             }
         }
         
-        /* Gallery - Horizontal Grid */
+        /* Horizontal Gallery Slider */
         .gallery-container {
             position: relative;
             width: 100%;
-            padding: var(--gallery-padding);
+            height: var(--gallery-height);
+            overflow: hidden;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
         }
         
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(var(--gallery-photos-per-row), 1fr);
+        .gallery-container.grabbing {
+            cursor: grabbing;
+        }
+        
+        .gallery-slider {
+            display: flex;
+            height: 100%;
+            transition: transform 0.3s ease-out;
+            will-change: transform;
+            padding: 0 var(--gallery-padding);
             gap: var(--gallery-gap);
-            width: 100%;
         }
         
-        /* Single Photo Display (when only one photo) */
+        .gallery-slider.dragging {
+            transition: none;
+        }
+        
+        /* Photo Items */
+        .photo-item {
+            flex-shrink: 0;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .photo-item img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .photo-item img.loaded {
+            opacity: 1;
+        }
+        
+        .photo-item.loading::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-top-color: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            animation: loading-spinner 0.8s linear infinite;
+        }
+        
+        /* Navigation Arrows */
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gallery-nav.visible {
+            opacity: 0.5;
+        }
+        
+        .gallery-nav:hover {
+            opacity: 1;
+        }
+        
+        .gallery-nav.prev {
+            left: 10px;
+        }
+        
+        .gallery-nav.next {
+            right: 10px;
+        }
+        
+        .gallery-nav svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-color);
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        /* Single Photo Display */
         .single-photo-container {
             position: relative;
             width: 100%;
@@ -410,26 +498,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-        }
-        
-        /* Gallery Photos */
-        .photo-item {
-            position: relative;
-            height: var(--gallery-height);
-            overflow: hidden;
-            cursor: pointer;
-            transition: opacity var(--transition-duration);
-        }
-        
-        .photo-item:hover {
-            opacity: 0.8;
-        }
-        
-        .photo-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
         }
         
         /* Lightbox */
@@ -542,7 +610,7 @@
         .text-content {
             max-width: 900px;
             margin: 0 auto;
-            padding: 0 var(--gallery-padding);
+            padding: 0 var(--gallery-padding) 40px;
         }
         
         .text-content h1, .text-content h2, .text-content h3 {
@@ -596,16 +664,10 @@
         }
         
         /* Responsive */
-        @media (max-width: 1024px) {
-            .gallery-grid {
-                grid-template-columns: repeat(var(--gallery-photos-per-row-tablet), 1fr);
-            }
-        }
-        
         @media (max-width: 768px) {
             :root {
                 --gallery-padding: 20px;
-                --gallery-height: 300px;
+                --gallery-height: 50vh;
             }
             
             .sidebar {
@@ -635,11 +697,7 @@
             }
             
             main {
-                padding: 60px 20px 20px;
-            }
-            
-            .gallery-grid {
-                grid-template-columns: repeat(var(--gallery-photos-per-row-mobile), 1fr);
+                padding: 60px 0 20px;
             }
             
             .lightbox-content {
@@ -740,7 +798,15 @@
             photos: [],
             lightboxIndex: 0,
             mobileMenuOpen: false,
-            loadingAbortController: null // For cancelling ongoing loads
+            loadingAbortController: null, // For cancelling ongoing loads
+            galleryState: {
+                isDragging: false,
+                startX: 0,
+                scrollLeft: 0,
+                velocity: 0,
+                timestamp: 0,
+                ticker: null
+            }
         };
         
         // Silent fetch that doesn't log errors
@@ -1060,11 +1126,11 @@
             }
         }
         
-        // Load photos for gallery
-        async function loadPhotos(projectName, contentWrapper, insertAtEnd, signal) {
-            const photos = [];
+        // Optimized photo discovery
+        async function discoverPhotos(projectName, signal) {
+            const photoUrls = [];
             
-            // First try to load photos.txt for custom names
+            // First try photos.txt
             const photosResponse = await silentFetch(`${projectName}/photos.txt`);
             if (photosResponse.ok) {
                 const photosText = await photosResponse.text();
@@ -1073,44 +1139,61 @@
                     .filter(line => line.length > 0 && !line.startsWith('#'));
                 
                 for (const photoFile of photoFiles) {
-                    if (signal.aborted) return;
-                    const photoPath = `${projectName}/${photoFile}`;
-                    const exists = await tryLoadImage(photoPath, signal);
-                    if (exists) {
-                        photos.push(photoPath);
-                    }
+                    if (signal.aborted) return [];
+                    photoUrls.push(`${projectName}/${photoFile}`);
                 }
-            } else {
-                // Use standard naming pattern
-                const extensions = ['jpg', 'jpeg', 'png', 'webp'];
-                let consecutiveNotFound = 0;
-                const maxConsecutiveNotFound = 3;
-                const maxImages = 50;
-                
-                for (let i = 1; i <= maxImages && consecutiveNotFound < maxConsecutiveNotFound; i++) {
-                    if (signal.aborted) return;
-                    
-                    let found = false;
-                    for (const ext of extensions) {
-                        const photoPath = `${projectName}/img/img${i}.${ext}`;
-                        const exists = await tryLoadImage(photoPath, signal);
-                        if (exists) {
-                            photos.push(photoPath);
-                            found = true;
-                            consecutiveNotFound = 0;
-                            break;
-                        }
-                    }
-                    
-                    if (!found) {
-                        consecutiveNotFound++;
-                    }
-                }
+                return photoUrls;
             }
             
-            if (photos.length > 0) {
-                CONFIG.photos = photos;
-                createGallery(contentWrapper, photos, insertAtEnd);
+            // Fallback to checking standard pattern
+            const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+            const checkBatch = async (startIdx, endIdx) => {
+                const promises = [];
+                for (let i = startIdx; i <= endIdx; i++) {
+                    for (const ext of extensions) {
+                        const photoPath = `${projectName}/img/img${i}.${ext}`;
+                        promises.push(
+                            tryLoadImage(photoPath, signal).then(exists => exists ? photoPath : null)
+                        );
+                    }
+                }
+                const results = await Promise.all(promises);
+                return results.filter(path => path !== null);
+            };
+            
+            // Check first batch
+            const firstBatch = await checkBatch(1, 5);
+            if (firstBatch.length === 0) return [];
+            
+            photoUrls.push(...firstBatch);
+            
+            // Continue checking in smaller batches
+            let consecutiveEmpty = 0;
+            let currentIdx = 6;
+            
+            while (consecutiveEmpty < 2 && currentIdx <= 50) {
+                if (signal.aborted) return photoUrls;
+                
+                const batch = await checkBatch(currentIdx, currentIdx + 2);
+                if (batch.length > 0) {
+                    photoUrls.push(...batch);
+                    consecutiveEmpty = 0;
+                } else {
+                    consecutiveEmpty++;
+                }
+                currentIdx += 3;
+            }
+            
+            return photoUrls;
+        }
+        
+        // Load photos for gallery
+        async function loadPhotos(projectName, contentWrapper, insertAtEnd, signal) {
+            const photoUrls = await discoverPhotos(projectName, signal);
+            
+            if (photoUrls.length > 0) {
+                CONFIG.photos = photoUrls;
+                createGallery(contentWrapper, photoUrls, insertAtEnd);
             }
         }
         
@@ -1151,40 +1234,248 @@
             });
         }
         
-        // Create gallery
+        // Create horizontal slider gallery
         function createGallery(contentWrapper, photos, insertAtEnd) {
-            const galleryContainer = document.createElement('div');
-            galleryContainer.className = 'gallery-container';
-            
             if (photos.length === 1) {
                 // Single photo display
+                const galleryContainer = document.createElement('div');
                 galleryContainer.className = 'single-photo-container';
                 galleryContainer.innerHTML = `
                     <div class="single-photo-wrapper">
                         <img src="${photos[0]}" alt="Photo" class="single-photo">
                     </div>
                 `;
-            } else {
-                // Multi-photo grid
-                const galleryGrid = document.createElement('div');
-                galleryGrid.className = 'gallery-grid';
-                
-                photos.forEach((photo, index) => {
-                    const photoItem = document.createElement('div');
-                    photoItem.className = 'photo-item';
-                    photoItem.innerHTML = `<img src="${photo}" alt="Photo ${index + 1}" loading="lazy">`;
-                    photoItem.onclick = () => openLightbox(index);
-                    galleryGrid.appendChild(photoItem);
-                });
-                
-                galleryContainer.appendChild(galleryGrid);
+                if (insertAtEnd) {
+                    contentWrapper.appendChild(galleryContainer);
+                } else {
+                    contentWrapper.insertBefore(galleryContainer, contentWrapper.firstChild);
+                }
+                return;
             }
+            
+            // Multi-photo horizontal slider
+            const galleryContainer = document.createElement('div');
+            galleryContainer.className = 'gallery-container';
+            
+            const gallerySlider = document.createElement('div');
+            gallerySlider.className = 'gallery-slider';
+            
+            // Create photo items with lazy loading
+            photos.forEach((photo, index) => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item loading';
+                
+                const img = document.createElement('img');
+                img.alt = `Photo ${index + 1}`;
+                img.dataset.src = photo;
+                img.addEventListener('click', () => openLightbox(index));
+                
+                // Load image
+                const loadImage = () => {
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        img.src = photo;
+                        img.classList.add('loaded');
+                        photoItem.classList.remove('loading');
+                    };
+                    tempImg.src = photo;
+                };
+                
+                // Load immediately for first few images, lazy load the rest
+                if (index < 3) {
+                    loadImage();
+                } else {
+                    // Create intersection observer for lazy loading
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                loadImage();
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, { rootMargin: '100px' });
+                    observer.observe(photoItem);
+                }
+                
+                photoItem.appendChild(img);
+                gallerySlider.appendChild(photoItem);
+            });
+            
+            galleryContainer.appendChild(gallerySlider);
+            
+            // Add navigation arrows
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'gallery-nav prev';
+            prevBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+            prevBtn.addEventListener('click', () => scrollGallery(-1));
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'gallery-nav next';
+            nextBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+            nextBtn.addEventListener('click', () => scrollGallery(1));
+            
+            galleryContainer.appendChild(prevBtn);
+            galleryContainer.appendChild(nextBtn);
             
             if (insertAtEnd) {
                 contentWrapper.appendChild(galleryContainer);
             } else {
                 contentWrapper.insertBefore(galleryContainer, contentWrapper.firstChild);
             }
+            
+            // Setup drag/swipe functionality
+            setupGalleryDrag(galleryContainer, gallerySlider);
+            
+            // Update navigation visibility
+            setTimeout(() => updateGalleryNavigation(galleryContainer, gallerySlider), 100);
+        }
+        
+        // Setup drag/swipe functionality
+        function setupGalleryDrag(container, slider) {
+            let isMouseDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+            let lastX = 0;
+            let lastTime = Date.now();
+            let velocity = 0;
+            
+            const getX = (e) => {
+                return e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+            };
+            
+            const handleStart = (e) => {
+                isMouseDown = true;
+                container.classList.add('grabbing');
+                slider.classList.add('dragging');
+                
+                startX = getX(e) - container.offsetLeft;
+                scrollLeft = getScrollLeft(slider);
+                lastX = startX;
+                lastTime = Date.now();
+                velocity = 0;
+                
+                // Cancel any ongoing animation
+                if (CONFIG.galleryState.ticker) {
+                    cancelAnimationFrame(CONFIG.galleryState.ticker);
+                    CONFIG.galleryState.ticker = null;
+                }
+            };
+            
+            const handleMove = (e) => {
+                if (!isMouseDown) return;
+                e.preventDefault();
+                
+                const x = getX(e) - container.offsetLeft;
+                const now = Date.now();
+                const dt = now - lastTime;
+                
+                if (dt > 0) {
+                    velocity = (x - lastX) / dt;
+                }
+                
+                lastX = x;
+                lastTime = now;
+                
+                const walk = (x - startX) * 1.5;
+                setScrollLeft(slider, scrollLeft - walk);
+                updateGalleryNavigation(container, slider);
+            };
+            
+            const handleEnd = () => {
+                if (!isMouseDown) return;
+                
+                isMouseDown = false;
+                container.classList.remove('grabbing');
+                slider.classList.remove('dragging');
+                
+                // Apply momentum
+                if (Math.abs(velocity) > 0.1) {
+                    applyMomentum(slider, velocity * 1000);
+                }
+                
+                updateGalleryNavigation(container, slider);
+            };
+            
+            // Mouse events
+            container.addEventListener('mousedown', handleStart);
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleEnd);
+            
+            // Touch events
+            container.addEventListener('touchstart', handleStart, { passive: true });
+            container.addEventListener('touchmove', handleMove, { passive: false });
+            container.addEventListener('touchend', handleEnd);
+            
+            // Prevent image drag
+            container.querySelectorAll('img').forEach(img => {
+                img.addEventListener('dragstart', (e) => e.preventDefault());
+            });
+        }
+        
+        // Apply momentum scrolling
+        function applyMomentum(slider, velocity) {
+            const friction = 0.95;
+            let currentVelocity = velocity;
+            
+            const animate = () => {
+                if (Math.abs(currentVelocity) < 0.5) {
+                    CONFIG.galleryState.ticker = null;
+                    return;
+                }
+                
+                const currentScroll = getScrollLeft(slider);
+                setScrollLeft(slider, currentScroll - currentVelocity * 0.016);
+                currentVelocity *= friction;
+                
+                CONFIG.galleryState.ticker = requestAnimationFrame(animate);
+            };
+            
+            CONFIG.galleryState.ticker = requestAnimationFrame(animate);
+        }
+        
+        // Helper functions for scroll position
+        function getScrollLeft(slider) {
+            const transform = window.getComputedStyle(slider).transform;
+            if (transform === 'none') return 0;
+            const matrix = transform.match(/matrix\((.+)\)/);
+            if (!matrix) return 0;
+            const values = matrix[1].split(', ');
+            return -parseFloat(values[4]);
+        }
+        
+        function setScrollLeft(slider, value) {
+            const maxScroll = slider.scrollWidth - slider.parentElement.offsetWidth;
+            const clampedValue = Math.max(0, Math.min(value, maxScroll));
+            slider.style.transform = `translateX(${-clampedValue}px)`;
+        }
+        
+        // Scroll gallery by direction
+        function scrollGallery(direction) {
+            const container = document.querySelector('.gallery-container');
+            const slider = document.querySelector('.gallery-slider');
+            if (!container || !slider) return;
+            
+            const containerWidth = container.offsetWidth;
+            const currentScroll = getScrollLeft(slider);
+            const scrollAmount = containerWidth * 0.8 * direction;
+            
+            slider.classList.remove('dragging');
+            setScrollLeft(slider, currentScroll + scrollAmount);
+            
+            setTimeout(() => updateGalleryNavigation(container, slider), 300);
+        }
+        
+        // Update gallery navigation visibility
+        function updateGalleryNavigation(container, slider) {
+            const prevBtn = container.querySelector('.gallery-nav.prev');
+            const nextBtn = container.querySelector('.gallery-nav.next');
+            if (!prevBtn || !nextBtn) return;
+            
+            const scrollLeft = getScrollLeft(slider);
+            const maxScroll = slider.scrollWidth - container.offsetWidth;
+            
+            prevBtn.classList.toggle('visible', scrollLeft > 10);
+            nextBtn.classList.toggle('visible', scrollLeft < maxScroll - 10);
         }
         
         // Lightbox functionality
@@ -1203,6 +1494,25 @@
             
             lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
             lightboxNext.addEventListener('click', () => navigateLightbox(1));
+            
+            // Add swipe support for lightbox
+            let touchStartX = 0;
+            lightbox.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            });
+            
+            lightbox.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const diff = touchStartX - touchEndX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        navigateLightbox(1); // Next
+                    } else {
+                        navigateLightbox(-1); // Previous
+                    }
+                }
+            });
         }
         
         function openLightbox(index) {
@@ -1394,6 +1704,13 @@
                     } else if (e.key === 'ArrowRight') {
                         navigateLightbox(1);
                     }
+                } else {
+                    // Gallery navigation with arrow keys
+                    if (e.key === 'ArrowLeft') {
+                        scrollGallery(-1);
+                    } else if (e.key === 'ArrowRight') {
+                        scrollGallery(1);
+                    }
                 }
             });
         }
@@ -1406,6 +1723,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const project = urlParams.get('project') || 'home';
             loadProject(project);
+        });
+        
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const container = document.querySelector('.gallery-container');
+                const slider = document.querySelector('.gallery-slider');
+                if (container && slider) {
+                    updateGalleryNavigation(container, slider);
+                }
+            }, 100);
         });
     </script>
 </body>
