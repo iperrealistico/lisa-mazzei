@@ -482,7 +482,17 @@
             opacity: 0;
         }
         
-        .photo-preloader::before {
+        /* Fake preloader style */
+        .photo-preloader.fake::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(0,0,0,0.05);
+            border-radius: 50%;
+        }
+        
+        /* Real preloader styles */
+        .photo-preloader:not(.fake)::before {
             content: '';
             position: absolute;
             inset: 0;
@@ -490,7 +500,7 @@
             border-radius: 50%;
         }
         
-        .photo-preloader::after {
+        .photo-preloader:not(.fake)::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -1185,7 +1195,7 @@
             }
         }
         
-        // Optimized photo discovery
+        // Optimized photo discovery - skip img0.jpg
         async function discoverPhotos(projectName, signal) {
             const photoUrls = [];
             
@@ -1195,7 +1205,7 @@
                 const photosText = await photosResponse.text();
                 const photoFiles = photosText.split('\n')
                     .map(line => line.trim())
-                    .filter(line => line.length > 0 && !line.startsWith('#'));
+                    .filter(line => line.length > 0 && !line.startsWith('#') && !line.includes('img0.')); // Skip img0
                 
                 for (const photoFile of photoFiles) {
                     if (signal.aborted) return [];
@@ -1204,13 +1214,13 @@
                 return photoUrls;
             }
             
-            // Fallback to checking standard pattern
+            // Fallback to checking standard pattern - START FROM img1, not img0
             const extensions = ['jpg', 'jpeg', 'png', 'webp'];
             let foundAny = false;
             let consecutiveNotFound = 0;
             const maxConsecutiveNotFound = 3;
             
-            for (let i = 1; i <= 50 && consecutiveNotFound < maxConsecutiveNotFound; i++) {
+            for (let i = 1; i <= 50 && consecutiveNotFound < maxConsecutiveNotFound; i++) { // Start from 1, not 0
                 if (signal.aborted) return photoUrls;
                 
                 let found = false;
@@ -1256,9 +1266,9 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = 'single-photo-wrapper';
                 
-                // Add preloader
+                // Add fake preloader initially
                 const preloader = document.createElement('div');
-                preloader.className = 'photo-preloader';
+                preloader.className = 'photo-preloader fake';
                 wrapper.appendChild(preloader);
                 
                 const img = document.createElement('img');
@@ -1267,6 +1277,12 @@
                 
                 // Load the single image
                 const tempImg = new Image();
+                
+                tempImg.onloadstart = () => {
+                    // Switch to real preloader when loading starts
+                    preloader.classList.remove('fake');
+                };
+                
                 tempImg.onload = () => {
                     if (!signal.aborted) {
                         img.src = photos[0];
@@ -1274,10 +1290,15 @@
                         preloader.classList.add('hidden');
                     }
                 };
+                
                 tempImg.onerror = () => {
                     preloader.classList.add('hidden');
                 };
-                tempImg.src = photos[0];
+                
+                // Start loading after a tiny delay to show fake preloader
+                setTimeout(() => {
+                    tempImg.src = photos[0];
+                }, 10);
                 
                 wrapper.appendChild(img);
                 galleryContainer.appendChild(wrapper);
@@ -1300,14 +1321,14 @@
             const gallerySlider = document.createElement('div');
             gallerySlider.className = 'gallery-slider';
             
-            // Create all photo items with preloaders first
+            // Create all photo items with fake preloaders first
             const photoItems = photos.map((photo, index) => {
                 const photoItem = document.createElement('div');
                 photoItem.className = 'photo-item';
                 
-                // Add preloader
+                // Add fake preloader initially
                 const preloader = document.createElement('div');
-                preloader.className = 'photo-preloader';
+                preloader.className = 'photo-preloader fake';
                 photoItem.appendChild(preloader);
                 
                 const img = document.createElement('img');
@@ -1352,21 +1373,33 @@
             // Update navigation visibility
             setTimeout(() => updateGalleryNavigation(gallerySection, gallerySlider), 100);
             
-            // Load images sequentially
+            // Load images sequentially with optimized loading
             loadImagesSequentially(photoItems, signal);
         }
         
-        // Load images one by one in sequence
+        // Optimized sequential image loading
         async function loadImagesSequentially(photoItems, signal) {
             for (const item of photoItems) {
                 if (signal && signal.aborted) break;
                 
                 const { img, preloader, photo } = item;
                 
+                // Small delay to show fake preloader
+                await new Promise(resolve => setTimeout(resolve, 10));
+                
+                // Switch to real preloader
+                preloader.classList.remove('fake');
+                
                 // Create new image to test loading
                 const tempImg = new Image();
                 
                 await new Promise((resolve) => {
+                    let loadStarted = false;
+                    
+                    tempImg.onloadstart = () => {
+                        loadStarted = true;
+                    };
+                    
                     tempImg.onload = () => {
                         if (!signal || !signal.aborted) {
                             img.src = photo;
@@ -1386,10 +1419,7 @@
                     tempImg.src = photo;
                 });
                 
-                // Small delay between loads to prevent overwhelming the browser
-                if (!signal || !signal.aborted) {
-                    await new Promise(resolve => setTimeout(resolve, 50));
-                }
+                // No delay between loads for faster sequential loading
             }
         }
         
