@@ -14,5 +14,5 @@ pdu
 
 [Shop|https://lyzardfilm.com]
 
-[About/Contact]
+[About/Contact|about]
 !about
