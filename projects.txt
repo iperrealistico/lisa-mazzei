@@ -12,7 +12,5 @@ pdu
 
 [Films|https://lyzardfilm.com]
 
-[Shop|https://lyzardfilm.com]
-
 [About/Contact|about]
 !about
