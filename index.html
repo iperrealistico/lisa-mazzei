@@ -72,6 +72,10 @@
             --gallery-gap: 15px; /* Gap between photos */
             --gallery-height: 60vh; /* Height of photos in slider */
             --gallery-margin-bottom: 60px; /* Space between gallery and text */
+            
+            /* Single Photo Configuration */
+            --single-photo-padding: 20px; /* Reduced padding for single photo */
+            --single-photo-margin: 40px; /* Reduced margin for single photo */
         }
         
         /* Page Preloader - Shows immediately */
@@ -92,6 +96,20 @@
         .page-preloader.fade-out {
             opacity: 0;
             visibility: hidden;
+        }
+        
+        /* Gallery Pre-Pre-Loader - Shows while discovering photos */
+        .gallery-pre-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            width: 100%;
+            transition: opacity 0.3s ease-out;
+        }
+        
+        .gallery-pre-loader.fade-out {
+            opacity: 0;
         }
         
         /* Minimal circular preloader */
@@ -135,6 +153,20 @@
         
         body.loaded {
             visibility: visible;
+        }
+        
+        /* Smooth content transitions */
+        .content-wrapper {
+            transition: all 0.3s ease-out;
+        }
+        
+        .text-content {
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        
+        .gallery-section,
+        .single-photo-container {
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
         }
     </style>
     
@@ -578,31 +610,40 @@
             transform: rotate(45deg);
         }
         
-        /* Single Photo Display */
+        /* Single Photo Display - Enhanced for single photo mode */
         .single-photo-container {
             position: relative;
             width: 100%;
-            max-width: 900px;
-            margin: 0 auto var(--gallery-margin-bottom);
-            padding: 0 var(--gallery-padding);
+            max-width: none; /* Remove max-width for full-page mode */
+            margin: 0 auto var(--single-photo-margin);
+            padding: 0 var(--single-photo-padding);
+        }
+        
+        .single-photo-container.full-page {
+            max-width: 95vw;
+            margin: 0 auto var(--single-photo-margin);
+            padding: 0 var(--single-photo-padding);
         }
         
         .single-photo-wrapper {
             position: relative;
             width: 100%;
-            padding-bottom: 66.67%; /* 3:2 aspect ratio */
             background-color: var(--background-color);
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 50vh;
+        }
+        
+        .single-photo-wrapper.full-page {
+            min-height: 75vh;
         }
         
         .single-photo {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -610,6 +651,37 @@
         
         .single-photo.loaded {
             opacity: 1;
+        }
+        
+        /* Single photo preloader */
+        .single-photo-preloader {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .single-photo-preloader.hidden {
+            opacity: 0;
+        }
+        
+        .single-photo-preloader::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+        }
+        
+        .single-photo-preloader::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            border-top-color: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            animation: loading-spinner 0.8s linear infinite;
         }
         
         /* Text Content */
@@ -676,6 +748,8 @@
                 --gallery-height: 50vh;
                 --header-padding-vertical: 20px;
                 --header-padding-horizontal: 20px;
+                --single-photo-padding: 15px;
+                --single-photo-margin: 30px;
             }
             
             header {
@@ -711,6 +785,10 @@
             
             .gallery-nav::before {
                 width: 40px;
+            }
+            
+            .single-photo-wrapper.full-page {
+                min-height: 60vh;
             }
         }
         
@@ -803,7 +881,7 @@
         async function silentFetch(url, options = {}) {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced timeout to 3 seconds
                 
                 const response = await fetch(url, {
                     ...options,
@@ -1152,7 +1230,7 @@
             mainContent.innerHTML = '<div class="loading-spinner"></div>';
             
             // Small delay for loading animation
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 50));
             
             if (signal.aborted) return;
             
@@ -1169,8 +1247,21 @@
             
             mainContent.appendChild(contentWrapper);
             
-            // Load and display text content first
-            let hasText = false;
+            // Load photos and text in parallel
+            const loadPromises = [];
+            
+            // Load photos (this will show pre-pre-loader)
+            loadPromises.push(loadPhotos(projectName, contentWrapper, textPosition === 'above', signal));
+            
+            // Load text content
+            loadPromises.push(loadTextContent(projectName, contentWrapper, signal));
+            
+            // Wait for both to complete
+            await Promise.all(loadPromises);
+        }
+        
+        // Load text content
+        async function loadTextContent(projectName, contentWrapper, signal) {
             try {
                 if (signal.aborted) return;
                 
@@ -1178,7 +1269,6 @@
                 if (textResponse.ok) {
                     const textContent = await textResponse.text();
                     if (textContent.trim()) {
-                        hasText = true;
                         const textDiv = document.createElement('div');
                         textDiv.className = 'text-content';
                         textDiv.innerHTML = parseMarkdown(textContent);
@@ -1188,14 +1278,9 @@
             } catch (e) {
                 // No text file, that's ok
             }
-            
-            // Load photos
-            if (!signal.aborted) {
-                await loadPhotos(projectName, contentWrapper, textPosition === 'above' && hasText, signal);
-            }
         }
         
-        // Optimized photo discovery - skip img0.jpg
+        // Optimized photo discovery with priority for first photo
         async function discoverPhotos(projectName, signal) {
             const photoUrls = [];
             
@@ -1214,75 +1299,128 @@
                 return photoUrls;
             }
             
-            // Fallback to checking standard pattern - START FROM img1, not img0
+            // Optimized fallback: Check first photo immediately
             const extensions = ['jpg', 'jpeg', 'png', 'webp'];
-            let foundAny = false;
+            
+            // Priority check for first photo
+            for (const ext of extensions) {
+                if (signal.aborted) return [];
+                const photoPath = `${projectName}/img/img1.${ext}`;
+                const response = await silentFetch(photoPath, { method: 'HEAD', signal });
+                if (response.ok) {
+                    photoUrls.push(photoPath);
+                    break;
+                }
+            }
+            
+            // If no first photo found, return empty array
+            if (photoUrls.length === 0) {
+                return photoUrls;
+            }
+            
+            // Continue discovery for remaining photos in parallel (up to 3 at a time)
+            const checkPhoto = async (i) => {
+                if (signal.aborted) return null;
+                
+                for (const ext of extensions) {
+                    const photoPath = `${projectName}/img/img${i}.${ext}`;
+                    const response = await silentFetch(photoPath, { method: 'HEAD', signal });
+                    if (response.ok) {
+                        return photoPath;
+                    }
+                }
+                return null;
+            };
+            
+            // Check photos in batches
+            const batchSize = 3;
             let consecutiveNotFound = 0;
             const maxConsecutiveNotFound = 3;
             
-            for (let i = 1; i <= 50 && consecutiveNotFound < maxConsecutiveNotFound; i++) { // Start from 1, not 0
+            for (let i = 2; i <= 50 && consecutiveNotFound < maxConsecutiveNotFound; i += batchSize) {
                 if (signal.aborted) return photoUrls;
                 
-                let found = false;
-                for (const ext of extensions) {
-                    const photoPath = `${projectName}/img/img${i}.${ext}`;
-                    
-                    // Quick check with fetch HEAD
-                    const response = await silentFetch(photoPath, { method: 'HEAD', signal });
-                    if (response.ok) {
-                        photoUrls.push(photoPath);
-                        found = true;
-                        foundAny = true;
-                        consecutiveNotFound = 0;
-                        break;
+                const batch = [];
+                for (let j = 0; j < batchSize && (i + j) <= 50; j++) {
+                    batch.push(checkPhoto(i + j));
+                }
+                
+                const results = await Promise.all(batch);
+                let foundInBatch = false;
+                
+                for (const result of results) {
+                    if (result) {
+                        photoUrls.push(result);
+                        foundInBatch = true;
                     }
                 }
                 
-                if (!found && foundAny) {
+                if (!foundInBatch) {
                     consecutiveNotFound++;
+                } else {
+                    consecutiveNotFound = 0;
                 }
             }
             
             return photoUrls;
         }
         
-        // Load photos for gallery
+        // Load photos for gallery with pre-pre-loader
         async function loadPhotos(projectName, contentWrapper, insertAtEnd, signal) {
+            // Show pre-pre-loader
+            const prePreLoader = document.createElement('div');
+            prePreLoader.className = 'gallery-pre-loader';
+            prePreLoader.innerHTML = `
+                <div class="preloader-container">
+                    <div class="preloader-track"></div>
+                    <div class="preloader-fill"></div>
+                </div>
+            `;
+            
+            if (insertAtEnd) {
+                contentWrapper.appendChild(prePreLoader);
+            } else {
+                contentWrapper.insertBefore(prePreLoader, contentWrapper.firstChild);
+            }
+            
+            // Discover photos
             const photoUrls = await discoverPhotos(projectName, signal);
+            
+            // Remove pre-pre-loader with fade
+            prePreLoader.classList.add('fade-out');
+            setTimeout(() => {
+                if (prePreLoader.parentNode) {
+                    prePreLoader.remove();
+                }
+            }, 300);
             
             if (photoUrls.length > 0) {
                 CONFIG.photos = photoUrls;
-                createGallery(contentWrapper, photoUrls, insertAtEnd, signal);
+                await createGallery(contentWrapper, photoUrls, insertAtEnd, signal);
             }
         }
         
-        // Create horizontal slider gallery with progressive loading
-        function createGallery(contentWrapper, photos, insertAtEnd, signal) {
+        // Create gallery with optimized loading
+        async function createGallery(contentWrapper, photos, insertAtEnd, signal) {
             if (photos.length === 1) {
-                // Single photo display
+                // Single photo display - full page mode
                 const galleryContainer = document.createElement('div');
-                galleryContainer.className = 'single-photo-container';
+                galleryContainer.className = 'single-photo-container full-page';
                 
                 const wrapper = document.createElement('div');
-                wrapper.className = 'single-photo-wrapper';
+                wrapper.className = 'single-photo-wrapper full-page';
                 
-                // Add fake preloader initially
+                // Add preloader for single photo
                 const preloader = document.createElement('div');
-                preloader.className = 'photo-preloader fake';
+                preloader.className = 'single-photo-preloader';
                 wrapper.appendChild(preloader);
                 
                 const img = document.createElement('img');
                 img.alt = 'Photo';
                 img.className = 'single-photo';
                 
-                // Load the single image
+                // Load the single image with priority
                 const tempImg = new Image();
-                
-                tempImg.onloadstart = () => {
-                    // Switch to real preloader when loading starts
-                    preloader.classList.remove('fake');
-                };
-                
                 tempImg.onload = () => {
                     if (!signal.aborted) {
                         img.src = photos[0];
@@ -1295,10 +1433,8 @@
                     preloader.classList.add('hidden');
                 };
                 
-                // Start loading after a tiny delay to show fake preloader
-                setTimeout(() => {
-                    tempImg.src = photos[0];
-                }, 10);
+                // Start loading immediately
+                tempImg.src = photos[0];
                 
                 wrapper.appendChild(img);
                 galleryContainer.appendChild(wrapper);
@@ -1321,7 +1457,7 @@
             const gallerySlider = document.createElement('div');
             gallerySlider.className = 'gallery-slider';
             
-            // Create all photo items with fake preloaders first
+            // Create all photo items
             const photoItems = photos.map((photo, index) => {
                 const photoItem = document.createElement('div');
                 photoItem.className = 'photo-item';
@@ -1373,32 +1509,29 @@
             // Update navigation visibility
             setTimeout(() => updateGalleryNavigation(gallerySection, gallerySlider), 100);
             
-            // Load images sequentially with optimized loading
-            loadImagesSequentially(photoItems, signal);
+            // Load images sequentially starting immediately with first photo
+            await loadImagesSequentially(photoItems, signal);
         }
         
-        // Optimized sequential image loading
+        // Optimized sequential image loading with immediate start
         async function loadImagesSequentially(photoItems, signal) {
-            for (const item of photoItems) {
+            for (let i = 0; i < photoItems.length; i++) {
                 if (signal && signal.aborted) break;
                 
+                const item = photoItems[i];
                 const { img, preloader, photo } = item;
                 
-                // Small delay to show fake preloader
-                await new Promise(resolve => setTimeout(resolve, 10));
+                // No delay for first photo, small delay for others
+                if (i > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
                 
                 // Switch to real preloader
                 preloader.classList.remove('fake');
                 
-                // Create new image to test loading
-                const tempImg = new Image();
-                
+                // Load image
                 await new Promise((resolve) => {
-                    let loadStarted = false;
-                    
-                    tempImg.onloadstart = () => {
-                        loadStarted = true;
-                    };
+                    const tempImg = new Image();
                     
                     tempImg.onload = () => {
                         if (!signal || !signal.aborted) {
@@ -1415,11 +1548,12 @@
                         resolve();
                     };
                     
-                    // Start loading
+                    // Start loading with high priority for first image
+                    if (i === 0) {
+                        tempImg.loading = 'eager';
+                    }
                     tempImg.src = photo;
                 });
-                
-                // No delay between loads for faster sequential loading
             }
         }
         
