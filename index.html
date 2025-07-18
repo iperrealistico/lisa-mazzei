@@ -1,1883 +1,504 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cousine:ital,wght@0,400;0,700;1,400;1,700&family=Helvetica+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    
-    <!-- ============================================ -->
-    <!-- CONFIGURATION SECTION - EDIT VALUES BELOW    -->
-    <!-- ============================================ -->
-    
-    <!-- Basic Site Information -->
-    <title>Lisa Mazzei</title>
-    <meta name="description" content="Portfolio showcasing artistic work by Lisa Mazzei, photographer and artist based in Italy">
-    <meta name="author" content="Lisa Mazzei">
-    
-    <!-- SEO and Social Media -->
-    <meta property="og:title" content="Lisa Mazzei">
-    <meta property="og:description" content="Portfolio showcasing artistic work by Lisa Mazzei, photographer and artist based in Italy">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.lisamazzei.it">
-    <meta property="og:image" content="https://www.lisamazzei.it/home/img/img1.jpg">
-    <meta name="twitter:card" content="summary_large_image">
-    
-    <!-- Favicon - will be added dynamically if exists -->
-    <script>
-        // Check for favicon and add it if exists
-        (async function() {
-            const faviconPaths = ['./favicon.ico', 'favicon.ico'];
-            for (const path of faviconPaths) {
-                try {
-                    const response = await fetch(path, { method: 'HEAD' });
-                    if (response.ok) {
-                        const link = document.createElement('link');
-                        link.rel = 'icon';
-                        link.type = 'image/x-icon';
-                        link.href = path;
-                        document.head.appendChild(link);
-                        break;
-                    }
-                } catch (e) {
-                    // Ignore errors
-                }
-            }
-        })();
-    </script>
-    
-    <!-- Styling Configuration -->
-    <style>
-        :root {
-            /* EDIT THESE VALUES TO CUSTOMIZE APPEARANCE */
-            --background-color: #ffffff;
-            --text-color: #000000;
-            --font-family: 'Cousine', 'Courier New', Courier, monospace; /* Google Font Cousine with fallbacks */
-            --site-title-font: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; /* Google Font Helvetica Neue with fallbacks */
-            --font-size: 16px;
-            --line-height: 1.6;
-            --footer-text: '© 2025 Lisa Mazzei. All rights reserved.'; /* Edit footer text */
-            --site-title: 'Lisa Mazzei'; /* Edit site title that appears in navigation */
-            --header-padding-vertical: 40px; /* Increased vertical padding */
-            --header-padding-horizontal: 40px;
-            --transition-duration: 0.5s;
-            --text-position: 'below'; /* 'above' or 'below' - position of text relative to images */
-            --external-links-new-tab: true; /* true or false - open external links in new tab */
-            
-            /* Gallery Configuration */
-            --gallery-padding: 40px; /* Padding around gallery */
-            --gallery-gap: 15px; /* Gap between photos */
-            --gallery-height: 60vh; /* Height of photos in slider */
-            --gallery-margin-bottom: 60px; /* Space between gallery and text */
-            
-            /* Single Photo Configuration */
-            --single-photo-padding: 20px; /* Reduced padding for single photo */
-            --single-photo-margin: 40px; /* Reduced margin for single photo */
-        }
-        
-        /* Page Preloader - Shows immediately */
-        .page-preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--background-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-        }
-        
-        .page-preloader.fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        /* Gallery Pre-Pre-Loader - Shows while discovering photos */
-        .gallery-pre-loader {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 200px;
-            width: 100%;
-            transition: opacity 0.3s ease-out;
-        }
-        
-        .gallery-pre-loader.fade-out {
-            opacity: 0;
-        }
-        
-        /* Minimal circular preloader */
-        .preloader-container {
-            position: relative;
-            width: 48px;
-            height: 48px;
-        }
-        
-        /* Background circle */
-        .preloader-track {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            border: 2px solid #f0f0f0;
-        }
-        
-        /* Animated fill circle */
-        .preloader-fill {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            border-top-color: #d0d0d0;
-            animation: preloader-spin 0.8s linear infinite;
-        }
-        
-        @keyframes preloader-spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        
-        /* Hide content initially to prevent flash */
-        body {
-            visibility: hidden;
-        }
-        
-        body.loaded {
-            visibility: visible;
-        }
-        
-        /* Smooth content transitions */
-        .content-wrapper {
-            transition: all 0.3s ease-out;
-        }
-        
-        .text-content {
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        }
-        
-        .gallery-section,
-        .single-photo-container {
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-        }
-    </style>
-    
-    <!-- ============================================ -->
-    <!-- END OF CONFIGURATION - DO NOT EDIT BELOW     -->
-    <!-- ============================================ -->
-    
-    <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html {
-            font-size: var(--font-size);
-            scroll-behavior: smooth;
-        }
-        
-        body {
-            font-family: var(--font-family);
-            color: var(--text-color);
-            background-color: var(--background-color);
-            line-height: var(--line-height);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-        
-        /* Header Navigation - Now scrolls with page */
-        header {
-            position: relative;
-            top: 0;
-            left: 0;
-            right: 0;
-            min-height: 120px; /* Increased from fixed height */
-            background-color: var(--background-color);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            padding: var(--header-padding-vertical) var(--header-padding-horizontal);
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        /* Site Title in Header */
-        .site-title {
-            font-family: var(--site-title-font);
-            font-size: 1.5em;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--text-color);
-            margin-right: 60px;
-            transition: opacity var(--transition-duration);
-            flex-shrink: 0;
-        }
-        
-        .site-title::before {
-            content: var(--site-title);
-        }
-        
-        .site-title:hover {
-            opacity: 0.7;
-        }
-        
-        /* Navigation Container */
-        .nav-wrapper {
-            display: flex;
-            gap: 40px;
-            align-items: flex-start;
-            flex: 1;
-            flex-wrap: wrap;
-            padding: 10px 0; /* Extra internal padding */
-        }
-        
-        /* Navigation Groups as Columns */
-        .nav-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-width: 0; /* Allow shrinking */
-        }
-        
-        .nav-group-title {
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9em;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-            cursor: default;
-            color: var(--text-color);
-            text-decoration: none;
-            display: block;
-            white-space: nowrap;
-        }
-        
-        .nav-group-title.clickable {
-            cursor: pointer;
-            transition: opacity var(--transition-duration);
-        }
-        
-        .nav-group-title.clickable:hover {
-            opacity: 0.6;
-        }
-        
-        .nav-item {
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--text-color);
-            transition: opacity var(--transition-duration);
-            display: block;
-            position: relative;
-            font-size: 0.9em;
-            white-space: nowrap;
-        }
-        
-        .nav-item:hover {
-            opacity: 0.6;
-        }
-        
-        .nav-item.active {
-            font-weight: bold;
-        }
-        
-        .nav-item.active::before {
-            content: '>';
-            position: absolute;
-            left: -15px;
-        }
-        
-        .nav-item.external::after {
-            content: '↗';
-            display: inline-block;
-            margin-left: 5px;
-            font-size: 0.8em;
-        }
-        
-        /* Mobile Menu Toggle */
-        .menu-toggle {
-            display: none;
-            position: relative;
-            width: 30px;
-            height: 24px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-            margin-left: auto;
-            flex-shrink: 0;
-        }
-        
-        .menu-toggle span {
-            display: block;
-            position: absolute;
-            height: 2px;
-            width: 100%;
-            background: var(--text-color);
-            transition: all 0.3s ease;
-        }
-        
-        .menu-toggle span:nth-child(1) {
-            top: 0;
-        }
-        
-        .menu-toggle span:nth-child(2) {
-            top: 11px;
-        }
-        
-        .menu-toggle span:nth-child(3) {
-            bottom: 0;
-        }
-        
-        .menu-toggle.active span:nth-child(1) {
-            transform: rotate(45deg);
-            top: 11px;
-        }
-        
-        .menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-        }
-        
-        .menu-toggle.active span:nth-child(3) {
-            transform: rotate(-45deg);
-            bottom: 11px;
-        }
-        
-        /* Mobile Navigation */
-        .mobile-nav {
-            display: none;
-            position: relative;
-            background-color: var(--background-color);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            padding: 20px 40px;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
-        }
-        
-        .mobile-nav.active {
-            opacity: 1;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        
-        .mobile-nav .nav-group {
-            margin-bottom: 20px;
-        }
-        
-        /* Main Content */
-        main {
-            flex: 1;
-            padding: 40px 0;
-            width: 100%;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
-        /* Content Wrapper for flexible ordering */
-        .content-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .content-wrapper.text-above {
-            flex-direction: column-reverse;
-        }
-        
-        /* Loading Spinner */
-        .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            opacity: 0;
-            animation: fade-in 0.3s ease-out 0.3s forwards;
-        }
-        
-        .loading-spinner::after {
-            content: '';
-            display: block;
-            width: 32px;
-            height: 32px;
-            margin: 4px;
-            border-radius: 50%;
-            border: 2px solid var(--text-color);
-            border-color: var(--text-color) transparent var(--text-color) transparent;
-            animation: loading-spinner 1.2s linear infinite;
-        }
-        
-        @keyframes loading-spinner {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        
-        @keyframes fade-in {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 0.4;
-            }
-        }
-        
-        /* Gallery Section */
-        .gallery-section {
-            margin-bottom: var(--gallery-margin-bottom);
-        }
-        
-        /* Horizontal Gallery Slider */
-        .gallery-container {
-            position: relative;
-            width: 100%;
-            height: var(--gallery-height);
-            overflow: hidden;
-            cursor: grab;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        
-        .gallery-container.grabbing {
-            cursor: grabbing;
-        }
-        
-        .gallery-slider {
-            display: flex;
-            height: 100%;
-            transition: transform 0.3s ease-out;
-            will-change: transform;
-            padding: 0 var(--gallery-padding);
-            gap: var(--gallery-gap);
-        }
-        
-        .gallery-slider.dragging {
-            transition: none;
-        }
-        
-        /* Photo Items */
-        .photo-item {
-            flex-shrink: 0;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            min-width: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .photo-item img {
-            height: 100%;
-            width: auto;
-            object-fit: contain;
-            display: block;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .photo-item img.loaded {
-            opacity: 1;
-        }
-        
-        /* Individual photo preloader */
-        .photo-preloader {
-            position: absolute;
-            width: 32px;
-            height: 32px;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        
-        .photo-preloader.hidden {
-            opacity: 0;
-        }
-        
-        /* Fake preloader style */
-        .photo-preloader.fake::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 2px solid rgba(0,0,0,0.05);
-            border-radius: 50%;
-        }
-        
-        /* Real preloader styles */
-        .photo-preloader:not(.fake)::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 2px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-        }
-        
-        .photo-preloader:not(.fake)::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 2px solid transparent;
-            border-top-color: rgba(0,0,0,0.3);
-            border-radius: 50%;
-            animation: loading-spinner 0.8s linear infinite;
-        }
-        
-        /* Gallery Navigation Arrows */
-        .gallery-nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 var(--gallery-padding);
-            margin-top: 30px;
-            height: 30px;
-        }
-        
-        .gallery-nav {
-            background: none;
-            border: none;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 30px;
-        }
-        
-        .gallery-nav.visible {
-            opacity: 1;
-        }
-        
-        .gallery-nav:hover {
-            opacity: 0.6;
-        }
-        
-        .gallery-nav.prev {
-            justify-content: flex-start;
-        }
-        
-        .gallery-nav.next {
-            justify-content: flex-end;
-        }
-        
-        /* Minimal arrow design */
-        .gallery-nav::before {
-            content: '';
-            display: block;
-            width: 50px;
-            height: 1px;
-            background-color: var(--text-color);
-            position: relative;
-        }
-        
-        .gallery-nav::after {
-            content: '';
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            border-top: 1px solid var(--text-color);
-            border-right: 1px solid var(--text-color);
-        }
-        
-        .gallery-nav.prev::after {
-            left: var(--gallery-padding);
-            transform: rotate(-135deg);
-        }
-        
-        .gallery-nav.next::after {
-            right: var(--gallery-padding);
-            transform: rotate(45deg);
-        }
-        
-        /* Single Photo Display - Enhanced for single photo mode */
-        .single-photo-container {
-            position: relative;
-            width: 100%;
-            max-width: none; /* Remove max-width for full-page mode */
-            margin: 0 auto var(--single-photo-margin);
-            padding: 0 var(--single-photo-padding);
-        }
-        
-        .single-photo-container.full-page {
-            max-width: 95vw;
-            margin: 0 auto var(--single-photo-margin);
-            padding: 0 var(--single-photo-padding);
-        }
-        
-        .single-photo-wrapper {
-            position: relative;
-            width: 100%;
-            background-color: var(--background-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 50vh;
-        }
-        
-        .single-photo-wrapper.full-page {
-            min-height: 75vh;
-        }
-        
-        .single-photo {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .single-photo.loaded {
-            opacity: 1;
-        }
-        
-        /* Single photo preloader */
-        .single-photo-preloader {
-            position: absolute;
-            width: 48px;
-            height: 48px;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        
-        .single-photo-preloader.hidden {
-            opacity: 0;
-        }
-        
-        .single-photo-preloader::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 2px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-        }
-        
-        .single-photo-preloader::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 2px solid transparent;
-            border-top-color: rgba(0,0,0,0.3);
-            border-radius: 50%;
-            animation: loading-spinner 0.8s linear infinite;
-        }
-        
-        /* Text Content */
-        .text-content {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 var(--gallery-padding);
-        }
-        
-        .text-content h1, .text-content h2, .text-content h3 {
-            margin: 1.5em 0 0.5em;
-            font-weight: bold;
-        }
-        
-        .text-content h1:first-child,
-        .text-content h2:first-child,
-        .text-content h3:first-child {
-            margin-top: 0;
-        }
-        
-        .text-content p {
-            margin-bottom: 1em;
-        }
-        
-        .text-content a {
-            color: var(--text-color);
-            text-decoration: underline;
-        }
-        
-        .text-content center {
-            display: block;
-            text-align: center;
-        }
-        
-        .text-content ul, .text-content ol {
-            margin-bottom: 1em;
-            padding-left: 2em;
-        }
-        
-        .text-content li {
-            margin-bottom: 0.5em;
-        }
-        
-        .text-content u {
-            text-decoration: underline;
-        }
-        
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            font-size: 0.9em;
-            opacity: 0.7;
-        }
-        
-        footer::before {
-            content: var(--footer-text);
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            :root {
-                --gallery-padding: 20px;
-                --gallery-height: 50vh;
-                --header-padding-vertical: 20px;
-                --header-padding-horizontal: 20px;
-                --single-photo-padding: 15px;
-                --single-photo-margin: 30px;
-            }
-            
-            header {
-                min-height: auto;
-                padding: var(--header-padding-vertical) var(--header-padding-horizontal);
-            }
-            
-            .site-title {
-                margin-right: auto;
-                font-size: 1.2em;
-            }
-            
-            .nav-wrapper {
-                display: none;
-            }
-            
-            .menu-toggle {
-                display: block;
-            }
-            
-            .mobile-nav {
-                display: block;
-                padding: 0 20px;
-            }
-            
-            .mobile-nav.active {
-                padding: 20px;
-            }
-            
-            main {
-                padding: 20px 0;
-            }
-            
-            .gallery-nav::before {
-                width: 40px;
-            }
-            
-            .single-photo-wrapper.full-page {
-                min-height: 60vh;
-            }
-        }
-        
-        /* Accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-        
-        /* Remove focus outline for mouse users, keep for keyboard */
-        *:focus:not(:focus-visible) {
-            outline: none;
-        }
-        
-        *:focus-visible {
-            outline: 2px solid var(--text-color);
-            outline-offset: 2px;
-        }
-        
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                transition-duration: 0.01ms !important;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lisa Mazzei - Photographer & Director</title>
+<meta name="description" content="Lisa Mazzei è una fotografa e regista italiana. Il suo lavoro esplora il mistero del quotidiano attraverso narrazioni visive cinematografiche tra i paesaggi rurali italiani.">
+<meta name="author" content="Lisa Mazzei">
+<meta name="keywords" content="Lisa Mazzei, fotografa, photographer, director, regista, Italia, Toscana, Garfagnana, Country Mysteries, Lyzard Film">
+<link rel="canonical" href="https://www.lisamazzei.it">
+
+<!-- Favicon SVG inline -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='6' y='6' width='20' height='20' fill='none' stroke='%23000' stroke-width='2'/><circle cx='16' cy='16' r='3' fill='%23000'/></svg>">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Lisa Mazzei - Photographer & Director">
+<meta property="og:description" content="Portfolio fotografico di Lisa Mazzei. Esplorazione visiva tra mistero rurale e narrazione cinematografica.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.lisamazzei.it">
+<meta property="og:image" content="https://www.lisamazzei.it/home/img/img_desktop.jpg">
+<meta property="og:locale" content="it_IT">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lisa Mazzei - Photographer & Director">
+<meta name="twitter:description" content="Portfolio fotografico di Lisa Mazzei. Esplorazione visiva tra mistero rurale e narrazione cinematografica.">
+<meta name="twitter:image" content="https://www.lisamazzei.it/home/img/img_desktop.jpg">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lisa Mazzei",
+  "jobTitle": "Photographer and Director",
+  "url": "https://www.lisamazzei.it",
+  "email": "lyzardfilm@gmail.com",
+  "nationality": "Italian",
+  "alumniOf": {
+    "@type": "CollegeOrUniversity",
+    "name": "Accademia di Belle Arti Firenze"
+  },
+  "award": [
+    "Videoclip Italia - Best Styling 2025",
+    "Sentiero Film Factory - Premio Boomker Sound 2023"
+  ]
+}
+</script>
+
+<!-- Preconnect -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&family=Helvetica+Neue:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{--bg:#fff;--txt:#000;--font:'Cousine','Courier New',monospace;--title-font:'Helvetica Neue',-apple-system,sans-serif;--pad:40px;--trans:.3s}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font:16px/1.6 var(--font);scroll-behavior:smooth}
+body{color:var(--txt);background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
+header{position:relative;min-height:120px;background:var(--bg);border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;padding:var(--pad);flex-wrap:wrap;gap:20px}
+.site-title{font:700 1.5em var(--title-font);cursor:pointer;text-decoration:none;color:var(--txt);margin-right:60px;transition:opacity var(--trans)}
+.site-title:hover{opacity:.7}
+.nav-wrapper{display:flex;gap:40px;flex:1;flex-wrap:wrap}
+.nav-group{display:flex;flex-direction:column;gap:8px}
+.nav-group-title{font-weight:700;text-transform:uppercase;font-size:.9em;letter-spacing:.5px;margin-bottom:8px;color:var(--txt);text-decoration:none;display:block}
+.nav-group-title.clickable{cursor:pointer;transition:opacity var(--trans)}
+.nav-group-title.clickable:hover{opacity:.6}
+.nav-item{cursor:pointer;text-decoration:none;color:var(--txt);transition:opacity var(--trans);display:block;font-size:.9em}
+.nav-item:hover{opacity:.6}
+.nav-item.active{font-weight:700}
+.nav-item.active::before{content:'>';position:absolute;left:-15px}
+.nav-item.external::after{content:'↗';margin-left:5px;font-size:.8em}
+.menu-toggle{display:none;width:30px;height:24px;cursor:pointer;background:0;border:0;padding:0;margin-left:auto}
+.menu-toggle span{display:block;position:absolute;height:2px;width:100%;background:var(--txt);transition:all var(--trans)}
+.menu-toggle span:nth-child(1){top:0}
+.menu-toggle span:nth-child(2){top:11px}
+.menu-toggle span:nth-child(3){bottom:0}
+.menu-toggle.active span:nth-child(1){transform:rotate(45deg);top:11px}
+.menu-toggle.active span:nth-child(2){opacity:0}
+.menu-toggle.active span:nth-child(3){transform:rotate(-45deg);bottom:11px}
+.mobile-nav{display:none;background:var(--bg);border-bottom:1px solid rgba(0,0,0,.1);max-height:0;overflow:hidden;opacity:0;transition:all var(--trans)}
+.mobile-nav.active{opacity:1;max-height:60vh;overflow-y:auto;padding:20px var(--pad)}
+main{flex:1;width:100%;position:relative}
+.content-section{display:none;padding:40px 0}
+.content-section.active{display:block}
+.gallery-container{position:relative;width:100%;height:60vh;overflow:hidden;cursor:grab;margin-bottom:30px}
+.gallery-container.grabbing{cursor:grabbing}
+.gallery-slider{display:flex;height:100%;transition:transform var(--trans);gap:15px;padding:0 var(--pad)}
+.gallery-slider.dragging{transition:none}
+.photo-item{flex-shrink:0;height:100%;position:relative}
+.photo-item img{height:100%;width:auto;object-fit:contain;display:block}
+.gallery-nav-container{display:flex;justify-content:space-between;padding:0 var(--pad);height:30px;margin-bottom:60px}
+.gallery-nav{background:0;border:0;cursor:pointer;opacity:0;transition:opacity var(--trans);height:30px;display:flex;align-items:center}
+.gallery-nav.visible{opacity:1}
+.gallery-nav:hover{opacity:.6}
+.gallery-nav::before{content:'';width:50px;height:1px;background:var(--txt);position:relative}
+.gallery-nav::after{content:'';position:absolute;width:12px;height:12px;border-top:1px solid var(--txt);border-right:1px solid var(--txt)}
+.gallery-nav.prev::after{left:var(--pad);transform:rotate(-135deg)}
+.gallery-nav.next::after{right:var(--pad);transform:rotate(45deg)}
+.single-photo-container{position:relative;width:100%;max-width:95vw;margin:0 auto 40px;padding:0 20px}
+.single-photo-wrapper{position:relative;width:100%;display:flex;align-items:center;justify-content:center;min-height:75vh}
+.single-photo{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.fullscreen-container{position:relative;width:100vw;height:calc(100vh - 121px);overflow:hidden}
+.fullscreen-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.text-content{max-width:900px;margin:0 auto;padding:0 var(--pad)}
+.text-content h1,.text-content h2,.text-content h3{margin:1.5em 0 .5em;font-weight:700}
+.text-content h1:first-child,.text-content h2:first-child,.text-content h3:first-child{margin-top:0}
+.text-content p{margin-bottom:1em}
+.text-content a{color:var(--txt);text-decoration:underline}
+.text-content ul{margin-bottom:1em;padding-left:2em}
+.text-content li{margin-bottom:.5em}
+.text-content strong{font-weight:700}
+.text-content em{font-style:italic}
+.text-content u{text-decoration:underline}
+footer{text-align:center;padding:40px 20px;font-size:.9em;opacity:.7}
+@media(max-width:768px){
+:root{--pad:20px}
+header{min-height:auto}
+.site-title{margin-right:auto;font-size:1.2em}
+.nav-wrapper{display:none}
+.menu-toggle{display:block}
+.mobile-nav{display:block}
+.gallery-container{height:50vh}
+.fullscreen-container{height:calc(100vh - 81px)}
+.fullscreen-img.mobile{display:block}
+.fullscreen-img.desktop{display:none}
+}
+@media(min-width:769px){
+.fullscreen-img.mobile{display:none}
+.fullscreen-img.desktop{display:block}
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+*:focus:not(:focus-visible){outline:0}
+*:focus-visible{outline:2px solid var(--txt);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
 </head>
 <body>
-    <!-- Page Preloader -->
-    <div class="page-preloader" id="page-preloader">
-        <div class="preloader-container">
-            <div class="preloader-track"></div>
-            <div class="preloader-fill"></div>
-        </div>
-    </div>
-    
-    <!-- Header Navigation -->
-    <header role="banner">
-        <a href="#" class="site-title" id="site-title" aria-label="Home"></a>
-        <nav class="nav-wrapper" id="desktop-nav" role="navigation" aria-label="Main navigation">
-            <!-- Navigation groups will be inserted here -->
-        </nav>
-        <button class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-expanded="false">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </header>
-    
-    <!-- Mobile Navigation -->
-    <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Mobile navigation">
-        <!-- Mobile navigation will be inserted here -->
-    </nav>
-    
-    <!-- Main Content -->
-    <main role="main" id="main-content">
-        <!-- Content will be loaded here -->
-    </main>
-    
-    <footer role="contentinfo"></footer>
-    
-    <script>
-        // Configuration for folder structure
-        const CONFIG = {
-            projects: [], // Will be populated dynamically
-            groups: {}, // Will store project groups
-            groupLinks: {}, // Will store links for groups
-            currentProject: 'home',
-            photos: [],
-            mobileMenuOpen: false,
-            loadingAbortController: null, // For cancelling ongoing loads
-            galleryState: {
-                isDragging: false,
-                startX: 0,
-                scrollLeft: 0,
-                velocity: 0,
-                timestamp: 0,
-                ticker: null
-            }
-        };
-        
-        // Silent fetch that doesn't log errors
-        async function silentFetch(url, options = {}) {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced timeout to 3 seconds
-                
-                const response = await fetch(url, {
-                    ...options,
-                    signal: options.signal || controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-                return response;
-            } catch (error) {
-                // Return a mock response object that indicates failure
-                return { 
-                    ok: false,
-                    status: 404,
-                    text: async () => '',
-                    json: async () => ({})
-                };
-            }
-        }
-        
-        // Initialize the application
-        async function init() {
-            try {
-                await loadProjects();
-                setupNavigation();
-                setupMobileMenu();
-                setupKeyboardNavigation();
-                
-                // Setup site title click
-                document.getElementById('site-title').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    navigateToProject('home');
-                });
-                
-                // Check URL for project
-                const urlParams = new URLSearchParams(window.location.search);
-                const projectFromUrl = urlParams.get('project') || 'home';
-                
-                // Load project from URL or default to home
-                loadProject(projectFromUrl);
-                
-                // Remove preloader after content is ready
-                setTimeout(() => {
-                    const preloader = document.getElementById('page-preloader');
-                    if (preloader) {
-                        preloader.classList.add('fade-out');
-                        document.body.classList.add('loaded');
-                        setTimeout(() => {
-                            preloader.remove();
-                        }, 300);
-                    }
-                }, 100);
-                
-            } catch (error) {
-                console.error('Initialization error:', error);
-                document.getElementById('main-content').innerHTML = '<p>Error loading content. Please ensure files are served from a web server.</p>';
-                // Still remove preloader on error
-                const preloader = document.getElementById('page-preloader');
-                if (preloader) {
-                    preloader.classList.add('fade-out');
-                    document.body.classList.add('loaded');
-                    setTimeout(() => {
-                        preloader.remove();
-                    }, 300);
-                }
-            }
-        }
-        
-        // Navigate to project and update URL
-        function navigateToProject(projectName) {
-            const url = new URL(window.location);
-            url.searchParams.set('project', projectName);
-            window.history.pushState({project: projectName}, '', url);
-            loadProject(projectName);
-            closeMobileMenu();
-        }
-        
-        // Load available projects from projects.txt
-        async function loadProjects() {
-            try {
-                // Fetch the projects.txt file
-                const response = await silentFetch('projects.txt');
-                if (!response.ok) {
-                    throw new Error('projects.txt not found');
-                }
-                
-                const text = await response.text();
-                // Parse projects and groups
-                const lines = text.split('\n').map(line => line.trim());
-                let currentGroup = 'ungrouped';
-                
-                for (const line of lines) {
-                    if (!line || line.startsWith('#')) continue;
-                    
-                    // Check if it's a group header
-                    if (line.startsWith('[') && line.endsWith(']')) {
-                        // Check if group has a link/page
-                        const groupParts = line.slice(1, -1).split('|');
-                        currentGroup = groupParts[0].trim();
-                        
-                        if (!CONFIG.groups[currentGroup]) {
-                            CONFIG.groups[currentGroup] = [];
-                        }
-                        
-                        if (groupParts[1]) {
-                            CONFIG.groupLinks[currentGroup] = groupParts[1].trim();
-                        }
-                        continue;
-                    }
-                    
-                    // Process project folder
-                    const folder = line;
-                    
-                    // Check if line starts with ! to hide from menu
-                    const hideFromMenu = folder.startsWith('!');
-                    const cleanFolder = hideFromMenu ? folder.substring(1) : folder;
-                    
-                    try {
-                        // Check if it's an external link project
-                        const linkResponse = await silentFetch(`${cleanFolder}/link.txt`);
-                        if (linkResponse.ok) {
-                            const linkUrl = (await linkResponse.text()).trim();
-                            const titleResponse = await silentFetch(`${cleanFolder}/title.txt`);
-                            const title = titleResponse.ok ? 
-                                (await titleResponse.text()).trim().split('\n')[0] : 
-                                cleanFolder.charAt(0).toUpperCase() + cleanFolder.slice(1);
-                            
-                            const project = { 
-                                folder: cleanFolder, 
-                                title: title,
-                                isExternal: true,
-                                link: linkUrl,
-                                group: currentGroup,
-                                hideFromMenu: hideFromMenu
-                            };
-                            CONFIG.projects.push(project);
-                            if (!CONFIG.groups[currentGroup]) {
-                                CONFIG.groups[currentGroup] = [];
-                            }
-                            CONFIG.groups[currentGroup].push(project);
-                        } else {
-                            // Regular project
-                            const titleResponse = await silentFetch(`${cleanFolder}/title.txt`);
-                            const title = titleResponse.ok ? 
-                                (await titleResponse.text()).trim().split('\n')[0] : 
-                                cleanFolder.charAt(0).toUpperCase() + cleanFolder.slice(1);
-                            
-                            const project = { 
-                                folder: cleanFolder, 
-                                title: title,
-                                isExternal: false,
-                                group: currentGroup,
-                                hideFromMenu: hideFromMenu
-                            };
-                            CONFIG.projects.push(project);
-                            if (!CONFIG.groups[currentGroup]) {
-                                CONFIG.groups[currentGroup] = [];
-                            }
-                            CONFIG.groups[currentGroup].push(project);
-                        }
-                    } catch (e) {
-                        console.warn(`Error loading project ${cleanFolder}:`, e);
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Error loading projects.txt:', error);
-                // Fallback: try to load just 'home' if projects.txt doesn't exist
-                CONFIG.projects.push({ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped', hideFromMenu: false });
-                CONFIG.groups['ungrouped'] = [{ folder: 'home', title: 'Home', isExternal: false, group: 'ungrouped', hideFromMenu: false }];
-            }
-        }
-        
-        // Setup navigation menu
-        function setupNavigation() {
-            const desktopNav = document.getElementById('desktop-nav');
-            const mobileNav = document.getElementById('mobile-nav');
-            
-            desktopNav.innerHTML = '';
-            mobileNav.innerHTML = '';
-            
-            // Get all group names first
-            const allGroups = Object.keys(CONFIG.groups);
-            
-            // Process each group
-            allGroups.forEach((groupName) => {
-                const projects = CONFIG.groups[groupName];
-                
-                // Filter out home projects and hidden projects
-                const filteredProjects = projects.filter(p => p.folder !== 'home' && !p.hideFromMenu);
-                
-                // Check if there are any visible projects in the group
-                const hasVisibleProjects = projects.some(p => !p.hideFromMenu);
-                
-                // Always create the group if it's not ungrouped or if it has any projects (even hidden ones)
-                if (groupName !== 'ungrouped' || hasVisibleProjects) {
-                    // Create desktop navigation group
-                    const groupDiv = document.createElement('div');
-                    groupDiv.className = 'nav-group';
-                    
-                    // Create mobile navigation group
-                    const mobileGroupDiv = document.createElement('div');
-                    mobileGroupDiv.className = 'nav-group';
-                    
-                    // Add group title for all non-ungrouped groups
-                    if (groupName !== 'ungrouped') {
-                        const groupTitle = document.createElement('div');
-                        groupTitle.className = 'nav-group-title';
-                        groupTitle.textContent = groupName;
-                        
-                        const mobileGroupTitle = groupTitle.cloneNode(true);
-                        
-                        // Check if group has a link
-                        if (CONFIG.groupLinks[groupName]) {
-                            groupTitle.classList.add('clickable');
-                            mobileGroupTitle.classList.add('clickable');
-                            
-                            const handleGroupClick = (e) => {
-                                e.preventDefault();
-                                const link = CONFIG.groupLinks[groupName];
-                                if (link.startsWith('http')) {
-                                    const openInNewTab = getComputedStyle(document.documentElement)
-                                        .getPropertyValue('--external-links-new-tab').trim() === 'true';
-                                    if (openInNewTab) {
-                                        window.open(link, '_blank', 'noopener,noreferrer');
-                                    } else {
-                                        window.location.href = link;
-                                    }
-                                } else {
-                                    navigateToProject(link);
-                                }
-                            };
-                            
-                            groupTitle.onclick = handleGroupClick;
-                            mobileGroupTitle.onclick = handleGroupClick;
-                        }
-                        
-                        groupDiv.appendChild(groupTitle);
-                        mobileGroupDiv.appendChild(mobileGroupTitle);
-                    }
-                    
-                    // Add visible projects only
-                    filteredProjects.forEach(project => {
-                        const link = document.createElement('a');
-                        link.className = 'nav-item';
-                        if (project.isExternal) {
-                            link.className += ' external';
-                        }
-                        link.textContent = project.title;
-                        link.setAttribute('role', 'button');
-                        link.setAttribute('tabindex', '0');
-                        
-                        const mobileLink = link.cloneNode(true);
-                        
-                        const handleClick = (e) => {
-                            e.preventDefault();
-                            if (project.isExternal) {
-                                const openInNewTab = getComputedStyle(document.documentElement)
-                                    .getPropertyValue('--external-links-new-tab').trim() === 'true';
-                                if (openInNewTab) {
-                                    window.open(project.link, '_blank', 'noopener,noreferrer');
-                                } else {
-                                    window.location.href = project.link;
-                                }
-                            } else {
-                                navigateToProject(project.folder);
-                            }
-                        };
-                        
-                        link.onclick = handleClick;
-                        mobileLink.onclick = handleClick;
-                        
-                        link.onkeypress = (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                link.onclick(e);
-                            }
-                        };
-                        
-                        mobileLink.onkeypress = (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                mobileLink.onclick(e);
-                            }
-                        };
-                        
-                        if (project.folder === CONFIG.currentProject && !project.isExternal) {
-                            link.classList.add('active');
-                            mobileLink.classList.add('active');
-                        }
-                        
-                        groupDiv.appendChild(link);
-                        mobileGroupDiv.appendChild(mobileLink);
-                    });
-                    
-                    desktopNav.appendChild(groupDiv);
-                    mobileNav.appendChild(mobileGroupDiv);
-                }
-            });
-        }
-        
-        // Setup mobile menu
-        function setupMobileMenu() {
-            const menuToggle = document.getElementById('menu-toggle');
-            const mobileNav = document.getElementById('mobile-nav');
-            
-            menuToggle.addEventListener('click', () => {
-                CONFIG.mobileMenuOpen = !CONFIG.mobileMenuOpen;
-                menuToggle.classList.toggle('active');
-                mobileNav.classList.toggle('active');
-                menuToggle.setAttribute('aria-expanded', CONFIG.mobileMenuOpen);
-                
-                // Prevent scrolling when menu is open
-                document.body.style.overflow = CONFIG.mobileMenuOpen ? 'hidden' : '';
-            });
-        }
-        
-        function closeMobileMenu() {
-            CONFIG.mobileMenuOpen = false;
-            document.getElementById('menu-toggle').classList.remove('active');
-            document.getElementById('mobile-nav').classList.remove('active');
-            document.getElementById('menu-toggle').setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        }
-        
-        // Load a specific project
-        async function loadProject(projectName) {
-            // Cancel any ongoing loading operations
-            if (CONFIG.loadingAbortController) {
-                CONFIG.loadingAbortController.abort();
-            }
-            
-            // Create new abort controller for this load
-            CONFIG.loadingAbortController = new AbortController();
-            const signal = CONFIG.loadingAbortController.signal;
-            
-            CONFIG.currentProject = projectName;
-            CONFIG.photos = [];
-            
-            // Update active navigation
-            document.querySelectorAll('.nav-item').forEach((item) => {
-                const project = CONFIG.projects.find(p => p.title === item.textContent);
-                item.classList.toggle('active', project?.folder === projectName && !project?.isExternal);
-            });
-            
-            const mainContent = document.getElementById('main-content');
-            mainContent.innerHTML = '<div class="loading-spinner"></div>';
-            
-            // Small delay for loading animation
-            await new Promise(resolve => setTimeout(resolve, 50));
-            
-            if (signal.aborted) return;
-            
-            mainContent.innerHTML = '';
-            const contentWrapper = document.createElement('div');
-            contentWrapper.className = 'content-wrapper';
-            
-            // Check text position configuration
-            const textPosition = getComputedStyle(document.documentElement)
-                .getPropertyValue('--text-position').trim().replace(/['"]/g, '');
-            if (textPosition === 'above') {
-                contentWrapper.classList.add('text-above');
-            }
-            
-            mainContent.appendChild(contentWrapper);
-            
-            // Load photos and text in parallel
-            const loadPromises = [];
-            
-            // Load photos (this will show pre-pre-loader)
-            loadPromises.push(loadPhotos(projectName, contentWrapper, textPosition === 'above', signal));
-            
-            // Load text content
-            loadPromises.push(loadTextContent(projectName, contentWrapper, signal));
-            
-            // Wait for both to complete
-            await Promise.all(loadPromises);
-        }
-        
-        // Load text content
-        async function loadTextContent(projectName, contentWrapper, signal) {
-            try {
-                if (signal.aborted) return;
-                
-                const textResponse = await silentFetch(`${projectName}/text.txt`);
-                if (textResponse.ok) {
-                    const textContent = await textResponse.text();
-                    if (textContent.trim()) {
-                        const textDiv = document.createElement('div');
-                        textDiv.className = 'text-content';
-                        textDiv.innerHTML = parseMarkdown(textContent);
-                        contentWrapper.appendChild(textDiv);
-                    }
-                }
-            } catch (e) {
-                // No text file, that's ok
-            }
-        }
-        
-        // Optimized photo discovery with priority for first photo
-        async function discoverPhotos(projectName, signal) {
-            const photoUrls = [];
-            
-            // First try photos.txt
-            const photosResponse = await silentFetch(`${projectName}/photos.txt`);
-            if (photosResponse.ok) {
-                const photosText = await photosResponse.text();
-                const photoFiles = photosText.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 0 && !line.startsWith('#') && !line.includes('img0.')); // Skip img0
-                
-                for (const photoFile of photoFiles) {
-                    if (signal.aborted) return [];
-                    photoUrls.push(`${projectName}/${photoFile}`);
-                }
-                return photoUrls;
-            }
-            
-            // Optimized fallback: Check first photo immediately
-            const extensions = ['jpg', 'jpeg', 'png', 'webp'];
-            
-            // Priority check for first photo
-            for (const ext of extensions) {
-                if (signal.aborted) return [];
-                const photoPath = `${projectName}/img/img1.${ext}`;
-                const response = await silentFetch(photoPath, { method: 'HEAD', signal });
-                if (response.ok) {
-                    photoUrls.push(photoPath);
-                    break;
-                }
-            }
-            
-            // If no first photo found, return empty array
-            if (photoUrls.length === 0) {
-                return photoUrls;
-            }
-            
-            // Continue discovery for remaining photos in parallel (up to 3 at a time)
-            const checkPhoto = async (i) => {
-                if (signal.aborted) return null;
-                
-                for (const ext of extensions) {
-                    const photoPath = `${projectName}/img/img${i}.${ext}`;
-                    const response = await silentFetch(photoPath, { method: 'HEAD', signal });
-                    if (response.ok) {
-                        return photoPath;
-                    }
-                }
-                return null;
-            };
-            
-            // Check photos in batches
-            const batchSize = 3;
-            let consecutiveNotFound = 0;
-            const maxConsecutiveNotFound = 3;
-            
-            for (let i = 2; i <= 50 && consecutiveNotFound < maxConsecutiveNotFound; i += batchSize) {
-                if (signal.aborted) return photoUrls;
-                
-                const batch = [];
-                for (let j = 0; j < batchSize && (i + j) <= 50; j++) {
-                    batch.push(checkPhoto(i + j));
-                }
-                
-                const results = await Promise.all(batch);
-                let foundInBatch = false;
-                
-                for (const result of results) {
-                    if (result) {
-                        photoUrls.push(result);
-                        foundInBatch = true;
-                    }
-                }
-                
-                if (!foundInBatch) {
-                    consecutiveNotFound++;
-                } else {
-                    consecutiveNotFound = 0;
-                }
-            }
-            
-            return photoUrls;
-        }
-        
-        // Load photos for gallery with pre-pre-loader
-        async function loadPhotos(projectName, contentWrapper, insertAtEnd, signal) {
-            // Show pre-pre-loader
-            const prePreLoader = document.createElement('div');
-            prePreLoader.className = 'gallery-pre-loader';
-            prePreLoader.innerHTML = `
-                <div class="preloader-container">
-                    <div class="preloader-track"></div>
-                    <div class="preloader-fill"></div>
-                </div>
-            `;
-            
-            if (insertAtEnd) {
-                contentWrapper.appendChild(prePreLoader);
-            } else {
-                contentWrapper.insertBefore(prePreLoader, contentWrapper.firstChild);
-            }
-            
-            // Discover photos
-            const photoUrls = await discoverPhotos(projectName, signal);
-            
-            // Remove pre-pre-loader with fade
-            prePreLoader.classList.add('fade-out');
-            setTimeout(() => {
-                if (prePreLoader.parentNode) {
-                    prePreLoader.remove();
-                }
-            }, 300);
-            
-            if (photoUrls.length > 0) {
-                CONFIG.photos = photoUrls;
-                await createGallery(contentWrapper, photoUrls, insertAtEnd, signal);
-            }
-        }
-        
-        // Create gallery with optimized loading
-        async function createGallery(contentWrapper, photos, insertAtEnd, signal) {
-            if (photos.length === 1) {
-                // Single photo display - full page mode
-                const galleryContainer = document.createElement('div');
-                galleryContainer.className = 'single-photo-container full-page';
-                
-                const wrapper = document.createElement('div');
-                wrapper.className = 'single-photo-wrapper full-page';
-                
-                // Add preloader for single photo
-                const preloader = document.createElement('div');
-                preloader.className = 'single-photo-preloader';
-                wrapper.appendChild(preloader);
-                
-                const img = document.createElement('img');
-                img.alt = 'Photo';
-                img.className = 'single-photo';
-                
-                // Load the single image with priority
-                const tempImg = new Image();
-                tempImg.onload = () => {
-                    if (!signal.aborted) {
-                        img.src = photos[0];
-                        img.classList.add('loaded');
-                        preloader.classList.add('hidden');
-                    }
-                };
-                
-                tempImg.onerror = () => {
-                    preloader.classList.add('hidden');
-                };
-                
-                // Start loading immediately
-                tempImg.src = photos[0];
-                
-                wrapper.appendChild(img);
-                galleryContainer.appendChild(wrapper);
-                
-                if (insertAtEnd) {
-                    contentWrapper.appendChild(galleryContainer);
-                } else {
-                    contentWrapper.insertBefore(galleryContainer, contentWrapper.firstChild);
-                }
-                return;
-            }
-            
-            // Multi-photo horizontal slider
-            const gallerySection = document.createElement('div');
-            gallerySection.className = 'gallery-section';
-            
-            const galleryContainer = document.createElement('div');
-            galleryContainer.className = 'gallery-container';
-            
-            const gallerySlider = document.createElement('div');
-            gallerySlider.className = 'gallery-slider';
-            
-            // Create all photo items
-            const photoItems = photos.map((photo, index) => {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-item';
-                
-                // Add fake preloader initially
-                const preloader = document.createElement('div');
-                preloader.className = 'photo-preloader fake';
-                photoItem.appendChild(preloader);
-                
-                const img = document.createElement('img');
-                img.alt = `Photo ${index + 1}`;
-                img.dataset.src = photo;
-                img.dataset.index = index;
-                
-                photoItem.appendChild(img);
-                gallerySlider.appendChild(photoItem);
-                
-                return { photoItem, img, preloader, photo, index };
-            });
-            
-            galleryContainer.appendChild(gallerySlider);
-            gallerySection.appendChild(galleryContainer);
-            
-            // Add navigation arrows container
-            const navContainer = document.createElement('div');
-            navContainer.className = 'gallery-nav-container';
-            
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'gallery-nav prev';
-            prevBtn.addEventListener('click', () => scrollGallery(-1));
-            
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'gallery-nav next';
-            nextBtn.addEventListener('click', () => scrollGallery(1));
-            
-            navContainer.appendChild(prevBtn);
-            navContainer.appendChild(nextBtn);
-            gallerySection.appendChild(navContainer);
-            
-            if (insertAtEnd) {
-                contentWrapper.appendChild(gallerySection);
-            } else {
-                contentWrapper.insertBefore(gallerySection, contentWrapper.firstChild);
-            }
-            
-            // Setup drag/swipe functionality
-            setupGalleryDrag(galleryContainer, gallerySlider);
-            
-            // Update navigation visibility
-            setTimeout(() => updateGalleryNavigation(gallerySection, gallerySlider), 100);
-            
-            // Load images sequentially starting immediately with first photo
-            await loadImagesSequentially(photoItems, signal);
-        }
-        
-        // Optimized sequential image loading with immediate start
-        async function loadImagesSequentially(photoItems, signal) {
-            for (let i = 0; i < photoItems.length; i++) {
-                if (signal && signal.aborted) break;
-                
-                const item = photoItems[i];
-                const { img, preloader, photo } = item;
-                
-                // No delay for first photo, small delay for others
-                if (i > 0) {
-                    await new Promise(resolve => setTimeout(resolve, 50));
-                }
-                
-                // Switch to real preloader
-                preloader.classList.remove('fake');
-                
-                // Load image
-                await new Promise((resolve) => {
-                    const tempImg = new Image();
-                    
-                    tempImg.onload = () => {
-                        if (!signal || !signal.aborted) {
-                            img.src = photo;
-                            img.classList.add('loaded');
-                            preloader.classList.add('hidden');
-                        }
-                        resolve();
-                    };
-                    
-                    tempImg.onerror = () => {
-                        preloader.classList.add('hidden');
-                        console.warn(`Failed to load image: ${photo}`);
-                        resolve();
-                    };
-                    
-                    // Start loading with high priority for first image
-                    if (i === 0) {
-                        tempImg.loading = 'eager';
-                    }
-                    tempImg.src = photo;
-                });
-            }
-        }
-        
-        // Setup drag/swipe functionality
-        function setupGalleryDrag(container, slider) {
-            let isMouseDown = false;
-            let startX = 0;
-            let scrollLeft = 0;
-            let lastX = 0;
-            let lastTime = Date.now();
-            let velocity = 0;
-            
-            const getX = (e) => {
-                return e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
-            };
-            
-            const handleStart = (e) => {
-                isMouseDown = true;
-                container.classList.add('grabbing');
-                slider.classList.add('dragging');
-                
-                startX = getX(e) - container.offsetLeft;
-                scrollLeft = getScrollLeft(slider);
-                lastX = startX;
-                lastTime = Date.now();
-                velocity = 0;
-                
-                // Cancel any ongoing animation
-                if (CONFIG.galleryState.ticker) {
-                    cancelAnimationFrame(CONFIG.galleryState.ticker);
-                    CONFIG.galleryState.ticker = null;
-                }
-            };
-            
-            const handleMove = (e) => {
-                if (!isMouseDown) return;
-                e.preventDefault();
-                
-                const x = getX(e) - container.offsetLeft;
-                const now = Date.now();
-                const dt = now - lastTime;
-                
-                if (dt > 0) {
-                    velocity = (x - lastX) / dt;
-                }
-                
-                lastX = x;
-                lastTime = now;
-                
-                const walk = (x - startX) * 1.5;
-                setScrollLeft(slider, scrollLeft - walk);
-                updateGalleryNavigation(container.closest('.gallery-section'), slider);
-            };
-            
-            const handleEnd = () => {
-                if (!isMouseDown) return;
-                
-                isMouseDown = false;
-                container.classList.remove('grabbing');
-                slider.classList.remove('dragging');
-                
-                // Apply momentum
-                if (Math.abs(velocity) > 0.1) {
-                    applyMomentum(slider, velocity * 1000);
-                }
-                
-                updateGalleryNavigation(container.closest('.gallery-section'), slider);
-            };
-            
-            // Mouse events
-            container.addEventListener('mousedown', handleStart);
-            window.addEventListener('mousemove', handleMove);
-            window.addEventListener('mouseup', handleEnd);
-            
-            // Touch events
-            container.addEventListener('touchstart', handleStart, { passive: true });
-            container.addEventListener('touchmove', handleMove, { passive: false });
-            container.addEventListener('touchend', handleEnd);
-            
-            // Prevent image drag
-            container.querySelectorAll('img').forEach(img => {
-                img.addEventListener('dragstart', (e) => e.preventDefault());
-            });
-        }
-        
-        // Apply momentum scrolling
-        function applyMomentum(slider, velocity) {
-            const friction = 0.95;
-            let currentVelocity = velocity;
-            
-            const animate = () => {
-                if (Math.abs(currentVelocity) < 0.5) {
-                    CONFIG.galleryState.ticker = null;
-                    return;
-                }
-                
-                const currentScroll = getScrollLeft(slider);
-                setScrollLeft(slider, currentScroll - currentVelocity * 0.016);
-                currentVelocity *= friction;
-                
-                CONFIG.galleryState.ticker = requestAnimationFrame(animate);
-            };
-            
-            CONFIG.galleryState.ticker = requestAnimationFrame(animate);
-        }
-        
-        // Helper functions for scroll position
-        function getScrollLeft(slider) {
-            const transform = window.getComputedStyle(slider).transform;
-            if (transform === 'none') return 0;
-            const matrix = transform.match(/matrix\((.+)\)/);
-            if (!matrix) return 0;
-            const values = matrix[1].split(', ');
-            return -parseFloat(values[4]);
-        }
-        
-        function setScrollLeft(slider, value) {
-            const maxScroll = slider.scrollWidth - slider.parentElement.offsetWidth;
-            const clampedValue = Math.max(0, Math.min(value, maxScroll));
-            slider.style.transform = `translateX(${-clampedValue}px)`;
-        }
-        
-        // Scroll gallery by direction
-        function scrollGallery(direction) {
-            const gallerySection = document.querySelector('.gallery-section');
-            const slider = gallerySection.querySelector('.gallery-slider');
-            if (!gallerySection || !slider) return;
-            
-            const containerWidth = gallerySection.querySelector('.gallery-container').offsetWidth;
-            const currentScroll = getScrollLeft(slider);
-            const scrollAmount = containerWidth * 0.8 * direction;
-            
-            slider.classList.remove('dragging');
-            setScrollLeft(slider, currentScroll + scrollAmount);
-            
-            setTimeout(() => updateGalleryNavigation(gallerySection, slider), 300);
-        }
-        
-        // Update gallery navigation visibility
-        function updateGalleryNavigation(gallerySection, slider) {
-            const prevBtn = gallerySection.querySelector('.gallery-nav.prev');
-            const nextBtn = gallerySection.querySelector('.gallery-nav.next');
-            if (!prevBtn || !nextBtn) return;
-            
-            const container = gallerySection.querySelector('.gallery-container');
-            const scrollLeft = getScrollLeft(slider);
-            const maxScroll = slider.scrollWidth - container.offsetWidth;
-            
-            prevBtn.classList.toggle('visible', scrollLeft > 10);
-            nextBtn.classList.toggle('visible', scrollLeft < maxScroll - 10);
-        }
-        
-        // Enhanced Markdown parser
-        function parseMarkdown(text) {
-            // Escape HTML
-            const escapeHtml = (str) => {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            };
-            
-            // Process the text line by line for better control
-            const lines = text.split('\n');
-            let html = '';
-            let inList = false;
-            let inParagraph = false;
-            let inCenter = false;
-            
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i];
-                
-                // Check for center tags
-                if (line.trim().toLowerCase() === '<center>') {
-                    if (inParagraph) {
-                        html += '</p>';
-                        inParagraph = false;
-                    }
-                    if (inList) {
-                        html += '</ul>';
-                        inList = false;
-                    }
-                    html += '<center>';
-                    inCenter = true;
-                    continue;
-                }
-                
-                if (line.trim().toLowerCase() === '</center>') {
-                    html += '</center>';
-                    inCenter = false;
-                    continue;
-                }
-                
-                // Headers (must be at start of line)
-                if (line.match(/^#{1,6}\s/)) {
-                    if (inParagraph) {
-                        html += '</p>';
-                        inParagraph = false;
-                    }
-                    if (inList) {
-                        html += '</ul>';
-                        inList = false;
-                    }
-                    
-                    const level = line.match(/^(#{1,6})\s/)[1].length;
-                    const content = line.replace(/^#{1,6}\s+/, '');
-                    html += `<h${level}>${processInlineMarkdown(content)}</h${level}>`;
-                    continue;
-                }
-                
-                // Lists
-                if (line.match(/^\*\s+/)) {
-                    if (inParagraph) {
-                        html += '</p>';
-                        inParagraph = false;
-                    }
-                    if (!inList) {
-                        html += '<ul>';
-                        inList = true;
-                    }
-                    const content = line.replace(/^\*\s+/, '');
-                    html += `<li>${processInlineMarkdown(content)}</li>`;
-                    continue;
-                }
-                
-                // Empty line
-                if (line.trim() === '') {
-                    if (inParagraph && !inCenter) {
-                        html += '</p>';
-                        inParagraph = false;
-                    }
-                    if (inList) {
-                        html += '</ul>';
-                        inList = false;
-                    }
-                    continue;
-                }
-                
-                // Regular paragraph
-                if (inList) {
-                    html += '</ul>';
-                    inList = false;
-                }
-                
-                if (!inParagraph && !inCenter) {
-                    html += '<p>';
-                    inParagraph = true;
-                }
-                
-                html += processInlineMarkdown(line) + ' ';
-            }
-            
-            // Close any open tags
-            if (inParagraph) html += '</p>';
-            if (inList) html += '</ul>';
-            
-            return html;
-        }
-        
-        // Process inline markdown (bold, italic, links, etc.)
-        function processInlineMarkdown(text) {
-            // Escape HTML first
-            text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            
-            // Bold + Italic (***text***)
-            text = text.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
-            
-            // Bold (**text**)
-            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // Italic (*text*)
-            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
-            // Underline (__text__)
-            text = text.replace(/__(.*?)__/g, '<u>$1</u>');
-            
-            // Links with text [text](url)
-            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-            
-            // Standalone URLs (http:// or https://)
-            text = text.replace(/(^|[^"'])(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
-            
-            // Email addresses
-            text = text.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>');
-            
-            // Social media handles (@username)
-            text = text.replace(/(^|[^@\w])@(\w{1,15})\b/g, '$1@$2');
-            
-            return text;
-        }
-        
-        // Keyboard navigation
-        function setupKeyboardNavigation() {
-            document.addEventListener('keydown', (e) => {
-                // Gallery navigation with arrow keys
-                if (e.key === 'ArrowLeft') {
-                    scrollGallery(-1);
-                } else if (e.key === 'ArrowRight') {
-                    scrollGallery(1);
-                }
-            });
-        }
-        
-        // Start the application
-        window.addEventListener('DOMContentLoaded', init);
-        
-        // Handle browser back/forward
-        window.addEventListener('popstate', (e) => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const project = urlParams.get('project') || 'home';
-            loadProject(project);
-        });
-        
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                const gallerySection = document.querySelector('.gallery-section');
-                const slider = document.querySelector('.gallery-slider');
-                if (gallerySection && slider) {
-                    updateGalleryNavigation(gallerySection, slider);
-                }
-            }, 100);
-        });
-    </script>
+<header>
+<a href="#home" class="site-title" onclick="showSection('home');return false">Lisa Mazzei</a>
+<nav class="nav-wrapper">
+<div class="nav-group">
+<div class="nav-group-title">Projects</div>
+<a href="#privateoutland" class="nav-item" onclick="showSection('privateoutland');return false">Private Outland</a>
+<a href="#countrymysteries" class="nav-item" onclick="showSection('countrymysteries');return false">Country Mysteries</a>
+<a href="#narrative" class="nav-item" onclick="showSection('narrative');return false">Stories in Stills</a>
+<a href="#other" class="nav-item" onclick="showSection('other');return false">Other</a>
+</div>
+<div class="nav-group">
+<div class="nav-group-title">Commercial</div>
+<a href="#elasikommando" class="nav-item" onclick="showSection('elasikommando');return false">Elasikommando</a>
+<a href="#nuovestrade" class="nav-item" onclick="showSection('nuovestrade');return false">Nuove Strade</a>
+<a href="#apocalissitascabili" class="nav-item" onclick="showSection('apocalissitascabili');return false">Apocalissi Tascabili</a>
+<a href="#pdu" class="nav-item" onclick="showSection('pdu');return false">PDU</a>
+</div>
+<div class="nav-group">
+<a href="https://lyzardfilm.com" class="nav-group-title clickable" target="_blank" rel="noopener">Films</a>
+</div>
+<div class="nav-group">
+<a href="#about" class="nav-group-title clickable" onclick="showSection('about');return false">About/Contact</a>
+</div>
+</nav>
+<button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+<span></span><span></span><span></span>
+</button>
+</header>
+
+<nav class="mobile-nav" id="mobile-nav">
+<div class="nav-group">
+<div class="nav-group-title">Projects</div>
+<a href="#privateoutland" class="nav-item" onclick="showSection('privateoutland');closeMobileMenu();return false">Private Outland</a>
+<a href="#countrymysteries" class="nav-item" onclick="showSection('countrymysteries');closeMobileMenu();return false">Country Mysteries</a>
+<a href="#narrative" class="nav-item" onclick="showSection('narrative');closeMobileMenu();return false">Stories in Stills</a>
+<a href="#other" class="nav-item" onclick="showSection('other');closeMobileMenu();return false">Other</a>
+</div>
+<div class="nav-group">
+<div class="nav-group-title">Commercial</div>
+<a href="#elasikommando" class="nav-item" onclick="showSection('elasikommando');closeMobileMenu();return false">Elasikommando</a>
+<a href="#nuovestrade" class="nav-item" onclick="showSection('nuovestrade');closeMobileMenu();return false">Nuove Strade</a>
+<a href="#apocalissitascabili" class="nav-item" onclick="showSection('apocalissitascabili');closeMobileMenu();return false">Apocalissi Tascabili</a>
+<a href="#pdu" class="nav-item" onclick="showSection('pdu');closeMobileMenu();return false">PDU</a>
+</div>
+<div class="nav-group">
+<a href="https://lyzardfilm.com" class="nav-group-title clickable" target="_blank" rel="noopener">Films</a>
+</div>
+<div class="nav-group">
+<a href="#about" class="nav-group-title clickable" onclick="showSection('about');closeMobileMenu();return false">About/Contact</a>
+</div>
+</nav>
+
+<main>
+<!-- Home Section -->
+<div id="home" class="content-section active">
+<div class="fullscreen-container">
+<img src="home/img/img_desktop.jpg" alt="Lisa Mazzei Portfolio" class="fullscreen-img desktop" loading="eager">
+<img src="home/img/img_mobile.jpg" alt="Lisa Mazzei Portfolio" class="fullscreen-img mobile" loading="eager">
+</div>
+</div>
+
+<!-- Private Outland Section -->
+<div id="privateoutland" class="content-section">
+<div class="text-content">
+<h1>Private Outland</h1>
+</div>
+</div>
+
+<!-- Country Mysteries Section -->
+<div id="countrymysteries" class="content-section">
+<div class="gallery-container">
+<div class="gallery-slider" id="countrymysteries-slider">
+<div class="photo-item"><img src="countrymysteries/img/img1.jpg" alt="Country Mysteries 1" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img2.jpg" alt="Country Mysteries 2" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img3.jpg" alt="Country Mysteries 3" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img4.jpg" alt="Country Mysteries 4" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img5.jpg" alt="Country Mysteries 5" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img6.jpg" alt="Country Mysteries 6" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img7.jpg" alt="Country Mysteries 7" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img8.jpg" alt="Country Mysteries 8" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img9.jpg" alt="Country Mysteries 9" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img10.jpg" alt="Country Mysteries 10" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img11.jpg" alt="Country Mysteries 11" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img12.jpg" alt="Country Mysteries 12" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img13.jpg" alt="Country Mysteries 13" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img14.jpg" alt="Country Mysteries 14" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img15.jpg" alt="Country Mysteries 15" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img16.jpg" alt="Country Mysteries 16" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img17.jpg" alt="Country Mysteries 17" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img18.jpg" alt="Country Mysteries 18" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img19.jpg" alt="Country Mysteries 19" loading="lazy"></div>
+<div class="photo-item"><img src="countrymysteries/img/img20.jpg" alt="Country Mysteries 20" loading="lazy"></div>
+</div>
+</div>
+<div class="gallery-nav-container">
+<button class="gallery-nav prev" onclick="scrollGallery('countrymysteries',-1)" aria-label="Previous"></button>
+<button class="gallery-nav next visible" onclick="scrollGallery('countrymysteries',1)" aria-label="Next"></button>
+</div>
+<div class="text-content">
+<h1>Country Mysteries (2021)</h1>
+<p>"Country Mysteries: Blue Hour Tales" originates from the need to convey the echoes of the places the artist belongs to, through a subjective interpretation that evokes the charm and mystery of rural landscapes. The story unfolds through images of the Italian countryside, specifically the Garfagnana valley, a region in the northern part of Tuscany.</p>
+<p>Drawing from the cinematographic and literary tradition that connects liminal spaces with mystery narratives, Country Mysteries: Blue Hour Tales becomes a contemporary visual exploration that merges cinematic staged photography with documentation of everyday enigma, balancing subjective and objective perspectives.</p>
+<p>A sense of mystery permeates the everyday landscape — the same timeless presence that has inhabited woods and mountains for centuries. The young protagonists attempt to interpret the enigmatic language of the rural world, confronting the impossibility of fully communicating with it. The subjects appear suspended in moments of apparent stillness, where action becomes a form of both external and internal investigation.</p>
+<p>Country Mysteries: Blue Hour Tales is a journey between fiction and reality, identity and place, a visual archive of a motionless tale.</p>
+</div>
+</div>
+
+<!-- Narrative Section -->
+<div id="narrative" class="content-section">
+<div class="gallery-container">
+<div class="gallery-slider" id="narrative-slider">
+<div class="photo-item"><img src="narrative/img/img1.jpg" alt="Stories in Stills 1" loading="lazy"></div>
+<div class="photo-item"><img src="narrative/img/img2.jpg" alt="Stories in Stills 2" loading="lazy"></div>
+<div class="photo-item"><img src="narrative/img/img3.jpg" alt="Stories in Stills 3" loading="lazy"></div>
+<div class="photo-item"><img src="narrative/img/img4.jpg" alt="Stories in Stills 4" loading="lazy"></div>
+<div class="photo-item"><img src="narrative/img/img5.jpg" alt="Stories in Stills 5" loading="lazy"></div>
+</div>
+</div>
+<div class="gallery-nav-container">
+<button class="gallery-nav prev" onclick="scrollGallery('narrative',-1)" aria-label="Previous"></button>
+<button class="gallery-nav next visible" onclick="scrollGallery('narrative',1)" aria-label="Next"></button>
+</div>
+<div class="text-content">
+<h1>Stories in Stills (2019)</h1>
+<p>This work unfolds as a series of narrative fragments, stills from films that were never made. Echoing the rhythm of storyboards and drawing inspiration from cinematic language and photo-novels, each tableaux explore different atmospheres, time periods, and emotional states, all through female protagonists. The images function as open-ended visual fictions focused on the figure of the female and her relationship through years with loneliness, nostalgia and mystery in different imaginaries.</p>
+</div>
+</div>
+
+<!-- Other Section -->
+<div id="other" class="content-section">
+<div class="gallery-container">
+<div class="gallery-slider" id="other-slider">
+<div class="photo-item"><img src="other/img/img1.jpg" alt="Other 1" loading="lazy"></div>
+<div class="photo-item"><img src="other/img/img2.jpg" alt="Other 2" loading="lazy"></div>
+<div class="photo-item"><img src="other/img/img3.jpg" alt="Other 3" loading="lazy"></div>
+<div class="photo-item"><img src="other/img/img4.jpg" alt="Other 4" loading="lazy"></div>
+<div class="photo-item"><img src="other/img/img5.jpg" alt="Other 5" loading="lazy"></div>
+<div class="photo-item"><img src="other/img/img6.jpg" alt="Other 6" loading="lazy"></div>
+<div class="photo-item"><img src="other/img/img7.jpg" alt="Other 7" loading="lazy"></div>
+</div>
+</div>
+<div class="gallery-nav-container">
+<button class="gallery-nav prev" onclick="scrollGallery('other',-1)" aria-label="Previous"></button>
+<button class="gallery-nav next visible" onclick="scrollGallery('other',1)" aria-label="Next"></button>
+</div>
+<div class="text-content">
+<h1>Other</h1>
+<p>Selection of uncategorized photographs</p>
+</div>
+</div>
+
+<!-- Elasikommando Section -->
+<div id="elasikommando" class="content-section">
+<div class="text-content">
+<h1>Elasikommando</h1>
+</div>
+</div>
+
+<!-- Nuove Strade Section -->
+<div id="nuovestrade" class="content-section">
+<div class="gallery-container">
+<div class="gallery-slider" id="nuovestrade-slider">
+<div class="photo-item"><img src="nuovestrade/img/img1.jpg" alt="Nuove Strade 1" loading="lazy"></div>
+<div class="photo-item"><img src="nuovestrade/img/img2.jpg" alt="Nuove Strade 2" loading="lazy"></div>
+<div class="photo-item"><img src="nuovestrade/img/img3.jpg" alt="Nuove Strade 3" loading="lazy"></div>
+<div class="photo-item"><img src="nuovestrade/img/img4.jpg" alt="Nuove Strade 4" loading="lazy"></div>
+</div>
+</div>
+<div class="gallery-nav-container">
+<button class="gallery-nav prev" onclick="scrollGallery('nuovestrade',-1)" aria-label="Previous"></button>
+<button class="gallery-nav next visible" onclick="scrollGallery('nuovestrade',1)" aria-label="Next"></button>
+</div>
+<div class="text-content">
+<h1>Nuove Strade</h1>
+<p>Nuove Strade - Ama Dee feat. Volpe (2023)</p>
+</div>
+</div>
+
+<!-- Apocalissi Tascabili Section -->
+<div id="apocalissitascabili" class="content-section">
+<div class="gallery-container">
+<div class="gallery-slider" id="apocalissitascabili-slider">
+<div class="photo-item"><img src="apocalissitascabili/img/img1.jpg" alt="Apocalissi Tascabili 1" loading="lazy"></div>
+<div class="photo-item"><img src="apocalissitascabili/img/img2.jpg" alt="Apocalissi Tascabili 2" loading="lazy"></div>
+<div class="photo-item"><img src="apocalissitascabili/img/img3.jpg" alt="Apocalissi Tascabili 3" loading="lazy"></div>
+<div class="photo-item"><img src="apocalissitascabili/img/img4.jpg" alt="Apocalissi Tascabili 4" loading="lazy"></div>
+<div class="photo-item"><img src="apocalissitascabili/img/img5.jpg" alt="Apocalissi Tascabili 5" loading="lazy"></div>
+<div class="photo-item"><img src="apocalissitascabili/img/img6.jpg" alt="Apocalissi Tascabili 6" loading="lazy"></div>
+</div>
+</div>
+<div class="gallery-nav-container">
+<button class="gallery-nav prev" onclick="scrollGallery('apocalissitascabili',-1)" aria-label="Previous"></button>
+<button class="gallery-nav next visible" onclick="scrollGallery('apocalissitascabili',1)" aria-label="Next"></button>
+</div>
+<div class="text-content">
+<h1>Apocalissi Tascabili</h1>
+<p>Apocalissi Tascabili - Volpe (2022)</p>
+</div>
+</div>
+
+<!-- PDU Section -->
+<div id="pdu" class="content-section">
+<div class="gallery-container">
+<div class="gallery-slider" id="pdu-slider">
+<div class="photo-item"><img src="pdu/img/img1.jpg" alt="PDU 1" loading="lazy"></div>
+<div class="photo-item"><img src="pdu/img/img2.jpg" alt="PDU 2" loading="lazy"></div>
+<div class="photo-item"><img src="pdu/img/img3.jpg" alt="PDU 3" loading="lazy"></div>
+<div class="photo-item"><img src="pdu/img/img5.jpg" alt="PDU 4" loading="lazy"></div>
+</div>
+</div>
+<div class="gallery-nav-container">
+<button class="gallery-nav prev" onclick="scrollGallery('pdu',-1)" aria-label="Previous"></button>
+<button class="gallery-nav next visible" onclick="scrollGallery('pdu',1)" aria-label="Next"></button>
+</div>
+<div class="text-content">
+<h1>PDU</h1>
+<p>IORA x PDU (2024)</p>
+</div>
+</div>
+
+<!-- About Section -->
+<div id="about" class="content-section">
+<div class="single-photo-container">
+<div class="single-photo-wrapper">
+<img src="about/img/img1.jpg" alt="Lisa Mazzei" class="single-photo" loading="lazy">
+</div>
+</div>
+<div class="text-content">
+<h1>About/Contact</h1>
+<p>Lisa Mazzei is an Italian photographer and director. She holds a degree in Fine Arts from Florence and specialized in Cinematography in Rome. As one half of the creative duo Lyzard Film, she focuses on music videos for Italian artists and fashion films. Her photographic and video work has been featured at Pitti Uomo, Milano Unica, and ImageNation Paris, and she has collaborated with brands such as Kodak. She has received nominations at the Videoclip Italia Awards, Milano Fashion Film Festival, CANiFF, and the Berlin Fashion Film Festival.</p>
+<p><strong>Contacts</strong><br>
+E-mail: <a href="mailto:lyzardfilm@gmail.com">lyzardfilm@gmail.com</a></p>
+<p><strong>Expositions</strong></p>
+<ul>
+<li>Pitti Uomo, Velvet Mi Amor, installation, Florence, Italy, 2024</li>
+<li>45° Festival di Cinema e Donne, TAPE001: GRACE, Florence, Italy, 2024</li>
+<li>Milano Unica, Velvet Mi Amor, installation, Milan, Italy, 2024</li>
+<li>Image Nation Paris, group exhibition, Paris, France, 2023</li>
+<li>Stymphalia Environmental Museum, solo exhibition, Corinth, Greece, 2022</li>
+</ul>
+<p><strong>Awards</strong></p>
+<ul>
+<li>Videoclip Italia, Futuro, Finalist, Best Rock Videoclip 2025</li>
+<li>Videoclip Italia, Velvet Mi Amor, Winner, Best Styling 2025</li>
+<li>Austin Lift-Off Film Festival, Uncaptured, Official Selection, 2025</li>
+<li>Videoclip Italia, Apnea, Finalist, 2024</li>
+<li>CANIFF, TAPE001: GRACE, Official Selection, 2024</li>
+<li>Sentiero Film Factory, Velvet Mi Amor, Finalist, 2023</li>
+<li>FFFMilano Fashion Film Festival Milano, TAPE001: GRACE, Official Selection, Next Youth, 2023</li>
+<li>BFFF Berlino Fashion Film Festival, TAPE001: GRACE, Official Selection, Best Script, 2023</li>
+<li>Sentiero Film Factory, Peccato, Premio Boomker Sound, 2023</li>
+<li>Sentiero Film Factory, Panico, Finalist, 2023</li>
+</ul>
+<p><strong>Publications</strong></p>
+<ul>
+<li>Artdoc Magazine, Country Mysteries – Lisa Mazzei, 2022</li>
+<li>FotoNostrum, Lisa Mazzei: Everyday Mystery, Incomunicability and Loneliness Through Cinematic Photography, Issue no. 18, 2021</li>
+<li>Fraction Magazine, Country Mysteries by Lisa Mazzei, Issue no. 145, 2021</li>
+<li>Artwort, Goodbye Countryside il saluto nostalgico di Lisa Mazzei, 2020</li>
+<li>Fisheye Magazine, Lisa Mazzei, 2020</li>
+</ul>
+</div>
+</div>
+</main>
+
+<footer>© 2025 Lisa Mazzei. All rights reserved.</footer>
+
+<script>
+let galleryStates={};
+function showSection(s){
+document.querySelectorAll('.content-section').forEach(e=>e.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+const section=document.getElementById(s);
+if(section)section.classList.add('active');
+document.querySelectorAll('.nav-item').forEach(e=>{
+if(e.getAttribute('href')==='#'+s)e.classList.add('active');
+});
+window.history.pushState({section:s},'',s==='home'?'/':'?project='+s);
+window.scrollTo(0,0);
+}
+function scrollGallery(id,dir){
+const slider=document.getElementById(id+'-slider');
+if(!slider)return;
+const container=slider.parentElement;
+const containerWidth=container.offsetWidth;
+const currentScroll=galleryStates[id]||0;
+const scrollAmount=containerWidth*0.8*dir;
+const newScroll=Math.max(0,Math.min(currentScroll+scrollAmount,slider.scrollWidth-containerWidth));
+galleryStates[id]=newScroll;
+slider.style.transform=`translateX(${-newScroll}px)`;
+updateNavButtons(id);
+}
+function updateNavButtons(id){
+const slider=document.getElementById(id+'-slider');
+const container=slider.parentElement.parentElement;
+const prevBtn=container.querySelector('.gallery-nav.prev');
+const nextBtn=container.querySelector('.gallery-nav.next');
+const currentScroll=galleryStates[id]||0;
+const maxScroll=slider.scrollWidth-slider.parentElement.offsetWidth;
+prevBtn.classList.toggle('visible',currentScroll>10);
+nextBtn.classList.toggle('visible',currentScroll<maxScroll-10);
+}
+function setupGalleryDrag(id){
+const container=document.querySelector(`#${id} .gallery-container`);
+const slider=document.getElementById(id+'-slider');
+if(!container||!slider)return;
+let isDown=false,startX,scrollLeft;
+const handleStart=e=>{
+isDown=true;
+container.classList.add('grabbing');
+slider.classList.add('dragging');
+startX=(e.pageX||e.touches[0].pageX)-container.offsetLeft;
+scrollLeft=galleryStates[id]||0;
+};
+const handleMove=e=>{
+if(!isDown)return;
+e.preventDefault();
+const x=(e.pageX||e.touches[0].pageX)-container.offsetLeft;
+const walk=(x-startX)*1.5;
+const newScroll=Math.max(0,Math.min(scrollLeft-walk,slider.scrollWidth-container.offsetWidth));
+galleryStates[id]=newScroll;
+slider.style.transform=`translateX(${-newScroll}px)`;
+updateNavButtons(id);
+};
+const handleEnd=()=>{
+isDown=false;
+container.classList.remove('grabbing');
+slider.classList.remove('dragging');
+};
+container.addEventListener('mousedown',handleStart);
+container.addEventListener('touchstart',handleStart,{passive:true});
+window.addEventListener('mousemove',handleMove);
+window.addEventListener('touchmove',handleMove,{passive:false});
+window.addEventListener('mouseup',handleEnd);
+window.addEventListener('touchend',handleEnd);
+}
+document.getElementById('menu-toggle').addEventListener('click',function(){
+this.classList.toggle('active');
+document.getElementById('mobile-nav').classList.toggle('active');
+});
+function closeMobileMenu(){
+document.getElementById('menu-toggle').classList.remove('active');
+document.getElementById('mobile-nav').classList.remove('active');
+}
+['countrymysteries','narrative','other','nuovestrade','apocalissitascabili','pdu'].forEach(id=>{
+setupGalleryDrag(id);
+updateNavButtons(id);
+});
+window.addEventListener('popstate',e=>{
+const urlParams=new URLSearchParams(window.location.search);
+const project=urlParams.get('project')||'home';
+showSection(project);
+});
+document.addEventListener('DOMContentLoaded',()=>{
+const urlParams=new URLSearchParams(window.location.search);
+const project=urlParams.get('project')||'home';
+showSection(project);
+});
+window.addEventListener('resize',()=>{
+['countrymysteries','narrative','other','nuovestrade','apocalissitascabili','pdu'].forEach(updateNavButtons);
+});
+</script>
 </body>
 </html>
