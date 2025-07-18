@@ -59,7 +59,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{font:16px/1.6 var(--font);scroll-behavior:smooth}
 body{color:var(--txt);background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
-header{position:relative;min-height:120px;background:var(--bg);border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;padding:var(--pad);gap:20px;z-index:1000;flex-wrap:wrap}
+header{position:fixed;top:0;left:0;right:0;min-height:120px;background:var(--bg);border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;padding:var(--pad);gap:20px;z-index:1000;flex-wrap:wrap}
 .site-title{font:700 1.5em var(--title-font);cursor:pointer;text-decoration:none;color:var(--txt);margin-right:60px;transition:opacity var(--trans);flex-shrink:0}
 .site-title:hover{opacity:.7}
 .nav-wrapper{display:flex;gap:40px;flex:1;flex-wrap:wrap;padding:10px 0}
@@ -82,11 +82,11 @@ header{position:relative;min-height:120px;background:var(--bg);border-bottom:1px
 .menu-toggle.active span:nth-child(1){transform:rotate(45deg);top:11px}
 .menu-toggle.active span:nth-child(2){opacity:0}
 .menu-toggle.active span:nth-child(3){transform:rotate(-45deg);bottom:11px}
-.mobile-nav{display:none;position:relative;background:var(--bg);border-bottom:1px solid rgba(0,0,0,.1);max-height:0;overflow:hidden;opacity:0;transition:max-height .3s ease,opacity .3s ease,padding .3s ease}
+.mobile-nav{display:none;position:fixed;top:120px;left:0;right:0;background:var(--bg);border-bottom:1px solid rgba(0,0,0,.1);max-height:0;overflow:hidden;opacity:0;transition:max-height .3s ease,opacity .3s ease,padding .3s ease}
 .mobile-nav.active{opacity:1;max-height:60vh;overflow-y:auto;padding:20px var(--pad)}
 .mobile-nav .nav-group{margin-bottom:20px}
 .mobile-nav .nav-group:last-child{margin-bottom:0}
-main{flex:1;width:100%;position:relative}
+main{flex:1;width:100%;position:relative;margin-top:120px}
 .content-section{display:none;padding:40px 0}
 .content-section.active{display:block}
 #home.content-section{padding:0}
@@ -113,7 +113,7 @@ main{flex:1;width:100%;position:relative}
 .single-photo-container{position:relative;width:100%;max-width:450px;margin:0 auto 40px;padding:0 20px}
 .single-photo-wrapper{position:relative;width:100%;display:flex;align-items:center;justify-content:center}
 .single-photo{max-width:100%;height:auto;object-fit:contain}
-.fullscreen-container{position:relative;width:100vw;height:calc(100vh - var(--header-height));overflow:hidden}
+.fullscreen-container{position:absolute;top:0;left:0;width:100vw;height:calc(100vh - 120px);overflow:hidden}
 .fullscreen-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
 .text-content{max-width:900px;margin:0 auto;padding:0 var(--pad)}
 .text-content h1,.text-content h2,.text-content h3{margin:1.5em 0 .5em;font-weight:700}
@@ -131,26 +131,21 @@ footer{text-align:center;padding:40px 20px;font-size:.9em;opacity:.7}
 }
 @media(max-width:768px){
 :root{--pad:20px}
-header{min-height:auto;padding:20px var(--pad)}
+header{min-height:80px;padding:20px var(--pad)}
 .site-title{margin-right:auto;font-size:1.2em}
 .nav-wrapper{display:none}
 .menu-toggle{display:block}
-.mobile-nav{display:block}
+.mobile-nav{display:block;top:80px}
+main{margin-top:80px}
 .gallery-container{height:50vh}
+.gallery-slider{gap:8px}
+.fullscreen-container{height:calc(100vh - 80px)}
 .fullscreen-img.mobile{display:block}
 .fullscreen-img.desktop{display:none}
 }
 @media(min-width:769px){
 .fullscreen-img.mobile{display:none}
 .fullscreen-img.desktop{display:block}
-/* Calculate header height dynamically */
-.fullscreen-container{
---header-height: auto;
-height: 100vh;
-}
-#home.content-section.active ~ script {
---computed-header-height: 0;
-}
 }
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 *:focus:not(:focus-visible){outline:0}
@@ -212,7 +207,7 @@ height: 100vh;
 <main>
 <!-- Home Section -->
 <div id="home" class="content-section active">
-<div class="fullscreen-container" id="home-fullscreen">
+<div class="fullscreen-container">
 <img src="home/img/img_desktop.jpg" alt="Lisa Mazzei Portfolio" class="fullscreen-img desktop" loading="eager">
 <img src="home/img/img_mobile.jpg" alt="Lisa Mazzei Portfolio" class="fullscreen-img mobile" loading="eager">
 </div>
@@ -309,7 +304,6 @@ height: 100vh;
 <button class="gallery-nav next visible" onclick="scrollGallery('countrymysteries',1)" aria-label="Next"></button>
 </div>
 <div class="text-content">
-<h1>Country Mysteries (2021)</h1>
 <p>"Country Mysteries: Blue Hour Tales" originates from the need to convey the echoes of the places the artist belongs to, through a subjective interpretation that evokes the charm and mystery of rural landscapes. The story unfolds through images of the Italian countryside, specifically the Garfagnana valley, a region in the northern part of Tuscany.</p>
 <p>Drawing from the cinematographic and literary tradition that connects liminal spaces with mystery narratives, Country Mysteries: Blue Hour Tales becomes a contemporary visual exploration that merges cinematic staged photography with documentation of everyday enigma, balancing subjective and objective perspectives.</p>
 <p>A sense of mystery permeates the everyday landscape — the same timeless presence that has inhabited woods and mountains for centuries. The young protagonists attempt to interpret the enigmatic language of the rural world, confronting the impossibility of fully communicating with it. The subjects appear suspended in moments of apparent stillness, where action becomes a form of both external and internal investigation.</p>
@@ -348,7 +342,6 @@ height: 100vh;
 <button class="gallery-nav next visible" onclick="scrollGallery('narrative',1)" aria-label="Next"></button>
 </div>
 <div class="text-content">
-<h1>Stories in Stills (2019)</h1>
 <p>This work unfolds as a series of narrative fragments, stills from films that were never made. Echoing the rhythm of storyboards and drawing inspiration from cinematic language and photo-novels, each tableaux explore different atmospheres, time periods, and emotional states, all through female protagonists. The images function as open-ended visual fictions focused on the figure of the female and her relationship through years with loneliness, nostalgia and mystery in different imaginaries.</p>
 </div>
 </div>
@@ -392,7 +385,6 @@ height: 100vh;
 <button class="gallery-nav next visible" onclick="scrollGallery('other',1)" aria-label="Next"></button>
 </div>
 <div class="text-content">
-<h1>Other</h1>
 <p>Selection of uncategorized photographs</p>
 </div>
 </div>
@@ -424,7 +416,6 @@ height: 100vh;
 <button class="gallery-nav next visible" onclick="scrollGallery('nuovestrade',1)" aria-label="Next"></button>
 </div>
 <div class="text-content">
-<h1>Nuove Strade</h1>
 <p>Nuove Strade - Ama Dee feat. Volpe (2023)</p>
 </div>
 </div>
@@ -464,7 +455,6 @@ height: 100vh;
 <button class="gallery-nav next visible" onclick="scrollGallery('apocalissitascabili',1)" aria-label="Next"></button>
 </div>
 <div class="text-content">
-<h1>Apocalissi Tascabili</h1>
 <p>Apocalissi Tascabili - Volpe (2022)</p>
 </div>
 </div>
@@ -496,7 +486,6 @@ height: 100vh;
 <button class="gallery-nav next visible" onclick="scrollGallery('pdu',1)" aria-label="Next"></button>
 </div>
 <div class="text-content">
-<h1>PDU</h1>
 <p>IORA x PDU (2024)</p>
 </div>
 </div>
@@ -553,14 +542,15 @@ let galleryStates={};
 let dragStates={};
 let loadingQueues={};
 
-// Adjust fullscreen container height dynamically
-function adjustFullscreenHeight(){
-const header=document.getElementById('header');
-const container=document.getElementById('home-fullscreen');
-if(header&&container){
-const headerHeight=header.offsetHeight;
-container.style.height=`calc(100vh - ${headerHeight}px)`;
+// Initialize gallery positions
+function initGalleryPositions(){
+['countrymysteries','narrative','other','nuovestrade','apocalissitascabili','pdu'].forEach(id=>{
+galleryStates[id]=0;
+const slider=document.getElementById(id+'-slider');
+if(slider){
+slider.style.transform='translateX(0)';
 }
+});
 }
 
 function showSection(s){
@@ -569,7 +559,6 @@ document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
 const section=document.getElementById(s);
 if(section){
 section.classList.add('active');
-if(s==='home')adjustFullscreenHeight();
 const gallery=section.querySelector('.gallery-container');
 if(gallery&&!loadingQueues[s]){
 loadGalleryImages(s);
@@ -729,6 +718,8 @@ document.getElementById('mobile-nav').classList.remove('active');
 document.body.style.overflow='';
 }
 
+// Initialize galleries
+initGalleryPositions();
 ['countrymysteries','narrative','other','nuovestrade','apocalissitascabili','pdu'].forEach(id=>{
 setupGalleryDrag(id);
 updateNavButtons(id);
@@ -744,12 +735,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 const urlParams=new URLSearchParams(window.location.search);
 const project=urlParams.get('project')||'home';
 showSection(project);
-adjustFullscreenHeight();
 });
 
 window.addEventListener('resize',()=>{
 ['countrymysteries','narrative','other','nuovestrade','apocalissitascabili','pdu'].forEach(updateNavButtons);
-adjustFullscreenHeight();
 });
 </script>
 </body>
