@@ -72,6 +72,8 @@ header{position:relative;min-height:120px;background:var(--bg);border-bottom:1px
 .nav-item.active{font-weight:700}
 .nav-item.active::before{content:'>';position:absolute;left:-15px}
 .nav-item.external::after{content:'↗';margin-left:5px;font-size:.8em}
+.nav-item.disabled{cursor:default;opacity:.5}
+.nav-item.disabled:hover{opacity:.5}
 .menu-toggle{display:none;width:30px;height:24px;cursor:pointer;background:0;border:0;padding:0;margin-left:auto}
 .menu-toggle span{display:block;position:absolute;height:2px;width:100%;background:var(--txt);transition:all var(--trans)}
 .menu-toggle span:nth-child(1){top:0}
@@ -85,12 +87,18 @@ header{position:relative;min-height:120px;background:var(--bg);border-bottom:1px
 main{flex:1;width:100%;position:relative}
 .content-section{display:none;padding:40px 0}
 .content-section.active{display:block}
-.gallery-container{position:relative;width:100%;height:60vh;overflow:hidden;cursor:grab;margin-bottom:30px}
+.gallery-container{position:relative;width:100%;height:60vh;overflow:hidden;cursor:grab;margin-bottom:30px;user-select:none}
 .gallery-container.grabbing{cursor:grabbing}
-.gallery-slider{display:flex;height:100%;transition:transform var(--trans);gap:15px;padding:0 var(--pad)}
+.gallery-slider{display:flex;height:100%;transition:transform var(--trans);gap:15px;padding:0 var(--pad);will-change:transform}
 .gallery-slider.dragging{transition:none}
-.photo-item{flex-shrink:0;height:100%;position:relative}
-.photo-item img{height:100%;width:auto;object-fit:contain;display:block}
+.photo-item{flex-shrink:0;height:100%;position:relative;display:flex;align-items:center;justify-content:center}
+.photo-item img{height:100%;width:auto;object-fit:contain;display:block;opacity:0;transition:opacity var(--trans)}
+.photo-item img.loaded{opacity:1}
+.photo-preloader{position:absolute;width:32px;height:32px;opacity:1;transition:opacity var(--trans);pointer-events:none}
+.photo-preloader.hidden{opacity:0}
+.photo-preloader::before{content:'';position:absolute;inset:0;border:2px solid rgba(0,0,0,.1);border-radius:50%}
+.photo-preloader::after{content:'';position:absolute;inset:0;border:2px solid transparent;border-top-color:rgba(0,0,0,.3);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .gallery-nav-container{display:flex;justify-content:space-between;padding:0 var(--pad);height:30px;margin-bottom:60px}
 .gallery-nav{background:0;border:0;cursor:pointer;opacity:0;transition:opacity var(--trans);height:30px;display:flex;align-items:center}
 .gallery-nav.visible{opacity:1}
@@ -99,9 +107,9 @@ main{flex:1;width:100%;position:relative}
 .gallery-nav::after{content:'';position:absolute;width:12px;height:12px;border-top:1px solid var(--txt);border-right:1px solid var(--txt)}
 .gallery-nav.prev::after{left:var(--pad);transform:rotate(-135deg)}
 .gallery-nav.next::after{right:var(--pad);transform:rotate(45deg)}
-.single-photo-container{position:relative;width:100%;max-width:95vw;margin:0 auto 40px;padding:0 20px}
-.single-photo-wrapper{position:relative;width:100%;display:flex;align-items:center;justify-content:center;min-height:75vh}
-.single-photo{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.single-photo-container{position:relative;width:100%;max-width:450px;margin:0 auto 40px;padding:0 20px}
+.single-photo-wrapper{position:relative;width:100%;display:flex;align-items:center;justify-content:center}
+.single-photo{max-width:100%;height:auto;object-fit:contain}
 .fullscreen-container{position:relative;width:100vw;height:calc(100vh - 121px);overflow:hidden}
 .fullscreen-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
 .text-content{max-width:900px;margin:0 auto;padding:0 var(--pad)}
@@ -143,14 +151,13 @@ header{min-height:auto}
 <nav class="nav-wrapper">
 <div class="nav-group">
 <div class="nav-group-title">Projects</div>
-<a href="#privateoutland" class="nav-item" onclick="showSection('privateoutland');return false">Private Outland</a>
+<span class="nav-item disabled">Private Outland (TBA)</span>
 <a href="#countrymysteries" class="nav-item" onclick="showSection('countrymysteries');return false">Country Mysteries</a>
 <a href="#narrative" class="nav-item" onclick="showSection('narrative');return false">Stories in Stills</a>
 <a href="#other" class="nav-item" onclick="showSection('other');return false">Other</a>
 </div>
 <div class="nav-group">
 <div class="nav-group-title">Commercial</div>
-<a href="#elasikommando" class="nav-item" onclick="showSection('elasikommando');return false">Elasikommando</a>
 <a href="#nuovestrade" class="nav-item" onclick="showSection('nuovestrade');return false">Nuove Strade</a>
 <a href="#apocalissitascabili" class="nav-item" onclick="showSection('apocalissitascabili');return false">Apocalissi Tascabili</a>
 <a href="#pdu" class="nav-item" onclick="showSection('pdu');return false">PDU</a>
@@ -170,14 +177,13 @@ header{min-height:auto}
 <nav class="mobile-nav" id="mobile-nav">
 <div class="nav-group">
 <div class="nav-group-title">Projects</div>
-<a href="#privateoutland" class="nav-item" onclick="showSection('privateoutland');closeMobileMenu();return false">Private Outland</a>
+<span class="nav-item disabled">Private Outland (TBA)</span>
 <a href="#countrymysteries" class="nav-item" onclick="showSection('countrymysteries');closeMobileMenu();return false">Country Mysteries</a>
 <a href="#narrative" class="nav-item" onclick="showSection('narrative');closeMobileMenu();return false">Stories in Stills</a>
 <a href="#other" class="nav-item" onclick="showSection('other');closeMobileMenu();return false">Other</a>
 </div>
 <div class="nav-group">
 <div class="nav-group-title">Commercial</div>
-<a href="#elasikommando" class="nav-item" onclick="showSection('elasikommando');closeMobileMenu();return false">Elasikommando</a>
 <a href="#nuovestrade" class="nav-item" onclick="showSection('nuovestrade');closeMobileMenu();return false">Nuove Strade</a>
 <a href="#apocalissitascabili" class="nav-item" onclick="showSection('apocalissitascabili');closeMobileMenu();return false">Apocalissi Tascabili</a>
 <a href="#pdu" class="nav-item" onclick="showSection('pdu');closeMobileMenu();return false">PDU</a>
@@ -199,37 +205,90 @@ header{min-height:auto}
 </div>
 </div>
 
-<!-- Private Outland Section -->
-<div id="privateoutland" class="content-section">
-<div class="text-content">
-<h1>Private Outland</h1>
-</div>
-</div>
-
 <!-- Country Mysteries Section -->
 <div id="countrymysteries" class="content-section">
 <div class="gallery-container">
 <div class="gallery-slider" id="countrymysteries-slider">
-<div class="photo-item"><img src="countrymysteries/img/img1.jpg" alt="Country Mysteries 1" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img2.jpg" alt="Country Mysteries 2" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img3.jpg" alt="Country Mysteries 3" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img4.jpg" alt="Country Mysteries 4" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img5.jpg" alt="Country Mysteries 5" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img6.jpg" alt="Country Mysteries 6" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img7.jpg" alt="Country Mysteries 7" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img8.jpg" alt="Country Mysteries 8" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img9.jpg" alt="Country Mysteries 9" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img10.jpg" alt="Country Mysteries 10" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img11.jpg" alt="Country Mysteries 11" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img12.jpg" alt="Country Mysteries 12" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img13.jpg" alt="Country Mysteries 13" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img14.jpg" alt="Country Mysteries 14" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img15.jpg" alt="Country Mysteries 15" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img16.jpg" alt="Country Mysteries 16" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img17.jpg" alt="Country Mysteries 17" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img18.jpg" alt="Country Mysteries 18" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img19.jpg" alt="Country Mysteries 19" loading="lazy"></div>
-<div class="photo-item"><img src="countrymysteries/img/img20.jpg" alt="Country Mysteries 20" loading="lazy"></div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img1.jpg" alt="Country Mysteries 1">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img2.jpg" alt="Country Mysteries 2">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img3.jpg" alt="Country Mysteries 3">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img4.jpg" alt="Country Mysteries 4">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img5.jpg" alt="Country Mysteries 5">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img6.jpg" alt="Country Mysteries 6">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img7.jpg" alt="Country Mysteries 7">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img8.jpg" alt="Country Mysteries 8">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img9.jpg" alt="Country Mysteries 9">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img10.jpg" alt="Country Mysteries 10">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img11.jpg" alt="Country Mysteries 11">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img12.jpg" alt="Country Mysteries 12">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img13.jpg" alt="Country Mysteries 13">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img14.jpg" alt="Country Mysteries 14">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img15.jpg" alt="Country Mysteries 15">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img16.jpg" alt="Country Mysteries 16">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img17.jpg" alt="Country Mysteries 17">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img18.jpg" alt="Country Mysteries 18">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img19.jpg" alt="Country Mysteries 19">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="countrymysteries/img/img20.jpg" alt="Country Mysteries 20">
+</div>
 </div>
 </div>
 <div class="gallery-nav-container">
@@ -249,11 +308,26 @@ header{min-height:auto}
 <div id="narrative" class="content-section">
 <div class="gallery-container">
 <div class="gallery-slider" id="narrative-slider">
-<div class="photo-item"><img src="narrative/img/img1.jpg" alt="Stories in Stills 1" loading="lazy"></div>
-<div class="photo-item"><img src="narrative/img/img2.jpg" alt="Stories in Stills 2" loading="lazy"></div>
-<div class="photo-item"><img src="narrative/img/img3.jpg" alt="Stories in Stills 3" loading="lazy"></div>
-<div class="photo-item"><img src="narrative/img/img4.jpg" alt="Stories in Stills 4" loading="lazy"></div>
-<div class="photo-item"><img src="narrative/img/img5.jpg" alt="Stories in Stills 5" loading="lazy"></div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="narrative/img/img1.jpg" alt="Stories in Stills 1">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="narrative/img/img2.jpg" alt="Stories in Stills 2">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="narrative/img/img3.jpg" alt="Stories in Stills 3">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="narrative/img/img4.jpg" alt="Stories in Stills 4">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="narrative/img/img5.jpg" alt="Stories in Stills 5">
+</div>
 </div>
 </div>
 <div class="gallery-nav-container">
@@ -270,13 +344,34 @@ header{min-height:auto}
 <div id="other" class="content-section">
 <div class="gallery-container">
 <div class="gallery-slider" id="other-slider">
-<div class="photo-item"><img src="other/img/img1.jpg" alt="Other 1" loading="lazy"></div>
-<div class="photo-item"><img src="other/img/img2.jpg" alt="Other 2" loading="lazy"></div>
-<div class="photo-item"><img src="other/img/img3.jpg" alt="Other 3" loading="lazy"></div>
-<div class="photo-item"><img src="other/img/img4.jpg" alt="Other 4" loading="lazy"></div>
-<div class="photo-item"><img src="other/img/img5.jpg" alt="Other 5" loading="lazy"></div>
-<div class="photo-item"><img src="other/img/img6.jpg" alt="Other 6" loading="lazy"></div>
-<div class="photo-item"><img src="other/img/img7.jpg" alt="Other 7" loading="lazy"></div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="other/img/img1.jpg" alt="Other 1">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="other/img/img2.jpg" alt="Other 2">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="other/img/img3.jpg" alt="Other 3">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="other/img/img4.jpg" alt="Other 4">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="other/img/img5.jpg" alt="Other 5">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="other/img/img6.jpg" alt="Other 6">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="other/img/img7.jpg" alt="Other 7">
+</div>
 </div>
 </div>
 <div class="gallery-nav-container">
@@ -289,21 +384,26 @@ header{min-height:auto}
 </div>
 </div>
 
-<!-- Elasikommando Section -->
-<div id="elasikommando" class="content-section">
-<div class="text-content">
-<h1>Elasikommando</h1>
-</div>
-</div>
-
 <!-- Nuove Strade Section -->
 <div id="nuovestrade" class="content-section">
 <div class="gallery-container">
 <div class="gallery-slider" id="nuovestrade-slider">
-<div class="photo-item"><img src="nuovestrade/img/img1.jpg" alt="Nuove Strade 1" loading="lazy"></div>
-<div class="photo-item"><img src="nuovestrade/img/img2.jpg" alt="Nuove Strade 2" loading="lazy"></div>
-<div class="photo-item"><img src="nuovestrade/img/img3.jpg" alt="Nuove Strade 3" loading="lazy"></div>
-<div class="photo-item"><img src="nuovestrade/img/img4.jpg" alt="Nuove Strade 4" loading="lazy"></div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="nuovestrade/img/img1.jpg" alt="Nuove Strade 1">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="nuovestrade/img/img2.jpg" alt="Nuove Strade 2">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="nuovestrade/img/img3.jpg" alt="Nuove Strade 3">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="nuovestrade/img/img4.jpg" alt="Nuove Strade 4">
+</div>
 </div>
 </div>
 <div class="gallery-nav-container">
@@ -320,12 +420,30 @@ header{min-height:auto}
 <div id="apocalissitascabili" class="content-section">
 <div class="gallery-container">
 <div class="gallery-slider" id="apocalissitascabili-slider">
-<div class="photo-item"><img src="apocalissitascabili/img/img1.jpg" alt="Apocalissi Tascabili 1" loading="lazy"></div>
-<div class="photo-item"><img src="apocalissitascabili/img/img2.jpg" alt="Apocalissi Tascabili 2" loading="lazy"></div>
-<div class="photo-item"><img src="apocalissitascabili/img/img3.jpg" alt="Apocalissi Tascabili 3" loading="lazy"></div>
-<div class="photo-item"><img src="apocalissitascabili/img/img4.jpg" alt="Apocalissi Tascabili 4" loading="lazy"></div>
-<div class="photo-item"><img src="apocalissitascabili/img/img5.jpg" alt="Apocalissi Tascabili 5" loading="lazy"></div>
-<div class="photo-item"><img src="apocalissitascabili/img/img6.jpg" alt="Apocalissi Tascabili 6" loading="lazy"></div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="apocalissitascabili/img/img1.jpg" alt="Apocalissi Tascabili 1">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="apocalissitascabili/img/img2.jpg" alt="Apocalissi Tascabili 2">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="apocalissitascabili/img/img3.jpg" alt="Apocalissi Tascabili 3">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="apocalissitascabili/img/img4.jpg" alt="Apocalissi Tascabili 4">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="apocalissitascabili/img/img5.jpg" alt="Apocalissi Tascabili 5">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="apocalissitascabili/img/img6.jpg" alt="Apocalissi Tascabili 6">
+</div>
 </div>
 </div>
 <div class="gallery-nav-container">
@@ -342,10 +460,22 @@ header{min-height:auto}
 <div id="pdu" class="content-section">
 <div class="gallery-container">
 <div class="gallery-slider" id="pdu-slider">
-<div class="photo-item"><img src="pdu/img/img1.jpg" alt="PDU 1" loading="lazy"></div>
-<div class="photo-item"><img src="pdu/img/img2.jpg" alt="PDU 2" loading="lazy"></div>
-<div class="photo-item"><img src="pdu/img/img3.jpg" alt="PDU 3" loading="lazy"></div>
-<div class="photo-item"><img src="pdu/img/img5.jpg" alt="PDU 4" loading="lazy"></div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="pdu/img/img1.jpg" alt="PDU 1">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="pdu/img/img2.jpg" alt="PDU 2">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="pdu/img/img3.jpg" alt="PDU 3">
+</div>
+<div class="photo-item">
+<div class="photo-preloader"></div>
+<img data-src="pdu/img/img5.jpg" alt="PDU 4">
+</div>
 </div>
 </div>
 <div class="gallery-nav-container">
@@ -407,17 +537,56 @@ E-mail: <a href="mailto:lyzardfilm@gmail.com">lyzardfilm@gmail.com</a></p>
 
 <script>
 let galleryStates={};
+let dragStates={};
+let loadingQueues={};
+
 function showSection(s){
 document.querySelectorAll('.content-section').forEach(e=>e.classList.remove('active'));
 document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
 const section=document.getElementById(s);
-if(section)section.classList.add('active');
+if(section){
+section.classList.add('active');
+const gallery=section.querySelector('.gallery-container');
+if(gallery&&!loadingQueues[s]){
+loadGalleryImages(s);
+}
+}
 document.querySelectorAll('.nav-item').forEach(e=>{
 if(e.getAttribute('href')==='#'+s)e.classList.add('active');
 });
 window.history.pushState({section:s},'',s==='home'?'/':'?project='+s);
 window.scrollTo(0,0);
 }
+
+function loadGalleryImages(galleryId){
+const slider=document.getElementById(galleryId+'-slider');
+if(!slider||loadingQueues[galleryId])return;
+const images=slider.querySelectorAll('img[data-src]');
+if(images.length===0)return;
+loadingQueues[galleryId]=true;
+let loadIndex=0;
+function loadNext(){
+if(loadIndex>=images.length)return;
+const img=images[loadIndex];
+const preloader=img.parentElement.querySelector('.photo-preloader');
+const tempImg=new Image();
+tempImg.onload=()=>{
+img.src=img.dataset.src;
+img.classList.add('loaded');
+if(preloader)preloader.classList.add('hidden');
+loadIndex++;
+setTimeout(loadNext,50);
+};
+tempImg.onerror=()=>{
+if(preloader)preloader.classList.add('hidden');
+loadIndex++;
+setTimeout(loadNext,50);
+};
+tempImg.src=img.dataset.src;
+}
+loadNext();
+}
+
 function scrollGallery(id,dir){
 const slider=document.getElementById(id+'-slider');
 if(!slider)return;
@@ -430,72 +599,127 @@ galleryStates[id]=newScroll;
 slider.style.transform=`translateX(${-newScroll}px)`;
 updateNavButtons(id);
 }
+
 function updateNavButtons(id){
 const slider=document.getElementById(id+'-slider');
+if(!slider)return;
 const container=slider.parentElement.parentElement;
 const prevBtn=container.querySelector('.gallery-nav.prev');
 const nextBtn=container.querySelector('.gallery-nav.next');
 const currentScroll=galleryStates[id]||0;
 const maxScroll=slider.scrollWidth-slider.parentElement.offsetWidth;
-prevBtn.classList.toggle('visible',currentScroll>10);
-nextBtn.classList.toggle('visible',currentScroll<maxScroll-10);
+if(prevBtn)prevBtn.classList.toggle('visible',currentScroll>10);
+if(nextBtn)nextBtn.classList.toggle('visible',currentScroll<maxScroll-10);
 }
+
 function setupGalleryDrag(id){
 const container=document.querySelector(`#${id} .gallery-container`);
 const slider=document.getElementById(id+'-slider');
 if(!container||!slider)return;
-let isDown=false,startX,scrollLeft;
+
+let isDown=false,startX,scrollLeft,lastX,lastTime,velocity=0;
+dragStates[id]={isDown:false,velocity:0,ticker:null};
+
+const getX=e=>e.type.includes('mouse')?e.pageX:e.touches[0].pageX;
+
 const handleStart=e=>{
+if(dragStates[id].ticker){
+cancelAnimationFrame(dragStates[id].ticker);
+dragStates[id].ticker=null;
+}
 isDown=true;
+dragStates[id].isDown=true;
 container.classList.add('grabbing');
 slider.classList.add('dragging');
-startX=(e.pageX||e.touches[0].pageX)-container.offsetLeft;
+startX=getX(e)-container.offsetLeft;
 scrollLeft=galleryStates[id]||0;
+lastX=startX;
+lastTime=Date.now();
+velocity=0;
 };
+
 const handleMove=e=>{
 if(!isDown)return;
 e.preventDefault();
-const x=(e.pageX||e.touches[0].pageX)-container.offsetLeft;
+const x=getX(e)-container.offsetLeft;
+const now=Date.now();
+const dt=now-lastTime;
+if(dt>0)velocity=(x-lastX)/dt;
+lastX=x;
+lastTime=now;
 const walk=(x-startX)*1.5;
 const newScroll=Math.max(0,Math.min(scrollLeft-walk,slider.scrollWidth-container.offsetWidth));
 galleryStates[id]=newScroll;
 slider.style.transform=`translateX(${-newScroll}px)`;
 updateNavButtons(id);
 };
+
 const handleEnd=()=>{
+if(!isDown)return;
 isDown=false;
+dragStates[id].isDown=false;
 container.classList.remove('grabbing');
 slider.classList.remove('dragging');
+if(Math.abs(velocity)>0.1)applyMomentum(id,velocity*1000);
 };
+
 container.addEventListener('mousedown',handleStart);
 container.addEventListener('touchstart',handleStart,{passive:true});
 window.addEventListener('mousemove',handleMove);
 window.addEventListener('touchmove',handleMove,{passive:false});
 window.addEventListener('mouseup',handleEnd);
 window.addEventListener('touchend',handleEnd);
+container.querySelectorAll('img').forEach(img=>img.addEventListener('dragstart',e=>e.preventDefault()));
 }
+
+function applyMomentum(id,vel){
+const slider=document.getElementById(id+'-slider');
+if(!slider)return;
+const friction=0.95;
+let currentVel=vel;
+const animate=()=>{
+if(Math.abs(currentVel)<0.5||dragStates[id].isDown){
+dragStates[id].ticker=null;
+return;
+}
+const currentScroll=galleryStates[id]||0;
+const newScroll=Math.max(0,Math.min(currentScroll-currentVel*0.016,slider.scrollWidth-slider.parentElement.offsetWidth));
+galleryStates[id]=newScroll;
+slider.style.transform=`translateX(${-newScroll}px)`;
+currentVel*=friction;
+updateNavButtons(id);
+dragStates[id].ticker=requestAnimationFrame(animate);
+};
+dragStates[id].ticker=requestAnimationFrame(animate);
+}
+
 document.getElementById('menu-toggle').addEventListener('click',function(){
 this.classList.toggle('active');
 document.getElementById('mobile-nav').classList.toggle('active');
 });
+
 function closeMobileMenu(){
 document.getElementById('menu-toggle').classList.remove('active');
 document.getElementById('mobile-nav').classList.remove('active');
 }
+
 ['countrymysteries','narrative','other','nuovestrade','apocalissitascabili','pdu'].forEach(id=>{
 setupGalleryDrag(id);
 updateNavButtons(id);
 });
+
 window.addEventListener('popstate',e=>{
 const urlParams=new URLSearchParams(window.location.search);
 const project=urlParams.get('project')||'home';
 showSection(project);
 });
+
 document.addEventListener('DOMContentLoaded',()=>{
 const urlParams=new URLSearchParams(window.location.search);
 const project=urlParams.get('project')||'home';
 showSection(project);
 });
+
 window.addEventListener('resize',()=>{
 ['countrymysteries','narrative','other','nuovestrade','apocalissitascabili','pdu'].forEach(updateNavButtons);
 });
