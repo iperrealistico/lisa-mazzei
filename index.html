@@ -82,8 +82,8 @@
   --spacing-md: 40px;
   --spacing-lg: 60px;
   --transition-speed: 0.3s;
-  --header-height: 120px;
-  --header-height-mobile: 80px;
+  --header-height: 150px;
+  --header-height-mobile: 100px;
   --gallery-spacing: 15px;
 }
 
@@ -112,10 +112,8 @@ body {
 
 /* Header Styles */
 .header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: static;
+  width: 100%;
   height: var(--header-height-mobile);
   background-color: var(--primary-bg);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -232,7 +230,7 @@ body {
   height: 2px;
   background-color: var(--primary-text);
   position: absolute;
-  transition: transform var(--transition-speed), opacity var(--transition-speed);
+  transition: all var(--transition-speed) ease;
 }
 
 .menu-btn-line:nth-child(1) {
@@ -249,7 +247,8 @@ body {
 }
 
 .menu-btn.open .menu-btn-line:nth-child(1) {
-  transform: rotate(45deg) translateY(11px);
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
 }
 
 .menu-btn.open .menu-btn-line:nth-child(2) {
@@ -257,7 +256,8 @@ body {
 }
 
 .menu-btn.open .menu-btn-line:nth-child(3) {
-  transform: rotate(-45deg) translateY(-11px);
+  bottom: 50%;
+  transform: translateY(50%) rotate(-45deg);
 }
 
 /* Mobile Navigation */
@@ -271,6 +271,7 @@ body {
   display: none;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  z-index: 999;
 }
 
 .nav-mobile.open {
@@ -279,10 +280,11 @@ body {
 
 .nav-mobile-content {
   padding: var(--spacing-md) var(--spacing-sm);
-  min-height: 100%;
+  min-height: calc(100vh - var(--header-height-mobile));
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background-color: var(--primary-bg);
 }
 
 .nav-mobile .nav-section {
@@ -300,6 +302,7 @@ body {
   transform: translateX(-50%);
   animation: bounce 2s infinite;
   display: none;
+  z-index: 1001;
 }
 
 .scroll-indicator.show {
@@ -330,7 +333,6 @@ body {
   flex: 1;
   width: 100%;
   position: relative;
-  margin-top: var(--header-height-mobile);
 }
 
 .section {
@@ -350,13 +352,12 @@ body {
 .hero {
   position: relative;
   width: 100%;
-  height: calc(100vh - var(--header-height-mobile));
   overflow: hidden;
 }
 
 .hero-img {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: cover;
   display: block;
 }
@@ -558,14 +559,6 @@ body {
   .menu-btn,
   .nav-mobile {
     display: none;
-  }
-
-  .main {
-    margin-top: var(--header-height);
-  }
-
-  .hero {
-    height: calc(100vh - var(--header-height));
   }
 
   .gallery {
@@ -957,14 +950,16 @@ const App = {
       
       // Check if scroll indicator is needed
       if (this.state.menuOpen) {
-        this.checkMobileMenuScroll();
+        setTimeout(() => this.checkMobileMenuScroll(), 300);
+      } else {
+        scrollIndicator.classList.remove('show');
       }
     });
     
     // Check scroll on resize
     window.addEventListener('resize', () => {
       if (this.state.menuOpen) {
-        this.checkMobileMenuScroll();
+        setTimeout(() => this.checkMobileMenuScroll(), 100);
       }
     });
     
@@ -985,8 +980,13 @@ const App = {
   checkMobileMenuScroll() {
     const mobileNav = document.querySelector('.nav-mobile');
     const scrollIndicator = document.getElementById('scroll-indicator');
+    
+    if (!mobileNav || !scrollIndicator) return;
+    
     const hasScroll = mobileNav.scrollHeight > mobileNav.clientHeight;
-    scrollIndicator.classList.toggle('show', hasScroll);
+    const isAtTop = mobileNav.scrollTop <= 10;
+    
+    scrollIndicator.classList.toggle('show', hasScroll && isAtTop);
   },
   
   closeMobileMenu() {
@@ -994,6 +994,7 @@ const App = {
     document.querySelector('.menu-btn').classList.remove('open');
     document.querySelector('.nav-mobile').classList.remove('open');
     document.querySelector('.menu-btn').setAttribute('aria-expanded', 'false');
+    document.getElementById('scroll-indicator').classList.remove('show');
   },
   
   navigateToSection(sectionId) {
