@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>•</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Esplicitamente non indicizzabile -->
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="googlebot" content="noindex,nofollow">
+
+  <!-- GLightbox per lightbox touch e keyboard ready -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050608;
+      --bg-alt: #111320;
+      --accent: #7f5dff;
+      --accent-soft: rgba(127,93,255,0.18);
+      --accent-strong: rgba(127,93,255,0.9);
+      --border-soft: rgba(255,255,255,0.08);
+      --thumb-radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: radial-gradient(circle at top, #14162a 0, #050608 45%, #000 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+
+    body.locked {
+      overflow: hidden;
+    }
+
+    body.unlocked {
+      overflow-y: auto;
+    }
+
+    main {
+      min-height: 100vh;
+      padding: 16px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    body.ready main {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .gallery {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      align-items: stretch;
+    }
+
+    .thumb {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--thumb-radius);
+      background: radial-gradient(circle at top, #27294a 0, #050608 55%);
+      border: 1px solid var(--border-soft);
+      cursor: pointer;
+      transform: translate3d(0,0,0);
+      transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, border-color 0.18s ease-out;
+    }
+
+    .thumb::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.15) 0, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.18s ease-out;
+      pointer-events: none;
+    }
+
+    .thumb:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .thumb:hover::before {
+      opacity: 1;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.3s ease-out;
+      transform: translateZ(0);
+    }
+
+    .thumb.loaded img {
+      opacity: 1;
+    }
+
+    .thumb-skeleton {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg,
+          rgba(255,255,255,0.06),
+          rgba(255,255,255,0.16),
+          rgba(255,255,255,0.06)
+        );
+      background-size: 220% 220%;
+      animation: skeleton-shimmer 1.2s ease-in-out infinite;
+    }
+
+    .thumb.loaded .thumb-skeleton {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease-out;
+    }
+
+    @keyframes skeleton-shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-out;
+      z-index: 10;
+    }
+
+    .page-loader.visible {
+      opacity: 1;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.12);
+      border-top-color: var(--accent-strong);
+      animation: spin 0.7s linear infinite;
+      box-shadow: 0 0 30px rgba(127,93,255,0.4);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .password-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(127,93,255,0.18) 0, transparent 45%),
+        radial-gradient(circle at 100% 100%, rgba(0,247,255,0.22) 0, transparent 45%),
+        radial-gradient(circle at 50% 0, rgba(255,255,255,0.04) 0, transparent 55%),
+        #050608;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.45s ease, transform 0.45s cubic-bezier(.19,1,.22,1);
+    }
+
+    .password-overlay.hidden {
+      opacity: 0;
+      transform: scale(1.02);
+      pointer-events: none;
+    }
+
+    .password-box {
+      position: relative;
+      width: min(420px, 86vw);
+      padding: 32px 26px 26px;
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(10,10,18,0.95), rgba(8,8,15,0.98));
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow:
+        0 18px 45px rgba(0,0,0,0.8),
+        0 0 60px rgba(127,93,255,0.18);
+      backdrop-filter: blur(18px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .password-box::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background:
+        conic-gradient(
+          from 170deg,
+          rgba(127,93,255,0.0) 0deg,
+          rgba(127,93,255,0.7) 90deg,
+          rgba(0,247,255,0.7) 180deg,
+          rgba(127,93,255,0.0) 260deg
+        );
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    .lock-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background:
+        radial-gradient(circle at 30% 0, rgba(255,255,255,0.32) 0, transparent 55%),
+        radial-gradient(circle at 70% 100%, rgba(0,247,255,0.28) 0, transparent 55%),
+        rgba(6,6,14,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.8),
+        0 0 25px rgba(127,93,255,0.4);
+    }
+
+    .lock-icon {
+      width: 34px;
+      height: 34px;
+      display: block;
+      fill: none;
+      stroke: #f7f7ff;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px rgba(127,93,255,0.75));
+    }
+
+    .password-form {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .password-field-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 260px;
+    }
+
+    .password-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.08) 0, rgba(16,16,26,0.96) 60%, #06060c 100%);
+      border-radius: 999px;
+      padding: 12px 48px 12px 18px;
+      color: #f6f6ff;
+      font-size: 16px;
+      letter-spacing: 0.18em;
+      text-align: center;
+      caret-color: var(--accent);
+      box-shadow:
+        0 6px 22px rgba(0,0,0,0.85),
+        0 0 24px rgba(127,93,255,0.35);
+    }
+
+    .password-input::placeholder {
+      color: rgba(255,255,255,0.22);
+    }
+
+    .password-input-icon {
+      position: absolute;
+      inset-block: 0;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0.72;
+    }
+
+    .password-input-icon-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-strong);
+      box-shadow: 0 0 10px rgba(127,93,255,0.9);
+      animation: pulse-dot 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.4); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+
+    .password-underline {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      bottom: -8px;
+      height: 2px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.14);
+    }
+
+    .password-underline-inner {
+      width: 40%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #00f7ff);
+      animation: underline-move 1.3s ease-in-out infinite;
+    }
+
+    @keyframes underline-move {
+      0% { transform: translateX(-140%); }
+      60% { transform: translateX(160%); }
+      100% { transform: translateX(160%); }
+    }
+
+    .password-box.shake {
+      animation: shake 0.32s cubic-bezier(.36,.07,.19,.97);
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-6px); }
+      40%, 60% { transform: translateX(6px); }
+      100% { transform: translateX(0); }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .glightbox-container .gslide-description,
+    .glightbox-container .gslide-title {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: 12px;
+      }
+      .password-box {
+        padding: 26px 20px 22px;
+        border-radius: 20px;
+      }
+      .password-input {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body class="locked">
+
+  <div class="password-overlay" id="password-overlay">
+    <div class="password-box" id="password-box">
+      <div class="lock-icon-wrap">
+        <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="5.5" y="10" width="13" height="9" rx="2.5"></rect>
+          <path d="M8 10V8.2A4.2 4.2 0 0 1 12.2 4a4.3 4.3 0 0 1 4.3 4.3V10"></path>
+          <circle cx="12" cy="14" r="1.3"></circle>
+          <path d="M12 15.4V17"></path>
+        </svg>
+      </div>
+
+      <form class="password-form" id="password-form" autocomplete="off">
+        <label for="password-input" class="sr-only">Password</label>
+        <div class="password-field-wrap">
+          <input
+            id="password-input"
+            class="password-input"
+            type="password"
+            inputmode="text"
+            autocomplete="off"
+            placeholder=""
+          >
+          <div class="password-input-icon">
+            <div class="password-input-icon-dot"></div>
+          </div>
+          <div class="password-underline">
+            <div class="password-underline-inner"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="page-loader visible" id="page-loader">
+    <div class="spinner"></div>
+  </div>
+
+  <main>
+    <div class="gallery" id="gallery"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const PASSWORD = "lisa26"; // cambia questa stringa a piacere
+
+      const passwordOverlay = document.getElementById("password-overlay");
+      const passwordBox = document.getElementById("password-box");
+      const passwordForm = document.getElementById("password-form");
+      const passwordInput = document.getElementById("password-input");
+      const galleryEl = document.getElementById("gallery");
+      const pageLoader = document.getElementById("page-loader");
+
+      let lightboxInstance = null;
+      let galleryFinished = false;
+
+      function unlock() {
+        document.body.classList.remove("locked");
+        document.body.classList.add("unlocked");
+        passwordOverlay.classList.add("hidden");
+        startGallery();
+        window.setTimeout(() => {
+          document.body.classList.add("ready");
+        }, 100);
+      }
+
+      function shakeBox() {
+        passwordBox.classList.remove("shake");
+        void passwordBox.offsetWidth;
+        passwordBox.classList.add("shake");
+      }
+
+      passwordForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const value = passwordInput.value || "";
+        if (value === PASSWORD) {
+          unlock();
+        } else {
+          passwordInput.value = "";
+          shakeBox();
+        }
+      });
+
+      passwordInput.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          passwordInput.blur();
+        }
+      });
+
+      window.addEventListener("load", function () {
+        window.setTimeout(function () {
+          try {
+            passwordInput.focus();
+          } catch (e) {
+            /* ignore */
+          }
+        }, 50);
+      });
+
+      function createThumbElement(src, index) {
+        const anchor = document.createElement("a");
+        anchor.href = src;
+        anchor.className = "thumb glightbox";
+        anchor.setAttribute("data-gallery", "gallery");
+        anchor.setAttribute("aria-label", "image " + index);
+
+        const skeleton = document.createElement("div");
+        skeleton.className = "thumb-skeleton";
+        anchor.appendChild(skeleton);
+
+        const img = document.createElement("img");
+        img.alt = "";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = src;
+
+        img.addEventListener("load", function () {
+          anchor.classList.add("loaded");
+        });
+
+        anchor.appendChild(img);
+        return anchor;
+      }
+
+      function initLightboxOnce() {
+        if (galleryFinished && !lightboxInstance && typeof GLightbox === "function") {
+          try {
+            lightboxInstance = GLightbox({
+              selector: ".glightbox",
+              touchNavigation: true,
+              loop: false,
+              autoplayVideos: false,
+              closeOnOutsideClick: true
+            });
+          } catch (e) {
+            lightboxInstance = null;
+          }
+        }
+      }
+
+      function finishGallery() {
+        galleryFinished = true;
+        pageLoader.classList.remove("visible");
+        initLightboxOnce();
+      }
+
+      function startGallery() {
+        pageLoader.classList.add("visible");
+        let index = 1;
+        const maxImages = 999;
+
+        function tryNext() {
+          if (index > maxImages) {
+            finishGallery();
+            return;
+          }
+
+          const filename = "img" + index + ".jpg";
+          const probe = new Image();
+          probe.decoding = "async";
+
+          probe.onload = function () {
+            const thumb = createThumbElement(filename, index);
+            galleryEl.appendChild(thumb);
+            index += 1;
+            tryNext();
+          };
+
+          probe.onerror = function () {
+            finishGallery();
+          };
+
+          probe.src = filename;
+        }
+
+        tryNext();
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !document.body.classList.contains("unlocked")) {
+          passwordInput.blur();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
