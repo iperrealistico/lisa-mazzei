@@ -1,7 +1,7 @@
 home
 
 [Projects]
-privateoutland
+privateoutlands
 countrymysteries
 narrative
 other
