@@ -10,6 +10,7 @@ export default function AdminPage() {
     const [manifest, setManifest] = useState<any>(null);
     const [activeTab, setActiveTab] = useState('settings');
     const [uploadBackend, setUploadBackend] = useState('github');
+    const [publishLogs, setPublishLogs] = useState<string[]>([]);
 
     useEffect(() => {
         const t = localStorage.getItem('admin_token');
@@ -87,8 +88,21 @@ export default function AdminPage() {
         return { github: (gb / 1024 / 1024).toFixed(2), blob: (bb / 1024 / 1024).toFixed(2) };
     };
 
+    const checkConnection = async () => {
+        setPublishLogs(['Checking GitHub Connection...']);
+        try {
+            const res = await fetch('/api/content?type=site', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            if (data.error) setPublishLogs([`❌ Connection Error: ${data.error}`]);
+            else setPublishLogs([`✅ Connection OK. Accessible SHA: ${data.sha}`]);
+        } catch (e: any) {
+            setPublishLogs([`❌ Network Error: ${e.message}`]);
+        }
+    };
+
     const saveContent = async () => {
         setLoading(true);
+        setPublishLogs(['Attempting to publish changes to GitHub...']);
         try {
             const [sRes, mRes] = await Promise.all([
                 fetch('/api/content', {
@@ -105,15 +119,22 @@ export default function AdminPage() {
             const sJson = await sRes.json();
             const mJson = await mRes.json();
 
+            let logs = [];
+            if (sJson.success) logs.push(`✅ Site Content published (SHA: ${sJson.content?.sha})`);
+            else logs.push(`❌ Site error: ${sJson.error || 'Unknown'}`);
+
+            if (mJson.success) logs.push(`✅ Manifest published (SHA: ${mJson.content?.sha})`);
+            else logs.push(`❌ Manifest error: ${mJson.error || 'Unknown'}`);
+
+            setPublishLogs(logs);
+
             if (sJson.success && mJson.success) {
                 setSiteData({ ...siteData, sha: sJson.content.sha });
                 setManifest({ ...manifest, sha: mJson.content.sha });
-                alert('Published successfully! Rebuild triggered.');
-            } else {
-                alert('Error saving.');
+                // Note: removed jarring alert popup relying purely on UI logs!
             }
         } catch (err: any) {
-            alert(err.message);
+            setPublishLogs([`❌ Critical exception: ${err.message}`]);
         }
         setLoading(false);
     };
@@ -172,10 +193,21 @@ export default function AdminPage() {
             <div style={{ flex: 1, padding: '40px', marginLeft: '250px', maxWidth: '900px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <h1>{activeTab.toUpperCase()}</h1>
-                    <button onClick={saveContent} disabled={loading} style={{ padding: '10px 20px', background: 'black', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
-                        {loading ? 'Saving...' : 'PUBLISH CHANGES'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={checkConnection} style={{ padding: '10px 20px', cursor: 'pointer', background: '#e0e0e0', border: '1px solid #ccc' }}>
+                            Check GitHub
+                        </button>
+                        <button onClick={saveContent} disabled={loading} style={{ padding: '10px 20px', background: 'black', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                            {loading ? 'Saving...' : 'PUBLISH CHANGES'}
+                        </button>
+                    </div>
                 </div>
+
+                {publishLogs.length > 0 && (
+                    <div style={{ background: '#333', color: '#0f0', padding: '15px', marginBottom: '20px', fontFamily: 'monospace', borderRadius: '4px' }}>
+                        {publishLogs.map((log, i) => <div key={i}>{log}</div>)}
+                    </div>
+                )}
 
                 {activeTab === 'advanced' && (
                     <div>
@@ -281,15 +313,87 @@ function FaviconEditor({ token }: { token: string }) {
 }
 
 function NavigationEditor({ siteData, setSiteData }: any) {
-    // Simple editor for Nav items if desired, but for now just inform user.
+    const nav = siteData.content.nav;
+
+    const op = (i: number, fn: (n: any) => void) => {
+        const clone = { ...siteData };
+        fn(clone.content.nav[i]);
+        setSiteData(clone);
+    };
+
+    const move = (i: number, dir: number) => {
+        const clone = { ...siteData };
+        const arr = clone.content.nav;
+        if (i + dir < 0 || i + dir >= arr.length) return;
+        const temp = arr[i]; arr[i] = arr[i + dir]; arr[i + dir] = temp;
+        setSiteData(clone);
+    };
+
     return (
-        <div>
-            <p>Navigation structure is currently fixed to Projects, Commercial, Films, About. Edit their labels or disable links below. Modifying actual routes requires using Advanced JSON Editor.</p>
-            <div style={{ marginTop: '20px' }}>
-                <pre style={{ background: '#eee', padding: '10px', fontSize: '11px' }}>
-                    {JSON.stringify(siteData.content.nav, null, 2)}
-                </pre>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => {
+                    const clone = { ...siteData };
+                    clone.content.nav.push({ type: 'section', title: { it: 'Nuova Sezione', en: 'New Section' }, links: [] });
+                    setSiteData(clone);
+                }} style={{ padding: '8px' }}>+ Add Section</button>
+                <button onClick={() => {
+                    const clone = { ...siteData };
+                    clone.content.nav.push({ type: 'link', slug: 'url', label: { it: 'Link', en: 'Link' }, isExternal: false });
+                    setSiteData(clone);
+                }} style={{ padding: '8px' }}>+ Add Link</button>
             </div>
+
+            {nav.map((item: any, i: number) => (
+                <div key={i} style={{ border: '1px solid #ccc', padding: '15px', background: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                        <strong>{item.type.toUpperCase()}</strong>
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                            <button onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
+                            <button onClick={() => move(i, 1)} disabled={i === nav.length - 1}>↓</button>
+                            <button onClick={() => {
+                                if (!confirm('Delete?')) return;
+                                const clone = { ...siteData };
+                                clone.content.nav.splice(i, 1);
+                                setSiteData(clone);
+                            }} style={{ color: 'red' }}>✕</button>
+                        </div>
+                    </div>
+
+                    {item.type === 'section' ? (
+                        <div style={{ display: 'grid', gap: '10px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                <label>Title (IT)<br /><input value={item.title.it} onChange={e => op(i, n => n.title.it = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                                <label>Title (EN)<br /><input value={item.title.en} onChange={e => op(i, n => n.title.en = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                            </div>
+                            <div style={{ marginTop: '10px', background: '#f5f5f5', padding: '10px' }}>
+                                <strong>Links under this section</strong>
+                                {item.links.map((lnk: any, j: number) => (
+                                    <div key={j} style={{ display: 'flex', gap: '10px', marginTop: '10px', alignItems: 'center' }}>
+                                        <input value={lnk.label.it} placeholder="Label IT" onChange={e => op(i, n => n.links[j].label.it = e.target.value)} style={{ width: '100px', padding: '5px' }} />
+                                        <input value={lnk.label.en} placeholder="Label EN" onChange={e => op(i, n => n.links[j].label.en = e.target.value)} style={{ width: '100px', padding: '5px' }} />
+                                        <input value={lnk.slug} placeholder="Slug / Route" onChange={e => op(i, n => n.links[j].slug = e.target.value)} style={{ width: '100px', padding: '5px' }} />
+                                        <label><input type="checkbox" checked={lnk.disabled} onChange={e => op(i, n => n.links[j].disabled = e.target.checked)} /> Disabled</label>
+                                        <button onClick={() => op(i, n => n.links.splice(j, 1))} style={{ color: 'red', marginLeft: 'auto' }}>✕</button>
+                                    </div>
+                                ))}
+                                <button onClick={() => op(i, n => n.links.push({ slug: 'new', label: { it: 'New', en: 'New' }, disabled: false }))} style={{ marginTop: '10px' }}>+ nested link</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <label>Label (IT)<br /><input value={item.label.it} onChange={e => op(i, n => n.label.it = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Label (EN)<br /><input value={item.label.en} onChange={e => op(i, n => n.label.en = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Slug or URL<br /><input value={item.slug || item.url || ''} onChange={e => op(i, n => {
+                                if (n.isExternal) n.url = e.target.value; else n.slug = e.target.value;
+                            })} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label style={{ display: 'flex', alignItems: 'end', paddingBottom: '5px' }}>
+                                <input type="checkbox" checked={item.isExternal} onChange={e => op(i, n => n.isExternal = e.target.checked)} style={{ marginRight: '5px' }} /> Is External URL
+                            </label>
+                        </div>
+                    )}
+                </div>
+            ))}
         </div>
     );
 }

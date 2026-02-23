@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import Swiper from 'swiper';
+// @ts-ignore
+import Swiper from 'swiper/bundle';
+import "swiper/css/bundle";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
@@ -127,10 +129,12 @@ export default function PortfolioUI({
                 keyboard: {
                     enabled: true,
                     onlyInViewport: true,
+                    pageUpDown: true
                 },
-                lazy: {
-                    loadPrevNext: true,
-                    loadPrevNextAmount: 3
+                simulateTouch: true,
+                navigation: {
+                    prevEl: prevBtn,
+                    nextEl: nextBtn
                 },
                 on: {
                     init: function (sw: any) {
@@ -148,32 +152,11 @@ export default function PortfolioUI({
 
             const updateButtons = (sw: any) => {
                 if (!prevBtn || !nextBtn) return;
-                const atBeginning = sw.progress <= 0;
-                const atEnd = sw.progress >= 1;
+                const atBeginning = sw.isBeginning || sw.progress <= 0;
+                const atEnd = sw.isEnd || sw.progress >= 1;
                 prevBtn.classList.toggle('show', !atBeginning);
                 nextBtn.classList.toggle('show', !atEnd);
             };
-
-            if (prevBtn) {
-                prevBtn.addEventListener('click', () => {
-                    const containerWidth = swiper.width;
-                    const currentTranslate = swiper.translate;
-                    const newTranslate = Math.min(0, currentTranslate + containerWidth * 0.8);
-                    swiper.setTranslate(newTranslate);
-                    updateButtons(swiper);
-                });
-            }
-
-            if (nextBtn) {
-                nextBtn.addEventListener('click', () => {
-                    const containerWidth = swiper.width;
-                    const currentTranslate = swiper.translate;
-                    const maxTranslate = swiper.maxTranslate();
-                    const newTranslate = Math.max(maxTranslate, currentTranslate - containerWidth * 0.8);
-                    swiper.setTranslate(newTranslate);
-                    updateButtons(swiper);
-                });
-            }
 
             galleriesRef.current[galleryId] = swiper;
         }, 100);
