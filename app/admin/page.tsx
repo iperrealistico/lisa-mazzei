@@ -102,21 +102,21 @@ export default function AdminPage() {
 
     const saveContent = async () => {
         setLoading(true);
-        setPublishLogs(['Attempting to publish changes to GitHub...']);
+        setPublishLogs(['Attempting to publish changes to GitHub sequentially...']);
         try {
-            const [sRes, mRes] = await Promise.all([
-                fetch('/api/content', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ type: 'site', content: siteData.content, sha: siteData.sha })
-                }),
-                fetch('/api/content', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ type: 'manifest', content: manifest.content, sha: manifest.sha })
-                })
-            ]);
+            // Must be sequential to prevent GitHub 409 reference branch collisions
+            const sRes = await fetch('/api/content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ type: 'site', content: siteData.content })
+            });
             const sJson = await sRes.json();
+
+            const mRes = await fetch('/api/content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ type: 'manifest', content: manifest.content })
+            });
             const mJson = await mRes.json();
 
             let logs = [];
@@ -341,20 +341,16 @@ function NavigationEditor({ siteData, setSiteData }: any) {
             <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => {
                     const clone = { ...siteData };
-                    clone.content.nav.push({ type: 'section', title: { it: 'Nuova Sezione', en: 'New Section' }, links: [] });
+                    // Default to an empty section that can accept links or be converted to a slug
+                    clone.content.nav.push({ type: 'item', title: { it: 'New Item', en: 'New Item' }, links: [], slug: '', isExternal: false });
                     setSiteData(clone);
-                }} style={{ padding: '8px' }}>+ Add Section</button>
-                <button onClick={() => {
-                    const clone = { ...siteData };
-                    clone.content.nav.push({ type: 'link', slug: 'url', label: { it: 'Link', en: 'Link' }, isExternal: false });
-                    setSiteData(clone);
-                }} style={{ padding: '8px' }}>+ Add Link</button>
+                }} style={{ padding: '8px' }}>+ Add Menu Item</button>
             </div>
 
             {nav.map((item: any, i: number) => (
                 <div key={i} style={{ border: '1px solid #ccc', padding: '15px', background: '#fff' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                        <strong>{item.type.toUpperCase()}</strong>
+                        <strong>MENU ITEM</strong>
                         <div style={{ display: 'flex', gap: '5px' }}>
                             <button onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
                             <button onClick={() => move(i, 1)} disabled={i === nav.length - 1}>↓</button>
@@ -367,18 +363,25 @@ function NavigationEditor({ siteData, setSiteData }: any) {
                         </div>
                     </div>
 
-                    {item.type === 'section' ? (
-                        <div style={{ display: 'grid', gap: '10px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                <label>Title (IT)<br /><input value={item.title.it} onChange={e => op(i, n => n.title.it = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
-                                <label>Title (EN)<br /><input value={item.title.en} onChange={e => op(i, n => n.title.en = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
-                            </div>
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                            <label>Title (Italian)<br /><input value={item.title?.it || item.label?.it || ''} onChange={e => op(i, n => n.title = { ...n.title, it: e.target.value })} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Title (English)<br /><input value={item.title?.en || item.label?.en || ''} onChange={e => op(i, n => n.title = { ...n.title, en: e.target.value })} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>URL or Slug (Leave blank if this is a Dropdown Section)<br /><input value={item.slug || item.url || ''} onChange={e => op(i, n => {
+                                if (n.isExternal) { n.url = e.target.value; delete n.slug; } else { n.slug = e.target.value; delete n.url; }
+                            })} style={{ width: '100%', padding: '5px' }} /></label>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '15px', marginTop: '5px' }}>
+                            <label><input type="checkbox" checked={item.isExternal} onChange={e => op(i, n => n.isExternal = e.target.checked)} /> Is External URL</label>
+                        </div>
+                        {(!item.slug && !item.url) && (
                             <div style={{ marginTop: '10px', background: '#f5f5f5', padding: '10px' }}>
-                                <strong>Links under this section</strong>
-                                {item.links.map((lnk: any, j: number) => (
+                                <strong>Dropdown Child Links</strong>
+                                {(item.links || []).map((lnk: any, j: number) => (
                                     <div key={j} style={{ display: 'flex', gap: '10px', marginTop: '10px', alignItems: 'center' }}>
-                                        <input value={lnk.label.it} placeholder="Title (Italian)" onChange={e => op(i, n => n.links[j].label.it = e.target.value)} style={{ width: '120px', padding: '5px' }} />
-                                        <input value={lnk.label.en} placeholder="Title (English)" onChange={e => op(i, n => n.links[j].label.en = e.target.value)} style={{ width: '120px', padding: '5px' }} />
+                                        <input value={lnk.label?.it || lnk.title?.it || ''} placeholder="Title (Italian)" onChange={e => op(i, n => n.links[j].label = { ...n.links[j].label, it: e.target.value })} style={{ width: '120px', padding: '5px' }} />
+                                        <input value={lnk.label?.en || lnk.title?.en || ''} placeholder="Title (English)" onChange={e => op(i, n => n.links[j].label = { ...n.links[j].label, en: e.target.value })} style={{ width: '120px', padding: '5px' }} />
                                         <input value={lnk.slug || lnk.url || ''} placeholder="URL or Slug" onChange={e => op(i, n => {
                                             const val = e.target.value;
                                             if (n.links[j].isExternal) { n.links[j].url = val; delete n.links[j].slug; }
@@ -389,21 +392,10 @@ function NavigationEditor({ siteData, setSiteData }: any) {
                                         <button onClick={() => op(i, n => n.links.splice(j, 1))} style={{ color: 'red', marginLeft: 'auto' }}>✕</button>
                                     </div>
                                 ))}
-                                <button onClick={() => op(i, n => n.links.push({ slug: 'new', label: { it: 'New', en: 'New' }, disabled: false, isExternal: false }))} style={{ marginTop: '10px' }}>+ nested link</button>
+                                <button onClick={() => op(i, n => { if (!n.links) n.links = []; n.links.push({ slug: 'new', label: { it: 'New', en: 'New' }, disabled: false, isExternal: false }); })} style={{ marginTop: '10px' }}>+ Add Sub-Link</button>
                             </div>
-                        </div>
-                    ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                            <label>Label (IT)<br /><input value={item.label.it} onChange={e => op(i, n => n.label.it = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
-                            <label>Label (EN)<br /><input value={item.label.en} onChange={e => op(i, n => n.label.en = e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
-                            <label>Slug or URL<br /><input value={item.slug || item.url || ''} onChange={e => op(i, n => {
-                                if (n.isExternal) n.url = e.target.value; else n.slug = e.target.value;
-                            })} style={{ width: '100%', padding: '5px' }} /></label>
-                            <label style={{ display: 'flex', alignItems: 'end', paddingBottom: '5px' }}>
-                                <input type="checkbox" checked={item.isExternal} onChange={e => op(i, n => n.isExternal = e.target.checked)} style={{ marginRight: '5px' }} /> Is External URL
-                            </label>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             ))}
         </div>

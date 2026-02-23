@@ -38,6 +38,20 @@ export const metadata: Metadata = {
         title: siteData.seo.title,
         description: siteData.seo.description,
         images: [siteData.seo.ogImage],
+    },
+    appleWebApp: {
+        title: "Lisa Mazzei",
+        statusBarStyle: "black-translucent",
+        capable: true
+    },
+    icons: {
+        icon: [
+            { url: '/favicon.ico' },
+            { url: '/icon.png', type: 'image/png', sizes: '192x192' }
+        ],
+        apple: [
+            { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }
+        ]
     }
 };
 
@@ -55,7 +69,6 @@ export default function RootLayout({
     return (
         <html lang="it">
             <head>
-                <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='6' y='6' width='20' height='20' fill='none' stroke='%23000' stroke-width='2'/><circle cx='16' cy='16' r='3' fill='%23000'/></svg>" />
                 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&family=Helvetica+Neue:wght@400;700&display=swap" as="style" />
                 <link rel="preload" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" as="style" />
                 <link href="https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&family=Helvetica+Neue:wght@400;700&display=swap" rel="stylesheet" />

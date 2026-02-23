@@ -189,42 +189,22 @@ export default function PortfolioUI({
     };
 
     const renderNavLinks = (isMobile: boolean) => {
-        return siteData.nav.map((section: any, idx: number) => {
-            if (section.type === 'section') {
-                return (
-                    <div className="nav-section" key={idx}>
-                        <div className="nav-section-title">{section.title[lang] || section.title.it}</div>
-                        {section.links.map((link: any, i: number) => {
-                            if (link.disabled) {
-                                return <span className="nav-link disabled" key={i}>{link.label[lang] || link.label.it}</span>;
-                            }
-                            const isActive = activeGallery === link.slug;
-                            const href = `/${lang === 'en' ? 'en/' : ''}${link.slug}`;
-                            return (
-                                <a
-                                    key={i}
-                                    href={href}
-                                    className={`nav-link ${isActive ? 'active' : ''}`}
-                                    onClick={() => setMobileMenuOpen(false)}
-                                >
-                                    {link.label[lang] || link.label.it}
-                                </a>
-                            );
-                        })}
-                    </div>
-                );
-            } else if (section.type === 'link') {
-                if (section.isExternal) {
+        return siteData.nav.map((item: any, idx: number) => {
+            const title = item.title?.[lang] || item.label?.[lang] || item.title?.it || item.label?.it;
+
+            // If it behaves as a direct URL / Slug (no links array or explicitly defined url/slug)
+            if (item.slug || item.url) {
+                if (item.isExternal) {
                     return (
                         <div className="nav-section" key={idx}>
-                            <a href={section.url} className="nav-section-title link" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
-                                {section.label[lang] || section.label.it}
+                            <a href={item.url} className="nav-section-title link" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
+                                {title}
                             </a>
                         </div>
                     );
                 } else {
-                    const isActive = activeGallery === section.slug;
-                    const href = `/${lang === 'en' ? 'en/' : ''}${section.slug}`;
+                    const isActive = activeGallery === item.slug;
+                    const href = `/${lang === 'en' ? 'en/' : ''}${item.slug}`;
                     return (
                         <div className="nav-section" key={idx}>
                             <a
@@ -232,13 +212,40 @@ export default function PortfolioUI({
                                 className={`nav-section-title link ${isActive ? 'active' : ''}`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
-                                {section.label[lang] || section.label.it}
+                                {title}
                             </a>
                         </div>
                     );
                 }
+            } else {
+                // Otherwise it acts as a Dropdown Section containing links
+                return (
+                    <div className="nav-section" key={idx}>
+                        <div className="nav-section-title">{title}</div>
+                        {(item.links || []).map((link: any, i: number) => {
+                            const linkTitle = link.title?.[lang] || link.label?.[lang] || link.title?.it || link.label?.it;
+                            if (link.disabled) {
+                                return <span className="nav-link disabled" key={i}>{linkTitle}</span>;
+                            }
+                            if (link.isExternal) {
+                                return (
+                                    <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
+                                        {linkTitle}
+                                    </a>
+                                );
+                            } else {
+                                const isActive = activeGallery === link.slug;
+                                const href = `/${lang === 'en' ? 'en/' : ''}${link.slug}`;
+                                return (
+                                    <a key={i} href={href} className={`nav-link ${isActive ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                                        {linkTitle}
+                                    </a>
+                                );
+                            }
+                        })}
+                    </div>
+                );
             }
-            return null;
         });
     };
 
