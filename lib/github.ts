@@ -27,6 +27,45 @@ export async function getGithubFile(path: string) {
     };
 }
 
+export async function getGithubFileSha(path: string): Promise<string | undefined> {
+    const repo = process.env.GITHUB_REPO;
+    const token = process.env.GITHUB_TOKEN;
+    if (!repo || !token) throw new Error('GitHub configuration missing.');
+
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: 'HEAD',
+        headers: {
+            Authorization: `token ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+        },
+        cache: 'no-store'
+    });
+
+    if (res.status === 404) return undefined;
+    if (!res.ok) throw new Error(`GitHub API error: ${res.statusText}`);
+
+    // GitHub returns the ETag header wrapped in quotes which corresponds to the SHA for file content API
+    const etag = res.headers.get('etag');
+    if (etag) {
+        return etag.replace(/W\/|"/g, '');
+    }
+
+    // fallback: do a lightweight GET if HEAD didn't work as expected with ETag
+    const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=main`, {
+        headers: {
+            Authorization: `token ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+        },
+        cache: 'no-store'
+    });
+    if (getRes.ok) {
+        const data = await getRes.json();
+        if (!Array.isArray(data)) return data.sha;
+    }
+
+    return undefined;
+}
+
 export async function putGithubFile(path: string, contentBase64: string, message: string, sha?: string) {
     const repo = process.env.GITHUB_REPO;
     const token = process.env.GITHUB_TOKEN;

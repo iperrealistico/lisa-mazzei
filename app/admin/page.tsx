@@ -305,6 +305,13 @@ function FaviconEditor({ token }: { token: string }) {
     };
     return (
         <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px', background: '#f5f5f5', padding: '15px' }}>
+                <img src={`/favicon.ico?v=${Date.now()}`} alt="Current Favicon" style={{ width: '64px', height: '64px', background: '#fff', border: '1px solid #ddd' }} />
+                <div>
+                    <strong>Current Active Favicon</strong>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>This gets injected automatically into all headers.</p>
+                </div>
+            </div>
             <p>Upload a square PNG image (minimum 512x512 recommended). This will automatically generate the required favicon.ico and mobile app icons, and inject them into the site repository.</p>
             <input type="file" accept="image/png" onChange={handleUpload} disabled={loading} style={{ marginTop: '20px' }} />
             {loading && <p>Processing... Please wait.</p>}
@@ -370,14 +377,19 @@ function NavigationEditor({ siteData, setSiteData }: any) {
                                 <strong>Links under this section</strong>
                                 {item.links.map((lnk: any, j: number) => (
                                     <div key={j} style={{ display: 'flex', gap: '10px', marginTop: '10px', alignItems: 'center' }}>
-                                        <input value={lnk.label.it} placeholder="Label IT" onChange={e => op(i, n => n.links[j].label.it = e.target.value)} style={{ width: '100px', padding: '5px' }} />
-                                        <input value={lnk.label.en} placeholder="Label EN" onChange={e => op(i, n => n.links[j].label.en = e.target.value)} style={{ width: '100px', padding: '5px' }} />
-                                        <input value={lnk.slug} placeholder="Slug / Route" onChange={e => op(i, n => n.links[j].slug = e.target.value)} style={{ width: '100px', padding: '5px' }} />
+                                        <input value={lnk.label.it} placeholder="Title (Italian)" onChange={e => op(i, n => n.links[j].label.it = e.target.value)} style={{ width: '120px', padding: '5px' }} />
+                                        <input value={lnk.label.en} placeholder="Title (English)" onChange={e => op(i, n => n.links[j].label.en = e.target.value)} style={{ width: '120px', padding: '5px' }} />
+                                        <input value={lnk.slug || lnk.url || ''} placeholder="URL or Slug" onChange={e => op(i, n => {
+                                            const val = e.target.value;
+                                            if (n.links[j].isExternal) { n.links[j].url = val; delete n.links[j].slug; }
+                                            else { n.links[j].slug = val; delete n.links[j].url; }
+                                        })} style={{ width: '120px', padding: '5px' }} />
+                                        <label><input type="checkbox" checked={lnk.isExternal} onChange={e => op(i, n => n.links[j].isExternal = e.target.checked)} /> External</label>
                                         <label><input type="checkbox" checked={lnk.disabled} onChange={e => op(i, n => n.links[j].disabled = e.target.checked)} /> Disabled</label>
                                         <button onClick={() => op(i, n => n.links.splice(j, 1))} style={{ color: 'red', marginLeft: 'auto' }}>✕</button>
                                     </div>
                                 ))}
-                                <button onClick={() => op(i, n => n.links.push({ slug: 'new', label: { it: 'New', en: 'New' }, disabled: false }))} style={{ marginTop: '10px' }}>+ nested link</button>
+                                <button onClick={() => op(i, n => n.links.push({ slug: 'new', label: { it: 'New', en: 'New' }, disabled: false, isExternal: false }))} style={{ marginTop: '10px' }}>+ nested link</button>
                             </div>
                         </div>
                     ) : (

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/utils';
-import { getGithubFile, putGithubFile } from '@/lib/github';
+import { getGithubFile, putGithubFile, getGithubFileSha } from '@/lib/github';
 
 export async function GET(req: Request) {
     if (!requireAuth(req)) {
@@ -28,13 +28,14 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { type, content, sha } = await req.json();
+        const { type, content } = await req.json();
         const path = type === 'manifest' ? 'content/assets-manifest.json' : 'content/site.json';
 
         const contentStr = JSON.stringify(content, null, 2);
         const base64 = Buffer.from(contentStr).toString('base64');
 
-        const result = await putGithubFile(path, base64, `CMS: update ${path}`, sha);
+        const realSha = await getGithubFileSha(path);
+        const result = await putGithubFile(path, base64, `CMS: update ${path}`, realSha);
         return NextResponse.json({ success: true, commit: result.commit, content: result.content }, { status: 200 });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/utils';
-import { putGithubFile } from '@/lib/github';
+import { putGithubFile, getGithubFileSha } from '@/lib/github';
 import pngToIco from 'png-to-ico';
 
 export async function POST(req: Request) {
@@ -17,9 +17,14 @@ export async function POST(req: Request) {
         const icoBuffer = await pngToIco(buffer as any);
         const icoBase64 = icoBuffer.toString('base64');
 
-        await putGithubFile('public/favicon.ico', icoBase64, 'Update favicon.ico');
-        await putGithubFile('public/icon.png', cleanBase64, 'Update icon.png');
-        await putGithubFile('public/apple-icon.png', cleanBase64, 'Update apple-icon.png');
+        const icoSha = await getGithubFileSha('public/favicon.ico');
+        await putGithubFile('public/favicon.ico', icoBase64, 'Update favicon.ico', icoSha);
+
+        const iconSha = await getGithubFileSha('public/icon.png');
+        await putGithubFile('public/icon.png', cleanBase64, 'Update icon.png', iconSha);
+
+        const appleSha = await getGithubFileSha('public/apple-icon.png');
+        await putGithubFile('public/apple-icon.png', cleanBase64, 'Update apple-icon.png', appleSha);
 
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (err: any) {
