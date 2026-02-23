@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-// @ts-ignore
-import Swiper from 'swiper/bundle';
-import "swiper/css/bundle";
+import useEmblaCarousel from 'embla-carousel-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
@@ -23,6 +21,79 @@ function parseMarkdown(text: string) {
     return rendered.join('');
 }
 
+function ProjectGallery({ project, lang, activeGallery, setLightboxIndex, setLightboxOpen }: any) {
+    const [emblaRef, emblaApi] = useEmblaCarousel({
+        align: 'start',
+        dragFree: true,
+        containScroll: 'trimSnaps'
+    });
+
+    const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
+    const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
+
+    const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+    const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+
+    const onSelect = useCallback(() => {
+        if (!emblaApi) return;
+        setPrevBtnEnabled(emblaApi.canScrollPrev());
+        setNextBtnEnabled(emblaApi.canScrollNext());
+    }, [emblaApi]);
+
+    useEffect(() => {
+        if (!emblaApi) return;
+        onSelect();
+        emblaApi.on('select', onSelect);
+        emblaApi.on('reInit', onSelect);
+
+        // Global arrow keys, but only if this gallery is active
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (activeGallery !== project.slug) return;
+            if (e.key === 'ArrowLeft') scrollPrev();
+            if (e.key === 'ArrowRight') scrollNext();
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [emblaApi, onSelect, activeGallery, project.slug, scrollPrev, scrollNext]);
+
+    return (
+        <section id={project.slug} className={`section ${activeGallery === project.slug ? 'active' : ''}`}>
+            <div className="gallery embla" ref={emblaRef} style={{ overflow: 'hidden' }}>
+                <div className="embla__container swiper-wrapper" style={{ display: 'flex' }}>
+                    {project.photos.map((photo: any, i: number) => (
+                        <div
+                            className="embla__slide swiper-slide"
+                            key={i}
+                            style={{ cursor: 'grab', flex: '0 0 auto' }}
+                            onClick={() => {
+                                // Guarantee it only pops the lightbox on clicks, not drags!
+                                if (emblaApi && (emblaApi as any).clickAllowed()) {
+                                    setLightboxIndex(i);
+                                    setLightboxOpen(true);
+                                }
+                            }}
+                        >
+                            <img data-src={'/' + photo.url} alt={photo.alt} className="gallery-img swiper-lazy" style={{ userSelect: 'none' }} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="gallery-nav">
+                <button className={`gallery-btn prev ${prevBtnEnabled ? 'show' : ''}`} onClick={scrollPrev} aria-label="Previous image"></button>
+                <button className={`gallery-btn next ${nextBtnEnabled ? 'show' : ''}`} onClick={scrollNext} aria-label="Next image"></button>
+            </div>
+
+            <div className="content">
+                {project.description?.[lang] ? (
+                    <div dangerouslySetInnerHTML={{ __html: parseMarkdown(project.description[lang] || project.description.it) }} />
+                ) : null}
+            </div>
+        </section>
+    );
+}
+
 export default function PortfolioUI({
     siteData,
     lang,
@@ -34,7 +105,6 @@ export default function PortfolioUI({
 }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeGallery, setActiveGallery] = useState(activeProjectSlug);
-    const galleriesRef = useRef<Record<string, Swiper>>({});
     const mobileNavRef = useRef<HTMLElement>(null);
     const [showScrollIndicator, setShowScrollIndicator] = useState(false);
 
@@ -66,11 +136,6 @@ export default function PortfolioUI({
                         img.removeAttribute('data-src');
                         img.onload = () => {
                             img.classList.add('loaded');
-                            // Fix preloader spinner
-                            const preloader = img.parentElement?.querySelector('.swiper-lazy-preloader');
-                            if (preloader) {
-                                preloader.remove();
-                            }
                         };
                         observer.unobserve(img);
                     }
@@ -84,9 +149,6 @@ export default function PortfolioUI({
 
         const onResize = () => {
             if (mobileMenuOpen) checkMobileMenuScroll();
-            Object.values(galleriesRef.current).forEach(swiper => {
-                if (swiper && typeof swiper.update === 'function') swiper.update();
-            });
         };
         window.addEventListener('resize', onResize);
 
@@ -100,98 +162,6 @@ export default function PortfolioUI({
     useEffect(() => {
         setActiveGallery(activeProjectSlug || 'home');
     }, [activeProjectSlug]);
-
-    const initGallery = useCallback((galleryId: string) => {
-        if (galleriesRef.current[galleryId]) return;
-
-        setTimeout(() => {
-            const swiperEl = document.querySelector(`[data-gallery="${galleryId}"]`) as HTMLElement;
-            if (!swiperEl) return;
-
-            const section = swiperEl.closest('.section') as HTMLElement;
-            const prevBtn = section?.querySelector('.gallery-btn.prev') as HTMLButtonElement;
-            const nextBtn = section?.querySelector('.gallery-btn.next') as HTMLButtonElement;
-
-            const swiper = new Swiper(swiperEl, {
-                slidesPerView: 'auto',
-                spaceBetween: 0,
-                freeMode: {
-                    enabled: true,
-                    sticky: false,
-                    momentumRatio: 1,
-                    momentumVelocityRatio: 1
-                },
-                mousewheel: {
-                    forceToAxis: true,
-                    invert: false
-                },
-                grabCursor: true,
-                keyboard: {
-                    enabled: true,
-                    onlyInViewport: true,
-                    pageUpDown: true
-                },
-                simulateTouch: true,
-                navigation: {
-                    prevEl: prevBtn,
-                    nextEl: nextBtn
-                },
-                on: {
-                    init: function (sw: any) {
-                        sw.update();
-                        updateButtons(sw);
-                    },
-                    slideChange: function (sw: any) {
-                        updateButtons(sw);
-                    },
-                    progress: function (sw: any) {
-                        updateButtons(sw);
-                    },
-                    click: function (sw: any) {
-                        if (sw.clickedIndex !== undefined) {
-                            setLightboxIndex(sw.clickedIndex);
-                            setLightboxOpen(true);
-                        }
-                    }
-                }
-            } as any);
-
-            // Re-bind exact arrow logic explicitly because dynamically mounted elements occassionally fail Swiper's internal binds
-            if (prevBtn) prevBtn.onclick = () => swiper.slidePrev();
-            if (nextBtn) nextBtn.onclick = () => swiper.slideNext();
-
-            const updateButtons = (sw: any) => {
-                if (!prevBtn || !nextBtn) return;
-                const atBeginning = sw.isBeginning || sw.progress <= 0;
-                const atEnd = sw.isEnd || sw.progress >= 1;
-                prevBtn.classList.toggle('show', !atBeginning);
-                nextBtn.classList.toggle('show', !atEnd);
-            };
-
-            galleriesRef.current[galleryId] = swiper;
-        }, 100);
-    }, []);
-
-    useEffect(() => {
-        if (activeGallery && activeGallery !== 'home' && activeGallery !== 'about') {
-            initGallery(activeGallery);
-        }
-
-        // Global keydown bind for active gallery regardless of DOM focus point
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (lightboxOpen) return; // Let Lightbox handle it if open
-            if (!activeGallery || activeGallery === 'home' || activeGallery === 'about') return;
-            const swiper = galleriesRef.current[activeGallery];
-            if (!swiper) return;
-
-            if (e.key === 'ArrowLeft') swiper.slidePrev();
-            else if (e.key === 'ArrowRight') swiper.slideNext();
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-
-    }, [activeGallery, initGallery, lightboxOpen]);
 
     const checkMobileMenuScroll = () => {
         const mobileNav = mobileNavRef.current;
@@ -334,35 +304,14 @@ export default function PortfolioUI({
                 </section>
 
                 {siteData.projects.map((project: any) => (
-                    <section id={project.slug} className={`section ${activeGallery === project.slug ? 'active' : ''}`} key={project.id}>
-                        <div className="gallery">
-                            <div className="swiper" data-gallery={project.slug}>
-                                <div className="swiper-wrapper">
-                                    {project.photos.map((photo: any, i: number) => (
-                                        <div
-                                            className="swiper-slide"
-                                            key={i}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <img data-src={'/' + photo.url} alt={photo.alt} className="gallery-img swiper-lazy" />
-                                            <div className="swiper-lazy-preloader"></div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="gallery-nav">
-                            <button className="gallery-btn prev" aria-label="Previous image"></button>
-                            <button className="gallery-btn next show" aria-label="Next image"></button>
-                        </div>
-
-                        <div className="content">
-                            {project.description?.[lang] ? (
-                                <div dangerouslySetInnerHTML={{ __html: parseMarkdown(project.description[lang] || project.description.it) }} />
-                            ) : null}
-                        </div>
-                    </section>
+                    <ProjectGallery
+                        key={project.id}
+                        project={project}
+                        lang={lang}
+                        activeGallery={activeGallery}
+                        setLightboxIndex={setLightboxIndex}
+                        setLightboxOpen={setLightboxOpen}
+                    />
                 ))}
 
                 <section id="about" className={`section ${activeGallery === 'about' ? 'active' : ''}`}>
