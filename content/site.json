@@ -1,0 +1,392 @@
+{
+  "seo": {
+    "title": "Lisa Mazzei - Photographer & Director",
+    "description": "Lisa Mazzei è una fotografa e regista italiana. Il suo lavoro esplora il mistero del quotidiano attraverso narrazioni visive cinematografiche tra i paesaggi rurali italiani.",
+    "keywords": "Lisa Mazzei, fotografa, photographer, director, regista, Italia, Toscana, Garfagnana, Country Mysteries, Lyzard Film",
+    "canonical": "https://www.lisamazzei.com",
+    "ogImage": "https://www.lisamazzei.com/home/img/img_desktop.jpg"
+  },
+  "nav": [
+    {
+      "type": "section",
+      "title": {
+        "it": "Projects",
+        "en": "Projects"
+      },
+      "links": [
+        {
+          "slug": "",
+          "disabled": true,
+          "label": {
+            "it": "TBA (2026)",
+            "en": "TBA (2026)"
+          }
+        },
+        {
+          "slug": "countrymysteries",
+          "disabled": false,
+          "label": {
+            "it": "Country Mysteries (2021)",
+            "en": "Country Mysteries (2021)"
+          }
+        },
+        {
+          "slug": "narrative",
+          "disabled": false,
+          "label": {
+            "it": "Stories in Stills (2019)",
+            "en": "Stories in Stills (2019)"
+          }
+        },
+        {
+          "slug": "other",
+          "disabled": false,
+          "label": {
+            "it": "Other",
+            "en": "Other"
+          }
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "title": {
+        "it": "Commercial",
+        "en": "Commercial"
+      },
+      "links": [
+        {
+          "slug": "nuovestrade",
+          "disabled": false,
+          "label": {
+            "it": "Nuove Strade",
+            "en": "Nuove Strade"
+          }
+        },
+        {
+          "slug": "apocalissitascabili",
+          "disabled": false,
+          "label": {
+            "it": "Apocalissi Tascabili",
+            "en": "Apocalissi Tascabili"
+          }
+        },
+        {
+          "slug": "pdu",
+          "disabled": false,
+          "label": {
+            "it": "PDU",
+            "en": "PDU"
+          }
+        }
+      ]
+    },
+    {
+      "type": "link",
+      "isExternal": true,
+      "url": "https://lyzardfilm.com",
+      "label": {
+        "it": "Films",
+        "en": "Films"
+      }
+    },
+    {
+      "type": "link",
+      "isExternal": false,
+      "slug": "about",
+      "label": {
+        "it": "About/Contact",
+        "en": "About/Contact"
+      }
+    }
+  ],
+  "home": {
+    "desktopImage": "home/img/img_desktop.jpg",
+    "mobileImage": "home/img/img_mobile.jpg"
+  },
+  "about": {
+    "image": "about/img/img1.jpg",
+    "title": {
+      "it": "About/Contact",
+      "en": "About/Contact"
+    },
+    "content": {
+      "it": "Lisa Mazzei is an Italian photographer and director. She holds a degree in Fine Arts from Florence and specialized in Cinematography in Rome. As one half of the creative duo Lyzard Film, she focuses on music videos for Italian artists and fashion films. Her photographic and video work has been featured at Pitti Uomo, Milano Unica, and ImageNation Paris, and she has collaborated with brands such as Kodak. She has received nominations at the Videoclip Italia Awards, Milano Fashion Film Festival, CANiFF, and the Berlin Fashion Film Festival.\n\n**Contacts**\nE-mail: [lyzardfilm@gmail.com](mailto:lyzardfilm@gmail.com)\n\n**Expositions**\n- Pitti Uomo, Velvet Mi Amor, installation, Florence, Italy, 2024\n- 45° Festival di Cinema e Donne, TAPE001: GRACE, Florence, Italy, 2024\n- Milano Unica, Velvet Mi Amor, installation, Milan, Italy, 2024\n- Image Nation Paris, group exhibition, Paris, France, 2023\n- Stymphalia Environmental Museum, solo exhibition, Corinth, Greece, 2022\n\n**Awards**\n- Videoclip Italia, Futuro, Finalist, Best Rock Videoclip 2025\n- Videoclip Italia, Velvet Mi Amor, Winner, Best Styling 2025\n- Austin Lift-Off Film Festival, Uncaptured, Official Selection, 2025\n- Videoclip Italia, Apnea, Finalist, 2024\n- CANIFF, TAPE001: GRACE, Official Selection, 2024\n- Sentiero Film Factory, Velvet Mi Amor, Finalist, 2023\n- FFFMilano Fashion Film Festival Milano, TAPE001: GRACE, Official Selection, Next Youth, 2023\n- BFFF Berlino Fashion Film Festival, TAPE001: GRACE, Official Selection, Best Script, 2023\n- Sentiero Film Factory, Peccato, Premio Boomker Sound, 2023\n- Sentiero Film Factory, Panico, Finalist, 2023\n\n**Publications**\n- Artdoc Magazine, Country Mysteries – Lisa Mazzei, 2022\n- FotoNostrum, Lisa Mazzei: Everyday Mystery, Incomunicability and Loneliness Through Cinematic Photography, Issue no. 18, 2021\n- Fraction Magazine, Country Mysteries by Lisa Mazzei, Issue no. 145, 2021\n- Artwort, Goodbye Countryside il saluto nostalgico di Lisa Mazzei, 2020\n- Fisheye Magazine, Lisa Mazzei, 2020",
+      "en": "Lisa Mazzei is an Italian photographer and director. She holds a degree in Fine Arts from Florence and specialized in Cinematography in Rome. As one half of the creative duo Lyzard Film, she focuses on music videos for Italian artists and fashion films. Her photographic and video work has been featured at Pitti Uomo, Milano Unica, and ImageNation Paris, and she has collaborated with brands such as Kodak. She has received nominations at the Videoclip Italia Awards, Milano Fashion Film Festival, CANiFF, and the Berlin Fashion Film Festival.\n\n**Contacts**\nE-mail: [lyzardfilm@gmail.com](mailto:lyzardfilm@gmail.com)\n\n**Expositions**\n- Pitti Uomo, Velvet Mi Amor, installation, Florence, Italy, 2024\n- 45° Festival di Cinema e Donne, TAPE001: GRACE, Florence, Italy, 2024\n- Milano Unica, Velvet Mi Amor, installation, Milan, Italy, 2024\n- Image Nation Paris, group exhibition, Paris, France, 2023\n- Stymphalia Environmental Museum, solo exhibition, Corinth, Greece, 2022\n\n**Awards**\n- Videoclip Italia, Futuro, Finalist, Best Rock Videoclip 2025\n- Videoclip Italia, Velvet Mi Amor, Winner, Best Styling 2025\n- Austin Lift-Off Film Festival, Uncaptured, Official Selection, 2025\n- Videoclip Italia, Apnea, Finalist, 2024\n- CANIFF, TAPE001: GRACE, Official Selection, 2024\n- Sentiero Film Factory, Velvet Mi Amor, Finalist, 2023\n- FFFMilano Fashion Film Festival Milano, TAPE001: GRACE, Official Selection, Next Youth, 2023\n- BFFF Berlino Fashion Film Festival, TAPE001: GRACE, Official Selection, Best Script, 2023\n- Sentiero Film Factory, Peccato, Premio Boomker Sound, 2023\n- Sentiero Film Factory, Panico, Finalist, 2023\n\n**Publications**\n- Artdoc Magazine, Country Mysteries – Lisa Mazzei, 2022\n- FotoNostrum, Lisa Mazzei: Everyday Mystery, Incomunicability and Loneliness Through Cinematic Photography, Issue no. 18, 2021\n- Fraction Magazine, Country Mysteries by Lisa Mazzei, Issue no. 145, 2021\n- Artwort, Goodbye Countryside il saluto nostalgico di Lisa Mazzei, 2020\n- Fisheye Magazine, Lisa Mazzei, 2020"
+    }
+  },
+  "projects": [
+    {
+      "id": "countrymysteries",
+      "slug": "countrymysteries",
+      "title": {
+        "it": "Country Mysteries (2021)",
+        "en": "Country Mysteries (2021)"
+      },
+      "description": {
+        "it": "“Country Mysteries: Blue Hour Tales” originates from the need to convey the echoes of the places the artist belongs to, through a subjective interpretation that evokes the charm and mystery of rural landscapes.\nThe story unfolds through images of the Italian countryside, specifically the Garfagnana valley, a region in the northern part of Tuscany.\n\nDrawing from the cinematographic and literary tradition that connects liminal spaces with mystery narratives, Country Mysteries: Blue Hour Tales becomes a contemporary visual exploration that merges cinematic staged photography with documentation of everyday enigma, balancing subjective and objective perspectives.\n\nA sense of mystery permeates the everyday landscape — the same timeless presence that has inhabited woods and mountains for centuries.\nThe young protagonists attempt to interpret the enigmatic language of the rural world, confronting the impossibility of fully communicating with it. The subjects appear suspended in moments of apparent stillness, where action becomes a form of both external and internal investigation.\n\nCountry Mysteries: Blue Hour Tales is a journey between fiction and reality, identity and place, a visual archive of a motionless tale.",
+        "en": "“Country Mysteries: Blue Hour Tales” originates from the need to convey the echoes of the places the artist belongs to, through a subjective interpretation that evokes the charm and mystery of rural landscapes.\nThe story unfolds through images of the Italian countryside, specifically the Garfagnana valley, a region in the northern part of Tuscany.\n\nDrawing from the cinematographic and literary tradition that connects liminal spaces with mystery narratives, Country Mysteries: Blue Hour Tales becomes a contemporary visual exploration that merges cinematic staged photography with documentation of everyday enigma, balancing subjective and objective perspectives.\n\nA sense of mystery permeates the everyday landscape — the same timeless presence that has inhabited woods and mountains for centuries.\nThe young protagonists attempt to interpret the enigmatic language of the rural world, confronting the impossibility of fully communicating with it. The subjects appear suspended in moments of apparent stillness, where action becomes a form of both external and internal investigation.\n\nCountry Mysteries: Blue Hour Tales is a journey between fiction and reality, identity and place, a visual archive of a motionless tale."
+      },
+      "photos": [
+        {
+          "url": "countrymysteries/img/img1.jpg",
+          "alt": "Country Mysteries 1"
+        },
+        {
+          "url": "countrymysteries/img/img2.jpg",
+          "alt": "Country Mysteries 2"
+        },
+        {
+          "url": "countrymysteries/img/img3.jpg",
+          "alt": "Country Mysteries 3"
+        },
+        {
+          "url": "countrymysteries/img/img4.jpg",
+          "alt": "Country Mysteries 4"
+        },
+        {
+          "url": "countrymysteries/img/img5.jpg",
+          "alt": "Country Mysteries 5"
+        },
+        {
+          "url": "countrymysteries/img/img6.jpg",
+          "alt": "Country Mysteries 6"
+        },
+        {
+          "url": "countrymysteries/img/img7.jpg",
+          "alt": "Country Mysteries 7"
+        },
+        {
+          "url": "countrymysteries/img/img8.jpg",
+          "alt": "Country Mysteries 8"
+        },
+        {
+          "url": "countrymysteries/img/img9.jpg",
+          "alt": "Country Mysteries 9"
+        },
+        {
+          "url": "countrymysteries/img/img10.jpg",
+          "alt": "Country Mysteries 10"
+        },
+        {
+          "url": "countrymysteries/img/img11.jpg",
+          "alt": "Country Mysteries 11"
+        },
+        {
+          "url": "countrymysteries/img/img12.jpg",
+          "alt": "Country Mysteries 12"
+        },
+        {
+          "url": "countrymysteries/img/img13.jpg",
+          "alt": "Country Mysteries 13"
+        },
+        {
+          "url": "countrymysteries/img/img14.jpg",
+          "alt": "Country Mysteries 14"
+        },
+        {
+          "url": "countrymysteries/img/img15.jpg",
+          "alt": "Country Mysteries 15"
+        },
+        {
+          "url": "countrymysteries/img/img16.jpg",
+          "alt": "Country Mysteries 16"
+        },
+        {
+          "url": "countrymysteries/img/img17.jpg",
+          "alt": "Country Mysteries 17"
+        },
+        {
+          "url": "countrymysteries/img/img18.jpg",
+          "alt": "Country Mysteries 18"
+        },
+        {
+          "url": "countrymysteries/img/img19.jpg",
+          "alt": "Country Mysteries 19"
+        },
+        {
+          "url": "countrymysteries/img/img20.jpg",
+          "alt": "Country Mysteries 20"
+        }
+      ]
+    },
+    {
+      "id": "narrative",
+      "slug": "narrative",
+      "title": {
+        "it": "Stories in Stills (2019)",
+        "en": "Stories in Stills (2019)"
+      },
+      "description": {
+        "it": "This work unfolds as a series of narrative fragments, stills from films that were never made. Echoing the rhythm of storyboards and drawing inspiration from cinematic language and photo-novels, each tableaux explore different atmospheres, time periods, and emotional states, all through female protagonists. The images function as open-ended visual fictions focused on the figure of the female and her relationship through years with loneliness, nostalgia and mystery in different imaginaries.",
+        "en": "This work unfolds as a series of narrative fragments, stills from films that were never made. Echoing the rhythm of storyboards and drawing inspiration from cinematic language and photo-novels, each tableaux explore different atmospheres, time periods, and emotional states, all through female protagonists. The images function as open-ended visual fictions focused on the figure of the female and her relationship through years with loneliness, nostalgia and mystery in different imaginaries."
+      },
+      "photos": [
+        {
+          "url": "narrative/img/img1.jpg",
+          "alt": "Stories in Stills 1"
+        },
+        {
+          "url": "narrative/img/img2.jpg",
+          "alt": "Stories in Stills 2"
+        },
+        {
+          "url": "narrative/img/img3.jpg",
+          "alt": "Stories in Stills 3"
+        },
+        {
+          "url": "narrative/img/img4.jpg",
+          "alt": "Stories in Stills 4"
+        },
+        {
+          "url": "narrative/img/img5.jpg",
+          "alt": "Stories in Stills 5"
+        }
+      ]
+    },
+    {
+      "id": "other",
+      "slug": "other",
+      "title": {
+        "it": "Other",
+        "en": "Other"
+      },
+      "description": {
+        "it": "Selection of uncategorized photographs",
+        "en": "Selection of uncategorized photographs"
+      },
+      "photos": [
+        {
+          "url": "other/img/img1.jpg",
+          "alt": "Other 1"
+        },
+        {
+          "url": "other/img/img2.jpg",
+          "alt": "Other 2"
+        },
+        {
+          "url": "other/img/img3.jpg",
+          "alt": "Other 3"
+        },
+        {
+          "url": "other/img/img4.jpg",
+          "alt": "Other 4"
+        },
+        {
+          "url": "other/img/img5.jpg",
+          "alt": "Other 5"
+        },
+        {
+          "url": "other/img/img6.jpg",
+          "alt": "Other 6"
+        },
+        {
+          "url": "other/img/img7.jpg",
+          "alt": "Other 7"
+        }
+      ]
+    },
+    {
+      "id": "nuovestrade",
+      "slug": "nuovestrade",
+      "title": {
+        "it": "Nuove Strade",
+        "en": "Nuove Strade"
+      },
+      "description": {
+        "it": "Nuove Strade - Ama Dee feat. Volpe (2023)",
+        "en": "Nuove Strade - Ama Dee feat. Volpe (2023)"
+      },
+      "photos": [
+        {
+          "url": "nuovestrade/img/img1.jpg",
+          "alt": "Nuove Strade 1"
+        },
+        {
+          "url": "nuovestrade/img/img2.jpg",
+          "alt": "Nuove Strade 2"
+        },
+        {
+          "url": "nuovestrade/img/img3.jpg",
+          "alt": "Nuove Strade 3"
+        },
+        {
+          "url": "nuovestrade/img/img4.jpg",
+          "alt": "Nuove Strade 4"
+        }
+      ]
+    },
+    {
+      "id": "apocalissitascabili",
+      "slug": "apocalissitascabili",
+      "title": {
+        "it": "Apocalissi Tascabili",
+        "en": "Apocalissi Tascabili"
+      },
+      "description": {
+        "it": "Apocalissi Tascabili - Volpe (2022)",
+        "en": "Apocalissi Tascabili - Volpe (2022)"
+      },
+      "photos": [
+        {
+          "url": "apocalissitascabili/img/img1.jpg",
+          "alt": "Apocalissi Tascabili 1"
+        },
+        {
+          "url": "apocalissitascabili/img/img2.jpg",
+          "alt": "Apocalissi Tascabili 2"
+        },
+        {
+          "url": "apocalissitascabili/img/img3.jpg",
+          "alt": "Apocalissi Tascabili 3"
+        },
+        {
+          "url": "apocalissitascabili/img/img4.jpg",
+          "alt": "Apocalissi Tascabili 4"
+        },
+        {
+          "url": "apocalissitascabili/img/img5.jpg",
+          "alt": "Apocalissi Tascabili 5"
+        },
+        {
+          "url": "apocalissitascabili/img/img6.jpg",
+          "alt": "Apocalissi Tascabili 6"
+        }
+      ]
+    },
+    {
+      "id": "pdu",
+      "slug": "pdu",
+      "title": {
+        "it": "Pdu",
+        "en": "Pdu"
+      },
+      "description": {
+        "it": "IORA x PDU (2024)",
+        "en": "IORA x PDU (2024)"
+      },
+      "photos": [
+        {
+          "url": "pdu/img/img1.jpg",
+          "alt": "Pdu 1"
+        },
+        {
+          "url": "pdu/img/img2.jpg",
+          "alt": "Pdu 2"
+        },
+        {
+          "url": "pdu/img/img3.jpg",
+          "alt": "Pdu 3"
+        },
+        {
+          "url": "pdu/img/img4.jpg",
+          "alt": "Pdu 4"
+        },
+        {
+          "url": "pdu/img/img5.jpg",
+          "alt": "Pdu 5"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,452 @@
+[
+  {
+    "id": "countrymysteries/img/img1.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img1.jpg",
+    "byteSize": 189208,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img2.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img2.jpg",
+    "byteSize": 118198,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img3.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img3.jpg",
+    "byteSize": 102498,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img4.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img4.jpg",
+    "byteSize": 301628,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img5.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img5.jpg",
+    "byteSize": 120547,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img6.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img6.jpg",
+    "byteSize": 147139,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img7.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img7.jpg",
+    "byteSize": 208912,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img8.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img8.jpg",
+    "byteSize": 156263,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img9.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img9.jpg",
+    "byteSize": 211131,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img10.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img10.jpg",
+    "byteSize": 131148,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img11.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img11.jpg",
+    "byteSize": 407339,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img12.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img12.jpg",
+    "byteSize": 104179,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img13.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img13.jpg",
+    "byteSize": 113645,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img14.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img14.jpg",
+    "byteSize": 75509,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img15.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img15.jpg",
+    "byteSize": 219267,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img16.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img16.jpg",
+    "byteSize": 90266,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img17.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img17.jpg",
+    "byteSize": 170510,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img18.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img18.jpg",
+    "byteSize": 129661,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img19.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img19.jpg",
+    "byteSize": 149429,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "countrymysteries/img/img20.jpg",
+    "backend": "github",
+    "path": "countrymysteries/img/img20.jpg",
+    "byteSize": 149838,
+    "references": [
+      "project:countrymysteries"
+    ]
+  },
+  {
+    "id": "narrative/img/img1.jpg",
+    "backend": "github",
+    "path": "narrative/img/img1.jpg",
+    "byteSize": 343402,
+    "references": [
+      "project:narrative"
+    ]
+  },
+  {
+    "id": "narrative/img/img2.jpg",
+    "backend": "github",
+    "path": "narrative/img/img2.jpg",
+    "byteSize": 288380,
+    "references": [
+      "project:narrative"
+    ]
+  },
+  {
+    "id": "narrative/img/img3.jpg",
+    "backend": "github",
+    "path": "narrative/img/img3.jpg",
+    "byteSize": 99649,
+    "references": [
+      "project:narrative"
+    ]
+  },
+  {
+    "id": "narrative/img/img4.jpg",
+    "backend": "github",
+    "path": "narrative/img/img4.jpg",
+    "byteSize": 301903,
+    "references": [
+      "project:narrative"
+    ]
+  },
+  {
+    "id": "narrative/img/img5.jpg",
+    "backend": "github",
+    "path": "narrative/img/img5.jpg",
+    "byteSize": 225911,
+    "references": [
+      "project:narrative"
+    ]
+  },
+  {
+    "id": "other/img/img1.jpg",
+    "backend": "github",
+    "path": "other/img/img1.jpg",
+    "byteSize": 58016,
+    "references": [
+      "project:other"
+    ]
+  },
+  {
+    "id": "other/img/img2.jpg",
+    "backend": "github",
+    "path": "other/img/img2.jpg",
+    "byteSize": 260586,
+    "references": [
+      "project:other"
+    ]
+  },
+  {
+    "id": "other/img/img3.jpg",
+    "backend": "github",
+    "path": "other/img/img3.jpg",
+    "byteSize": 80096,
+    "references": [
+      "project:other"
+    ]
+  },
+  {
+    "id": "other/img/img4.jpg",
+    "backend": "github",
+    "path": "other/img/img4.jpg",
+    "byteSize": 376506,
+    "references": [
+      "project:other"
+    ]
+  },
+  {
+    "id": "other/img/img5.jpg",
+    "backend": "github",
+    "path": "other/img/img5.jpg",
+    "byteSize": 27749,
+    "references": [
+      "project:other"
+    ]
+  },
+  {
+    "id": "other/img/img6.jpg",
+    "backend": "github",
+    "path": "other/img/img6.jpg",
+    "byteSize": 118749,
+    "references": [
+      "project:other"
+    ]
+  },
+  {
+    "id": "other/img/img7.jpg",
+    "backend": "github",
+    "path": "other/img/img7.jpg",
+    "byteSize": 148132,
+    "references": [
+      "project:other"
+    ]
+  },
+  {
+    "id": "nuovestrade/img/img1.jpg",
+    "backend": "github",
+    "path": "nuovestrade/img/img1.jpg",
+    "byteSize": 368980,
+    "references": [
+      "project:nuovestrade"
+    ]
+  },
+  {
+    "id": "nuovestrade/img/img2.jpg",
+    "backend": "github",
+    "path": "nuovestrade/img/img2.jpg",
+    "byteSize": 363832,
+    "references": [
+      "project:nuovestrade"
+    ]
+  },
+  {
+    "id": "nuovestrade/img/img3.jpg",
+    "backend": "github",
+    "path": "nuovestrade/img/img3.jpg",
+    "byteSize": 247023,
+    "references": [
+      "project:nuovestrade"
+    ]
+  },
+  {
+    "id": "nuovestrade/img/img4.jpg",
+    "backend": "github",
+    "path": "nuovestrade/img/img4.jpg",
+    "byteSize": 341250,
+    "references": [
+      "project:nuovestrade"
+    ]
+  },
+  {
+    "id": "apocalissitascabili/img/img1.jpg",
+    "backend": "github",
+    "path": "apocalissitascabili/img/img1.jpg",
+    "byteSize": 162958,
+    "references": [
+      "project:apocalissitascabili"
+    ]
+  },
+  {
+    "id": "apocalissitascabili/img/img2.jpg",
+    "backend": "github",
+    "path": "apocalissitascabili/img/img2.jpg",
+    "byteSize": 330880,
+    "references": [
+      "project:apocalissitascabili"
+    ]
+  },
+  {
+    "id": "apocalissitascabili/img/img3.jpg",
+    "backend": "github",
+    "path": "apocalissitascabili/img/img3.jpg",
+    "byteSize": 230933,
+    "references": [
+      "project:apocalissitascabili"
+    ]
+  },
+  {
+    "id": "apocalissitascabili/img/img4.jpg",
+    "backend": "github",
+    "path": "apocalissitascabili/img/img4.jpg",
+    "byteSize": 208715,
+    "references": [
+      "project:apocalissitascabili"
+    ]
+  },
+  {
+    "id": "apocalissitascabili/img/img5.jpg",
+    "backend": "github",
+    "path": "apocalissitascabili/img/img5.jpg",
+    "byteSize": 179518,
+    "references": [
+      "project:apocalissitascabili"
+    ]
+  },
+  {
+    "id": "apocalissitascabili/img/img6.jpg",
+    "backend": "github",
+    "path": "apocalissitascabili/img/img6.jpg",
+    "byteSize": 593846,
+    "references": [
+      "project:apocalissitascabili"
+    ]
+  },
+  {
+    "id": "pdu/img/img1.jpg",
+    "backend": "github",
+    "path": "pdu/img/img1.jpg",
+    "byteSize": 128043,
+    "references": [
+      "project:pdu"
+    ]
+  },
+  {
+    "id": "pdu/img/img2.jpg",
+    "backend": "github",
+    "path": "pdu/img/img2.jpg",
+    "byteSize": 86509,
+    "references": [
+      "project:pdu"
+    ]
+  },
+  {
+    "id": "pdu/img/img3.jpg",
+    "backend": "github",
+    "path": "pdu/img/img3.jpg",
+    "byteSize": 136578,
+    "references": [
+      "project:pdu"
+    ]
+  },
+  {
+    "id": "pdu/img/img4.jpg",
+    "backend": "github",
+    "path": "pdu/img/img4.jpg",
+    "byteSize": 235948,
+    "references": [
+      "project:pdu"
+    ]
+  },
+  {
+    "id": "pdu/img/img5.jpg",
+    "backend": "github",
+    "path": "pdu/img/img5.jpg",
+    "byteSize": 214214,
+    "references": [
+      "project:pdu"
+    ]
+  },
+  {
+    "id": "home/img/img_desktop.jpg",
+    "backend": "github",
+    "path": "home/img/img_desktop.jpg",
+    "byteSize": 776769,
+    "references": [
+      "site:global"
+    ]
+  },
+  {
+    "id": "home/img/img_mobile.jpg",
+    "backend": "github",
+    "path": "home/img/img_mobile.jpg",
+    "byteSize": 1129787,
+    "references": [
+      "site:global"
+    ]
+  },
+  {
+    "id": "about/img/img1.jpg",
+    "backend": "github",
+    "path": "about/img/img1.jpg",
+    "byteSize": 332420,
+    "references": [
+      "site:global"
+    ]
+  }
+]
