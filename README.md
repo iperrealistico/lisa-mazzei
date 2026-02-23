@@ -6,6 +6,8 @@ This repository contains the Next.js static export version of the Lisa Mazzei ph
 
 The site has been converted from a runtime Javascript/TXT parser into a **Next.js Static Site Generation** project.
 - **Content Mode**: All texts, URLs, and image paths are defined in `content/site.json`, generating the static HTML at build time (`/` for Italian, `/en` for English).
+- **Directory Routing**: Every project generates a literal static path (`/[project]` and `/en/[project]`). Query parameters are no longer used for core navigation.
+- **Lightbox**: Every project gallery is equipped with a fullscreen interactive touch Lightbox natively hooked into the JSON manifest.
 - **Admin Panel**: A client-side admin dashboard lives at `/admin`. It uses Vercel Serverless Functions (`/api/`) to securely talk to GitHub and Vercel Blob.
 - **Workflow**: Editing content from the Admin Panel updates `site.json` in the GitHub repo directly, triggering a new Vercel deployment which rebuilds the static site.
 
