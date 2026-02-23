@@ -1,4 +1,4 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+// No longer using VercelRequest from @vercel/node
 
 const rateLimits = new Map<string, { attempts: number, lockedUntil: number }>();
 
@@ -30,8 +30,8 @@ export function resetAttempts(ip: string) {
     rateLimits.delete(ip);
 }
 
-export function requireAuth(req: VercelRequest): boolean {
-    const authHeader = req.headers.authorization;
+export function requireAuth(req: Request): boolean {
+    const authHeader = req.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return false;
     }
@@ -39,6 +39,6 @@ export function requireAuth(req: VercelRequest): boolean {
     return token === process.env.ADMIN_PASSWORD;
 }
 
-export function getIp(req: VercelRequest): string {
-    return (req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || 'unknown';
+export function getIp(req: Request): string {
+    return req.headers.get('x-forwarded-for') || 'unknown';
 }

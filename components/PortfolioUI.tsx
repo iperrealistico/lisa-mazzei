@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Swiper from 'swiper';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 function parseMarkdown(text: string) {
     if (!text) return '';
@@ -19,60 +21,67 @@ function parseMarkdown(text: string) {
     return rendered.join('');
 }
 
-export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: 'it' | 'en' }) {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState('home');
+export default function PortfolioUI({
+    siteData,
+    lang,
+    activeProjectSlug = null
+}: {
+    siteData: any,
+    lang: string,
+    activeProjectSlug?: string | null
+}) {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activeGallery, setActiveGallery] = useState(activeProjectSlug);
     const galleriesRef = useRef<Record<string, Swiper>>({});
     const mobileNavRef = useRef<HTMLElement>(null);
     const [showScrollIndicator, setShowScrollIndicator] = useState(false);
 
-    const navigateToSection = useCallback((sectionId: string, pushState: boolean = true) => {
-        setActiveSection(sectionId);
-        if (pushState) {
-            const prefix = lang === 'en' ? '/en' : '/';
-            const url = sectionId === 'home' ? prefix : `${prefix}?project=${sectionId}`;
-            window.history.pushState({ section: sectionId }, '', url);
-        }
-        setMenuOpen(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [lang]);
+    // Lightbox State
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
+
+    // Compute slides for lightbox
+    const currentProject = useMemo(() => {
+        return siteData.projects.find((p: any) => p.slug === activeGallery);
+    }, [activeGallery, siteData]);
+
+    const lightboxSlides = useMemo(() => {
+        if (!currentProject?.photos) return [];
+        return currentProject.photos.map((photo: any) => ({
+            src: '/' + photo.url,
+            alt: photo.alt
+        }));
+    }, [currentProject]);
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const project = params.get('project');
-        if (project) {
-            navigateToSection(project, false);
-        } else {
-            navigateToSection('home', false);
-        }
-
-        const onPopState = (e: PopStateEvent) => {
-            const section = e.state?.section || 'home';
-            navigateToSection(section, false);
-        };
-        window.addEventListener('popstate', onPopState);
-
-        let imageObserver: IntersectionObserver | null = null;
-        if ('IntersectionObserver' in window) {
-            imageObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target as HTMLImageElement;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
+        // Intersection Observer for lazy loading images inside swiper
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target as HTMLImageElement;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        img.onload = () => {
                             img.classList.add('loaded');
-                        }
-                        if (imageObserver) imageObserver.unobserve(img);
+                            // Fix preloader spinner
+                            const preloader = img.parentElement?.querySelector('.swiper-lazy-preloader');
+                            if (preloader) {
+                                preloader.remove();
+                            }
+                        };
+                        observer.unobserve(img);
                     }
-                });
+                }
             });
-            document.querySelectorAll('img[data-src]').forEach(img => {
-                imageObserver!.observe(img);
-            });
-        }
+        }, { rootMargin: '50px' });
+
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            observer.observe(img);
+        });
 
         const onResize = () => {
-            if (menuOpen) checkMobileMenuScroll();
+            if (mobileMenuOpen) checkMobileMenuScroll();
             Object.values(galleriesRef.current).forEach(swiper => {
                 if (swiper && typeof swiper.update === 'function') swiper.update();
             });
@@ -80,11 +89,15 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
         window.addEventListener('resize', onResize);
 
         return () => {
-            window.removeEventListener('popstate', onPopState);
             window.removeEventListener('resize', onResize);
-            if (imageObserver) imageObserver.disconnect();
+            observer.disconnect();
         };
-    }, [lang, menuOpen, navigateToSection]);
+    }, [mobileMenuOpen]);
+
+    // Sync active project if prop changes
+    useEffect(() => {
+        setActiveGallery(activeProjectSlug || 'home');
+    }, [activeProjectSlug]);
 
     const initGallery = useCallback((galleryId: string) => {
         if (galleriesRef.current[galleryId]) return;
@@ -102,10 +115,18 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
                 spaceBetween: 0,
                 freeMode: {
                     enabled: true,
-                    sticky: false
+                    sticky: false,
+                    momentumRatio: 1,
+                    momentumVelocityRatio: 1
                 },
                 mousewheel: {
-                    forceToAxis: true
+                    forceToAxis: true,
+                    invert: false
+                },
+                grabCursor: true,
+                keyboard: {
+                    enabled: true,
+                    onlyInViewport: true,
                 },
                 lazy: {
                     loadPrevNext: true,
@@ -159,10 +180,10 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
     }, []);
 
     useEffect(() => {
-        if (activeSection !== 'home' && activeSection !== 'about') {
-            initGallery(activeSection);
+        if (activeGallery && activeGallery !== 'home' && activeGallery !== 'about') {
+            initGallery(activeGallery);
         }
-    }, [activeSection, initGallery]);
+    }, [activeGallery, initGallery]);
 
     const checkMobileMenuScroll = () => {
         const mobileNav = mobileNavRef.current;
@@ -173,7 +194,7 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
     };
 
     const toggleMenu = () => {
-        setMenuOpen(prev => {
+        setMobileMenuOpen(prev => {
             const next = !prev;
             if (next) {
                 setTimeout(() => checkMobileMenuScroll(), 300);
@@ -194,13 +215,14 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
                             if (link.disabled) {
                                 return <span className="nav-link disabled" key={i}>{link.label[lang] || link.label.it}</span>;
                             }
-                            const isActive = activeSection === link.slug;
+                            const isActive = activeGallery === link.slug;
+                            const href = `/${lang === 'en' ? 'en/' : ''}${link.slug}`;
                             return (
                                 <a
                                     key={i}
-                                    href={`#${link.slug}`}
+                                    href={href}
                                     className={`nav-link ${isActive ? 'active' : ''}`}
-                                    onClick={(e) => { e.preventDefault(); navigateToSection(link.slug); }}
+                                    onClick={() => setMobileMenuOpen(false)}
                                 >
                                     {link.label[lang] || link.label.it}
                                 </a>
@@ -212,18 +234,20 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
                 if (section.isExternal) {
                     return (
                         <div className="nav-section" key={idx}>
-                            <a href={section.url} className="nav-section-title link" target="_blank" rel="noopener noreferrer">
+                            <a href={section.url} className="nav-section-title link" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
                                 {section.label[lang] || section.label.it}
                             </a>
                         </div>
                     );
                 } else {
+                    const isActive = activeGallery === section.slug;
+                    const href = `/${lang === 'en' ? 'en/' : ''}${section.slug}`;
                     return (
                         <div className="nav-section" key={idx}>
                             <a
-                                href={`#${section.slug}`}
-                                className="nav-section-title link"
-                                onClick={(e) => { e.preventDefault(); navigateToSection(section.slug); }}
+                                href={href}
+                                className={`nav-section-title link ${isActive ? 'active' : ''}`}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 {section.label[lang] || section.label.it}
                             </a>
@@ -248,7 +272,7 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
 
     const navMobile = (
         <nav
-            className={`nav-mobile ${menuOpen ? 'open' : ''}`}
+            className={`nav-mobile ${mobileMenuOpen ? 'open' : ''}`}
             aria-label="Mobile navigation"
             ref={mobileNavRef as any}
             onScroll={checkMobileMenuScroll}
@@ -269,12 +293,12 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
         <>
             <header className="header">
                 <div className="header-content">
-                    <a href="#home" className="logo" onClick={(e) => { e.preventDefault(); navigateToSection('home'); }}>Lisa Mazzei</a>
+                    <a href={`/${lang === 'en' ? 'en' : ''}`} className="logo" onClick={() => setMobileMenuOpen(false)}>Lisa Mazzei</a>
                     {navDesktop}
                     <button
-                        className={`menu-btn ${menuOpen ? 'open' : ''}`}
+                        className={`menu-btn ${mobileMenuOpen ? 'open' : ''}`}
                         aria-label="Menu"
-                        aria-expanded={menuOpen}
+                        aria-expanded={mobileMenuOpen}
                         onClick={toggleMenu}
                     >
                         <span className="menu-btn-line"></span>
@@ -287,7 +311,7 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
             {navMobile}
 
             <main className="main">
-                <section id="home" className={`section ${activeSection === 'home' ? 'active' : ''}`}>
+                <section id="home" className={`section ${activeGallery === 'home' ? 'active' : ''}`}>
                     <div className="hero">
                         <img src={'/' + siteData.home.desktopImage} alt="Lisa Mazzei Portfolio" className="hero-img desktop" loading="eager" />
                         <img src={'/' + siteData.home.mobileImage} alt="Lisa Mazzei Portfolio" className="hero-img mobile" loading="eager" />
@@ -295,12 +319,20 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
                 </section>
 
                 {siteData.projects.map((project: any) => (
-                    <section id={project.slug} className={`section ${activeSection === project.slug ? 'active' : ''}`} key={project.id}>
+                    <section id={project.slug} className={`section ${activeGallery === project.slug ? 'active' : ''}`} key={project.id}>
                         <div className="gallery">
                             <div className="swiper" data-gallery={project.slug}>
                                 <div className="swiper-wrapper">
                                     {project.photos.map((photo: any, i: number) => (
-                                        <div className="swiper-slide" key={i}>
+                                        <div
+                                            className="swiper-slide"
+                                            key={i}
+                                            onClick={() => {
+                                                setLightboxIndex(i);
+                                                setLightboxOpen(true);
+                                            }}
+                                            style={{ cursor: 'pointer' }}
+                                        >
                                             <img data-src={'/' + photo.url} alt={photo.alt} className="gallery-img swiper-lazy" />
                                             <div className="swiper-lazy-preloader"></div>
                                         </div>
@@ -322,7 +354,7 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
                     </section>
                 ))}
 
-                <section id="about" className={`section ${activeSection === 'about' ? 'active' : ''}`}>
+                <section id="about" className={`section ${activeGallery === 'about' ? 'active' : ''}`}>
                     <div className="about-photo">
                         <img src={'/' + siteData.about.image} alt={siteData.about.title[lang] || siteData.about.title.it} loading="lazy" />
                     </div>
@@ -334,6 +366,13 @@ export default function PortfolioUI({ siteData, lang }: { siteData: any, lang: '
                     </div>
                 </section>
             </main>
+
+            <Lightbox
+                open={lightboxOpen}
+                close={() => setLightboxOpen(false)}
+                index={lightboxIndex}
+                slides={lightboxSlides}
+            />
         </>
     );
 }
