@@ -98,6 +98,26 @@
         "it": "About/Contact",
         "en": "About/Contact"
       }
+    },
+    {
+      "type": "item",
+      "title": {
+        "it": "New Item",
+        "en": "New Item"
+      },
+      "links": [
+        {
+          "slug": "www.google.com",
+          "label": {
+            "it": "test",
+            "en": "testt"
+          },
+          "disabled": false,
+          "isExternal": true
+        }
+      ],
+      "slug": "",
+      "isExternal": false
     }
   ],
   "home": {
