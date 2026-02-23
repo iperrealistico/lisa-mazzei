@@ -146,9 +146,19 @@ export default function PortfolioUI({
                     },
                     progress: function (sw: any) {
                         updateButtons(sw);
+                    },
+                    click: function (sw: any) {
+                        if (sw.clickedIndex !== undefined) {
+                            setLightboxIndex(sw.clickedIndex);
+                            setLightboxOpen(true);
+                        }
                     }
                 }
             } as any);
+
+            // Re-bind exact arrow logic explicitly because dynamically mounted elements occassionally fail Swiper's internal binds
+            if (prevBtn) prevBtn.onclick = () => swiper.slidePrev();
+            if (nextBtn) nextBtn.onclick = () => swiper.slideNext();
 
             const updateButtons = (sw: any) => {
                 if (!prevBtn || !nextBtn) return;
@@ -166,7 +176,22 @@ export default function PortfolioUI({
         if (activeGallery && activeGallery !== 'home' && activeGallery !== 'about') {
             initGallery(activeGallery);
         }
-    }, [activeGallery, initGallery]);
+
+        // Global keydown bind for active gallery regardless of DOM focus point
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (lightboxOpen) return; // Let Lightbox handle it if open
+            if (!activeGallery || activeGallery === 'home' || activeGallery === 'about') return;
+            const swiper = galleriesRef.current[activeGallery];
+            if (!swiper) return;
+
+            if (e.key === 'ArrowLeft') swiper.slidePrev();
+            else if (e.key === 'ArrowRight') swiper.slideNext();
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+
+    }, [activeGallery, initGallery, lightboxOpen]);
 
     const checkMobileMenuScroll = () => {
         const mobileNav = mobileNavRef.current;
@@ -317,10 +342,6 @@ export default function PortfolioUI({
                                         <div
                                             className="swiper-slide"
                                             key={i}
-                                            onClick={() => {
-                                                setLightboxIndex(i);
-                                                setLightboxOpen(true);
-                                            }}
                                             style={{ cursor: 'pointer' }}
                                         >
                                             <img data-src={'/' + photo.url} alt={photo.alt} className="gallery-img swiper-lazy" />
