@@ -102,36 +102,25 @@ export default function AdminPage() {
 
     const saveContent = async () => {
         setLoading(true);
-        setPublishLogs(['Attempting to publish changes to GitHub sequentially...']);
+        setPublishLogs(['Attempting to automatically publish changes to GitHub atomically...']);
         try {
-            // Must be sequential to prevent GitHub 409 reference branch collisions
-            const sRes = await fetch('/api/content', {
+            // Use atomic Git Trees payload guaranteeing EXACTLY 1 commit
+            const bothRes = await fetch('/api/content', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ type: 'site', content: siteData.content })
+                body: JSON.stringify({ type: 'both', site: siteData.content, manifest: manifest.content })
             });
-            const sJson = await sRes.json();
-
-            const mRes = await fetch('/api/content', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ type: 'manifest', content: manifest.content })
-            });
-            const mJson = await mRes.json();
+            const bJson = await bothRes.json();
 
             let logs = [];
-            if (sJson.success) logs.push(`✅ Site Content published (SHA: ${sJson.content?.sha})`);
-            else logs.push(`❌ Site error: ${sJson.error || 'Unknown'}`);
-
-            if (mJson.success) logs.push(`✅ Manifest published (SHA: ${mJson.content?.sha})`);
-            else logs.push(`❌ Manifest error: ${mJson.error || 'Unknown'}`);
+            if (bJson.success) logs.push(`✅ Atomic commit successful. Vercel is building the site now.`);
+            else logs.push(`❌ Error: ${bJson.error}`);
 
             setPublishLogs(logs);
 
-            if (sJson.success && mJson.success) {
-                setSiteData({ ...siteData, sha: sJson.content.sha });
-                setManifest({ ...manifest, sha: mJson.content.sha });
-                // Note: removed jarring alert popup relying purely on UI logs!
+            if (bJson.success) {
+                // To seamlessly resynchronize the UI without fetching anew immediately 
+                // we technically lose the exact individual SHAs, however atomic pushes generally skip the `409` conflict logic entirely.
             }
         } catch (err: any) {
             setPublishLogs([`❌ Critical exception: ${err.message}`]);
@@ -367,7 +356,7 @@ function NavigationEditor({ siteData, setSiteData }: any) {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                             <label>Title (Italian)<br /><input value={item.title?.it || item.label?.it || ''} onChange={e => op(i, n => n.title = { ...n.title, it: e.target.value })} style={{ width: '100%', padding: '5px' }} /></label>
                             <label>Title (English)<br /><input value={item.title?.en || item.label?.en || ''} onChange={e => op(i, n => n.title = { ...n.title, en: e.target.value })} style={{ width: '100%', padding: '5px' }} /></label>
-                            <label>URL or Slug (Leave blank if this is a Dropdown Section)<br /><input value={item.slug || item.url || ''} onChange={e => op(i, n => {
+                            <label>URL (Optional)<br /><input value={item.slug || item.url || ''} onChange={e => op(i, n => {
                                 if (n.isExternal) { n.url = e.target.value; delete n.slug; } else { n.slug = e.target.value; delete n.url; }
                             })} style={{ width: '100%', padding: '5px' }} /></label>
                         </div>
@@ -375,26 +364,25 @@ function NavigationEditor({ siteData, setSiteData }: any) {
                         <div style={{ display: 'flex', gap: '15px', marginTop: '5px' }}>
                             <label><input type="checkbox" checked={item.isExternal} onChange={e => op(i, n => n.isExternal = e.target.checked)} /> Is External URL</label>
                         </div>
-                        {(!item.slug && !item.url) && (
-                            <div style={{ marginTop: '10px', background: '#f5f5f5', padding: '10px' }}>
-                                <strong>Dropdown Child Links</strong>
-                                {(item.links || []).map((lnk: any, j: number) => (
-                                    <div key={j} style={{ display: 'flex', gap: '10px', marginTop: '10px', alignItems: 'center' }}>
-                                        <input value={lnk.label?.it || lnk.title?.it || ''} placeholder="Title (Italian)" onChange={e => op(i, n => n.links[j].label = { ...n.links[j].label, it: e.target.value })} style={{ width: '120px', padding: '5px' }} />
-                                        <input value={lnk.label?.en || lnk.title?.en || ''} placeholder="Title (English)" onChange={e => op(i, n => n.links[j].label = { ...n.links[j].label, en: e.target.value })} style={{ width: '120px', padding: '5px' }} />
-                                        <input value={lnk.slug || lnk.url || ''} placeholder="URL or Slug" onChange={e => op(i, n => {
-                                            const val = e.target.value;
-                                            if (n.links[j].isExternal) { n.links[j].url = val; delete n.links[j].slug; }
-                                            else { n.links[j].slug = val; delete n.links[j].url; }
-                                        })} style={{ width: '120px', padding: '5px' }} />
-                                        <label><input type="checkbox" checked={lnk.isExternal} onChange={e => op(i, n => n.links[j].isExternal = e.target.checked)} /> External</label>
-                                        <label><input type="checkbox" checked={lnk.disabled} onChange={e => op(i, n => n.links[j].disabled = e.target.checked)} /> Disabled</label>
-                                        <button onClick={() => op(i, n => n.links.splice(j, 1))} style={{ color: 'red', marginLeft: 'auto' }}>✕</button>
-                                    </div>
-                                ))}
-                                <button onClick={() => op(i, n => { if (!n.links) n.links = []; n.links.push({ slug: 'new', label: { it: 'New', en: 'New' }, disabled: false, isExternal: false }); })} style={{ marginTop: '10px' }}>+ Add Sub-Link</button>
-                            </div>
-                        )}
+
+                        <div style={{ marginTop: '10px', background: '#f5f5f5', padding: '10px' }}>
+                            <strong>Dropdown Child Links</strong>
+                            {(item.links || []).map((lnk: any, j: number) => (
+                                <div key={j} style={{ display: 'flex', gap: '10px', marginTop: '10px', alignItems: 'center' }}>
+                                    <input value={lnk.label?.it || lnk.title?.it || ''} placeholder="Title (Italian)" onChange={e => op(i, n => n.links[j].label = { ...n.links[j].label, it: e.target.value })} style={{ width: '120px', padding: '5px' }} />
+                                    <input value={lnk.label?.en || lnk.title?.en || ''} placeholder="Title (English)" onChange={e => op(i, n => n.links[j].label = { ...n.links[j].label, en: e.target.value })} style={{ width: '120px', padding: '5px' }} />
+                                    <input value={lnk.slug || lnk.url || ''} placeholder="URL (Optional)" onChange={e => op(i, n => {
+                                        const val = e.target.value;
+                                        if (n.links[j].isExternal) { n.links[j].url = val; delete n.links[j].slug; }
+                                        else { n.links[j].slug = val; delete n.links[j].url; }
+                                    })} style={{ width: '120px', padding: '5px' }} />
+                                    <label><input type="checkbox" checked={lnk.isExternal} onChange={e => op(i, n => n.links[j].isExternal = e.target.checked)} /> External</label>
+                                    <label><input type="checkbox" checked={lnk.disabled} onChange={e => op(i, n => n.links[j].disabled = e.target.checked)} /> Disabled</label>
+                                    <button onClick={() => op(i, n => n.links.splice(j, 1))} style={{ color: 'red', marginLeft: 'auto' }}>✕</button>
+                                </div>
+                            ))}
+                            <button onClick={() => op(i, n => { if (!n.links) n.links = []; n.links.push({ slug: '', label: { it: '', en: '' }, disabled: false, isExternal: false }); })} style={{ marginTop: '10px' }}>+ Add Sub-Link</button>
+                        </div>
                     </div>
                 </div>
             ))}
