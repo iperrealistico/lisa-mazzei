@@ -107,13 +107,13 @@
       },
       "links": [
         {
-          "slug": "www.google.com",
           "label": {
             "it": "test",
             "en": "testt"
           },
           "disabled": false,
-          "isExternal": true
+          "isExternal": true,
+          "url": "https://www.google.com"
         }
       ],
       "slug": "",
