@@ -15,11 +15,11 @@
       },
       "links": [
         {
-          "slug": "",
-          "disabled": true,
+          "slug": "privateoutlands",
+          "disabled": false,
           "label": {
-            "it": "TBA (2026)",
-            "en": "TBA (2026)"
+            "it": "Private Outlands (2026)",
+            "en": "Private Outlands (2026)"
           }
         },
         {
@@ -102,16 +102,6 @@
         "it": "About/Contact",
         "en": "About/Contact"
       }
-    },
-    {
-      "type": "item",
-      "title": {
-        "it": "New Item",
-        "en": "New Item"
-      },
-      "links": [],
-      "slug": "",
-      "isExternal": false
     }
   ],
   "home": {
@@ -130,6 +120,89 @@
     }
   },
   "projects": [
+    {
+      "id": "new-project-1771880902371",
+      "slug": "privateoutlands",
+      "title": {
+        "it": "Private Outlands (2026)",
+        "en": "Private Outlands (2026)"
+      },
+      "description": {
+        "it": "Private Outlands is an itinerant photographic project that reworks the frontier imaginary by inhabiting it with female bodies suspended between epic scale and intimacy. \nShot on medium format between Italy and the United States, the work rewrites the visual grammar of the outlands: open, remote spaces traditionally tied to a western narrative of solitude, hardness, uncertainty, and hostility. These images, instead, claim a new frontier for women: a space where bodies assert their naturalness, free from social constructs.\n\nThe two words, private and outlands, evoke two opposing dimensions: a personal, intimate space and a vast, distant land. These bodies inhabit those territories differently, poised between the epic and the intimate, in a new and natural state. Nudity is nothing more than a return to the essential, an act of shedding that brings the woman back to a raw, primary presence, in direct confrontation with the epicness of the landscape.\n\nThe film border of each image frames a fragment of reality, holding a scene in which this renewed relationship between bodies and landscape can exist.\n\nSpecial thanks to: Cecilia Rossetto, Lisa Baratta, Beatrice Maggi, Claudia Tassoni, Angelie Marie",
+        "en": "Private Outlands is an itinerant photographic project that reworks the frontier imaginary by inhabiting it with female bodies suspended between epic scale and intimacy. \nShot on medium format between Italy and the United States, the work rewrites the visual grammar of the outlands: open, remote spaces traditionally tied to a western narrative of solitude, hardness, uncertainty, and hostility. These images, instead, claim a new frontier for women: a space where bodies assert their naturalness, free from social constructs.\n\nThe two words, private and outlands, evoke two opposing dimensions: a personal, intimate space and a vast, distant land. These bodies inhabit those territories differently, poised between the epic and the intimate, in a new and natural state. Nudity is nothing more than a return to the essential, an act of shedding that brings the woman back to a raw, primary presence, in direct confrontation with the epicness of the landscape.\n\nThe film border of each image frames a fragment of reality, holding a scene in which this renewed relationship between bodies and landscape can exist.\n\nSpecial thanks to: Cecilia Rossetto, Lisa Baratta, Beatrice Maggi, Claudia Tassoni, Angelie Marie"
+      },
+      "photos": [
+        {
+          "url": "privateoutlands/img/1771880971308_lisa-mazzei-private-outlands-1.jpg",
+          "alt": "lisa-mazzei-private-outlands-1.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880973349_lisa-mazzei-private-outlands-2.jpg",
+          "alt": "lisa-mazzei-private-outlands-2.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880975391_lisa-mazzei-private-outlands-3.jpg",
+          "alt": "lisa-mazzei-private-outlands-3.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880977660_lisa-mazzei-private-outlands-4.jpg",
+          "alt": "lisa-mazzei-private-outlands-4.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880979780_lisa-mazzei-private-outlands-5.jpg",
+          "alt": "lisa-mazzei-private-outlands-5.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880981941_lisa-mazzei-private-outlands-6.jpg",
+          "alt": "lisa-mazzei-private-outlands-6.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880984080_lisa-mazzei-private-outlands-7.jpg",
+          "alt": "lisa-mazzei-private-outlands-7.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880986534_lisa-mazzei-private-outlands-8.jpg",
+          "alt": "lisa-mazzei-private-outlands-8.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880988750_lisa-mazzei-private-outlands-9.jpg",
+          "alt": "lisa-mazzei-private-outlands-9.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880991153_lisa-mazzei-private-outlands-10.jpg",
+          "alt": "lisa-mazzei-private-outlands-10.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880994133_lisa-mazzei-private-outlands-11.jpg",
+          "alt": "lisa-mazzei-private-outlands-11.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880996332_lisa-mazzei-private-outlands-12.jpg",
+          "alt": "lisa-mazzei-private-outlands-12.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771880998449_lisa-mazzei-private-outlands-13.jpg",
+          "alt": "lisa-mazzei-private-outlands-13.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771881000335_lisa-mazzei-private-outlands-14.jpg",
+          "alt": "lisa-mazzei-private-outlands-14.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771881002388_lisa-mazzei-private-outlands-15.jpg",
+          "alt": "lisa-mazzei-private-outlands-15.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771881004324_lisa-mazzei-private-outlands-16.jpg",
+          "alt": "lisa-mazzei-private-outlands-16.jpg"
+        },
+        {
+          "url": "privateoutlands/img/1771881006651_lisa-mazzei-private-outlands-17.jpg",
+          "alt": "lisa-mazzei-private-outlands-17.jpg"
+        }
+      ],
+      "disableLightbox": true
+    },
     {
       "id": "countrymysteries",
       "slug": "countrymysteries",
