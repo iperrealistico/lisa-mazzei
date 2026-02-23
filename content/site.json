@@ -88,6 +88,10 @@
       "label": {
         "it": "Films",
         "en": "Films"
+      },
+      "title": {
+        "it": "Lyzard Film",
+        "en": "Lyzard Film"
       }
     },
     {
@@ -98,6 +102,16 @@
         "it": "About/Contact",
         "en": "About/Contact"
       }
+    },
+    {
+      "type": "item",
+      "title": {
+        "it": "New Item",
+        "en": "New Item"
+      },
+      "links": [],
+      "slug": "",
+      "isExternal": false
     }
   ],
   "home": {
