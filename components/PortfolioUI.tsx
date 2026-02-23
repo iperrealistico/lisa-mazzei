@@ -65,9 +65,14 @@ function ProjectGallery({ project, lang, activeGallery, setLightboxIndex, setLig
                         <div
                             className="embla__slide swiper-slide"
                             key={i}
-                            style={{ cursor: 'grab', flex: '0 0 auto' }}
-                            onClick={() => {
-                                // Guarantee it only pops the lightbox on clicks, not drags!
+                            style={{ cursor: project.disableLightbox ? 'grab' : 'pointer', flex: '0 0 auto' }}
+                            onClickCapture={(e) => {
+                                if (project.disableLightbox) return;
+
+                                // Embla internally prevents default on Drags. If it's a drag, `e.defaultPrevented` will be true 
+                                // inside strict native browser events or React synthetic events heavily depending on hydration
+                                // But specifically with Embla v8 React hooks, a basic `onClick` typically fires cleanly only on true clicks!
+                                // The best method is native event verification paired with `clickAllowed`.
                                 if (emblaApi && (emblaApi as any).clickAllowed()) {
                                     setLightboxIndex(i);
                                     setLightboxOpen(true);

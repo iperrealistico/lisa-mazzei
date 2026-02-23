@@ -545,6 +545,10 @@ function ProjectEditor({ siteData, setSiteData, token, manifest, setManifest, up
                                 <label style={{ gridColumn: '1 / -1' }}>Description (EN)<br />
                                     <textarea value={p.description.en} onChange={e => updateProject(i, 'description', 'en', e.target.value)} style={{ width: '100%', height: '80px', padding: '5px' }} />
                                 </label>
+                                <label style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                                    <input type="checkbox" checked={p.disableLightbox || false} onChange={e => updateProject(i, 'disableLightbox', null, e.target.checked)} />
+                                    <strong>Disable Lightbox popup completely for this project</strong>
+                                </label>
                             </div>
 
                             <div style={{ marginTop: '30px' }}>
