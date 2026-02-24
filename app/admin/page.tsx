@@ -616,34 +616,74 @@ function FilePreviewEditor({ token, manifest, setManifest }: { token: string, ma
         const targetFilename = customSlug.length > 0 ? (customSlug.endsWith('.pdf') ? customSlug : customSlug + '.pdf') : file.name;
 
         try {
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({
-                    filename: targetFilename,
-                    base64,
-                    backend: 'github',
-                    previewMode: true
-                })
+            // 1. Get secure github repository credentials from standard Vercel locked endpoint
+            const credRes = await fetch('/api/upload', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-            const d = await res.json();
-            if (d.url) {
-                const newManifest = [...manifest.content];
-                const existingIdx = newManifest.findIndex(m => m.path === d.id.replace('public/', ''));
-                if (existingIdx > -1) {
-                    newManifest[existingIdx].byteSize = d.byteSize;
-                } else {
-                    newManifest.push({
-                        id: d.id, backend: d.backend, path: d.id.replace('public/', ''), byteSize: d.byteSize,
-                        references: ['preview']
-                    });
-                }
-                setManifest({ ...manifest, content: newManifest });
-                setCustomSlug('');
-                alert('Success! Preview available at /' + d.id.replace('public/', ''));
-            } else {
-                alert('Error uploading: ' + d.error);
+            const creds = await credRes.json();
+            if (!creds.repo || !creds.token) {
+                alert("GitHub Configuration Error in Backend Environment Variables");
+                setUploading(false);
+                return;
             }
+
+            const path = `public/preview/${targetFilename}`;
+
+            // 2. Lookup existing SHA proactively if we are attempting to overwrite a file
+            let sha: string | undefined = undefined;
+            try {
+                const getRes = await fetch(`https://api.github.com/repos/${creds.repo}/contents/${path}`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `token ${creds.token}`, 'Accept': 'application/vnd.github.v3+json' },
+                    cache: 'no-store'
+                });
+                if (getRes.ok) {
+                    const data = await getRes.json();
+                    if (!Array.isArray(data)) sha = data.sha;
+                }
+            } catch (e) { }
+
+            // 3. Direct Client-to-GitHub payload transfer (Bypasses Vercel 4.5MB limits entirely!)
+            const payload: any = {
+                message: `Upload ${targetFilename}`,
+                content: base64
+            };
+            if (sha) payload.sha = sha;
+
+            const putRes = await fetch(`https://api.github.com/repos/${creds.repo}/contents/${path}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${creds.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!putRes.ok) {
+                const errorText = await putRes.text();
+                throw new Error("GitHub upload failed: " + errorText);
+            }
+
+            // Upload complete! Register in local manifest.
+            const newManifest = [...manifest.content];
+            const byteSize = Math.round(base64.length * 0.75);
+            const relativePath = `preview/${targetFilename}`;
+
+            const existingIdx = newManifest.findIndex(m => m.path === relativePath);
+            if (existingIdx > -1) {
+                newManifest[existingIdx].byteSize = byteSize;
+            } else {
+                newManifest.push({
+                    id: path, backend: 'github', path: relativePath, byteSize: byteSize,
+                    references: ['preview']
+                });
+            }
+            setManifest({ ...manifest, content: newManifest });
+            setCustomSlug('');
+            alert('Success! Preview directly uploaded and is available at /' + relativePath);
+
         } catch (e) { alert("Upload fail: " + e); }
         setUploading(false);
     };

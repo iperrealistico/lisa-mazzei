@@ -3,6 +3,16 @@ import { requireAuth } from '@/lib/utils';
 import { putGithubFile, deleteGithubFile, getGithubFileSha } from '@/lib/github';
 import { put as putBlob, del as delBlob } from '@vercel/blob';
 
+export async function GET(req: Request) {
+    if (!requireAuth(req)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.json({
+        repo: process.env.GITHUB_REPO,
+        token: process.env.GITHUB_TOKEN
+    });
+}
+
 export async function POST(req: Request) {
     if (!requireAuth(req)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
