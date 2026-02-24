@@ -155,6 +155,7 @@ export default function AdminPage() {
                     <button onClick={() => setActiveTab('favicon')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'favicon' ? 'bold' : 'normal' }}>Favicon Tool</button>
                     <button onClick={() => setActiveTab('navigation')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'navigation' ? 'bold' : 'normal' }}>Navigation</button>
                     <button onClick={() => setActiveTab('projects')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'projects' ? 'bold' : 'normal' }}>Projects List</button>
+                    <button onClick={() => setActiveTab('previews')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'previews' ? 'bold' : 'normal', color: 'blue' }}>File Previews (PDF)</button>
                     <button onClick={() => setActiveTab('advanced')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'advanced' ? 'bold' : 'normal', color: 'red' }}>Advanced JSON</button>
                 </div>
 
@@ -232,6 +233,10 @@ export default function AdminPage() {
                         token={token} manifest={manifest} setManifest={setManifest}
                         uploadBackend={uploadBackend}
                     />
+                )}
+
+                {activeTab === 'previews' && (
+                    <FilePreviewEditor token={token!} manifest={manifest} setManifest={setManifest} />
                 )}
             </div>
         </div>
@@ -582,6 +587,125 @@ function ProjectEditor({ siteData, setSiteData, token, manifest, setManifest, up
                     )}
                 </div>
             ))}
+        </div>
+    );
+}
+
+function FilePreviewEditor({ token, manifest, setManifest }: { token: string, manifest: any, setManifest: any }) {
+    const [uploading, setUploading] = useState(false);
+    const [customSlug, setCustomSlug] = useState('');
+
+    const previewFiles = manifest.content.filter((m: any) => m.path.startsWith('preview/'));
+
+    const handleUpload = async (files: FileList | null) => {
+        if (!files || files.length === 0) return;
+        const file = files[0];
+        if (!file.type.includes('pdf')) {
+            alert('Only PDF files are supported for File Previews.');
+            return;
+        }
+
+        setUploading(true);
+        const reader = new FileReader();
+        const result = await new Promise<string>((resolve) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+        });
+
+        const base64 = result.replace(/^data:application\/pdf;base64,/, "");
+        const targetFilename = customSlug.length > 0 ? (customSlug.endsWith('.pdf') ? customSlug : customSlug + '.pdf') : file.name;
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    filename: targetFilename,
+                    base64,
+                    backend: 'github',
+                    previewMode: true
+                })
+            });
+            const d = await res.json();
+            if (d.url) {
+                const newManifest = [...manifest.content];
+                const existingIdx = newManifest.findIndex(m => m.path === d.id.replace('public/', ''));
+                if (existingIdx > -1) {
+                    newManifest[existingIdx].byteSize = d.byteSize;
+                } else {
+                    newManifest.push({
+                        id: d.id, backend: d.backend, path: d.id.replace('public/', ''), byteSize: d.byteSize,
+                        references: ['preview']
+                    });
+                }
+                setManifest({ ...manifest, content: newManifest });
+                setCustomSlug('');
+                alert('Success! Preview available at /' + d.id.replace('public/', ''));
+            } else {
+                alert('Error uploading: ' + d.error);
+            }
+        } catch (e) { alert("Upload fail: " + e); }
+        setUploading(false);
+    };
+
+    const deleteFile = async (path: string, id: string, sha?: string) => {
+        if (!confirm(`Delete ${path}? This breaks live URL links instantly.`)) return;
+        try {
+            await fetch('/api/upload', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ id, backend: 'github', sha: sha || '' })
+            });
+            const manCl = { ...manifest };
+            manCl.content = manCl.content.filter((m: any) => m.path !== path);
+            setManifest(manCl);
+        } catch (e) { alert("Delete failed."); }
+    };
+
+    return (
+        <div>
+            <h3>PDF File Previews</h3>
+            <p>Upload PDF documents that will be securely saved natively within the repository at exact URLs (e.g., <code>lisamazzei.com/preview/filename.pdf</code>).</p>
+
+            <div style={{ marginTop: '20px', padding: '20px', border: '1px solid #ccc', background: '#f5f5f5' }}>
+                <h4>Upload New Preview</h4>
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <label>
+                        Custom URL Slug (Optional): <br />
+                        <input value={customSlug} onChange={e => setCustomSlug(e.target.value)} placeholder="e.g. project-x.pdf" style={{ padding: '5px', width: '200px' }} />
+                    </label>
+                    <div style={{ flex: 1 }}>
+                        <input type="file" accept=".pdf" onChange={e => handleUpload(e.target.files)} disabled={uploading} style={{ padding: '5px' }} />
+                    </div>
+                </div>
+                {uploading && <div style={{ marginTop: '10px', color: 'blue' }}>Uploading explicitly to GitHub...</div>}
+            </div>
+
+            <div style={{ marginTop: '30px' }}>
+                <h4>Active Previews</h4>
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+                    <thead>
+                        <tr style={{ background: '#eee', textAlign: 'left' }}>
+                            <th style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Path</th>
+                            <th style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Size</th>
+                            <th style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {previewFiles.length === 0 ? (
+                            <tr><td colSpan={3} style={{ padding: '10px' }}>No previews uploaded yet.</td></tr>
+                        ) : previewFiles.map((m: any) => (
+                            <tr key={m.path} style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '10px' }}><a href={'/' + m.path} target="_blank" rel="noopener noreferrer">{m.path}</a></td>
+                                <td style={{ padding: '10px' }}>{(m.byteSize / 1024).toFixed(1)} KB</td>
+                                <td style={{ padding: '10px' }}>
+                                    <button onClick={() => deleteFile(m.path, m.id, m.sha)} style={{ color: 'red', cursor: 'pointer' }}>Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

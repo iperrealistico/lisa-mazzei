@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/utils';
-import { putGithubFile, deleteGithubFile } from '@/lib/github';
+import { putGithubFile, deleteGithubFile, getGithubFileSha } from '@/lib/github';
 import { put as putBlob, del as delBlob } from '@vercel/blob';
 
 export async function POST(req: Request) {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { filename, base64, backend, folder } = await req.json();
+        const { filename, base64, backend, folder, previewMode } = await req.json();
         if (!filename || !base64) return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
 
         const buffer = Buffer.from(base64, 'base64');
@@ -22,10 +22,18 @@ export async function POST(req: Request) {
             return NextResponse.json({ url: blob.url, backend: 'blob', id: blob.url, byteSize: buffer.length }, { status: 200 });
         } else {
             const safeFilename = filename.replace(/[^a-zA-Z0-9.\-_]/g, '');
-            const uploadFolder = folder ? `public/${folder}/img` : 'public/uploads';
-            const path = `${uploadFolder}/${Date.now()}_${safeFilename}`;
+            let path = '';
+            let sha: string | undefined = undefined;
 
-            await putGithubFile(path, base64, `Upload ${filename}`);
+            if (previewMode) {
+                path = `public/preview/${safeFilename}`;
+                sha = await getGithubFileSha(path);
+            } else {
+                const uploadFolder = folder ? `public/${folder}/img` : 'public/uploads';
+                path = `${uploadFolder}/${Date.now()}_${safeFilename}`;
+            }
+
+            await putGithubFile(path, base64, `Upload ${filename}`, sha);
 
             const publicUrl = path.replace('public/', '');
             return NextResponse.json({ url: publicUrl, backend: 'github', id: path, byteSize: Math.round(base64.length * 0.75) }, { status: 200 });
