@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import useEmblaCarousel from 'embla-carousel-react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import EditionOrderButton from './EditionOrderButton';
 
 function parseMarkdown(text: string) {
     if (!text) return '';
@@ -19,6 +20,88 @@ function parseMarkdown(text: string) {
         return `<p>${content}</p>`;
     });
     return rendered.join('');
+}
+
+function EditionSection({ editions, lang, activeGallery }: { editions: any[]; lang: string; activeGallery: string | null }) {
+    const activeEditions = editions.filter(edition => edition.active !== false);
+
+    if (activeEditions.length === 0) return null;
+
+    return (
+        <section id="editions" className={`section editions-section ${activeGallery === 'editions' ? 'active' : ''}`}>
+            <div className="editions-list">
+                {activeEditions.map((edition: any) => {
+                    const title = edition.title?.[lang] || edition.title?.it || edition.slug;
+                    const description = edition.description?.[lang] || edition.description?.it || '';
+                    const format = edition.format?.[lang] || edition.format?.it;
+                    const pages = edition.pages?.[lang] || edition.pages?.it;
+                    const orderCta = edition.orderCta?.[lang] || edition.orderCta?.it || 'Available on request';
+                    const orderInstruction = edition.orderInstruction?.[lang] || edition.orderInstruction?.it || 'Send your request to';
+                    const responseNote = edition.responseNote?.[lang] || edition.responseNote?.it || '';
+                    const processingTime = edition.processingTime?.[lang] || edition.processingTime?.it;
+                    const shippingTime = edition.shippingTime?.[lang] || edition.shippingTime?.it;
+                    const shippingNote = edition.shippingNote?.[lang] || edition.shippingNote?.it;
+                    const price = new Intl.NumberFormat(lang === 'it' ? 'it-IT' : 'en-GB', {
+                        style: 'currency',
+                        currency: edition.currency || 'EUR',
+                        maximumFractionDigits: 0,
+                    }).format(Number(edition.price || 0));
+                    const coverImage = edition.coverImage?.startsWith('http')
+                        ? edition.coverImage
+                        : `/${edition.coverImage}`;
+
+                    return (
+                        <article className="edition-card" key={edition.id || edition.slug}>
+                            <div className="edition-cover">
+                                {edition.coverImage ? (
+                                    <img
+                                        src={coverImage}
+                                        alt={edition.coverAlt?.[lang] || edition.coverAlt?.it || title}
+                                        loading="eager"
+                                    />
+                                ) : (
+                                    <span className="edition-cover-placeholder">{title}</span>
+                                )}
+                            </div>
+
+                            <div className="edition-details">
+                                <h1 className="edition-title">{title}</h1>
+                                <div
+                                    className="edition-description"
+                                    dangerouslySetInnerHTML={{ __html: parseMarkdown(description) }}
+                                />
+
+                                <div className="edition-specifications" aria-label="Edition specifications">
+                                    {format && <span>{format}</span>}
+                                    {pages && <span>{pages}</span>}
+                                </div>
+
+                                <div className="edition-price">
+                                    {price}
+                                    {shippingNote && <small>{shippingNote}</small>}
+                                </div>
+
+                                {(processingTime || shippingTime) && (
+                                    <div className="edition-delivery-notes">
+                                        {processingTime && <p>{processingTime}</p>}
+                                        {shippingTime && <p>{shippingTime}</p>}
+                                    </div>
+                                )}
+
+                                <EditionOrderButton
+                                    email={edition.orderEmail}
+                                    label={orderCta}
+                                    copiedLabel={lang === 'it' ? 'COPIATA' : 'COPIED'}
+                                    instruction={orderInstruction}
+                                    responseNote={responseNote}
+                                />
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+        </section>
+    );
 }
 
 function ProjectGallery({ project, lang, activeGallery, setLightboxIndex, setLightboxOpen }: any) {
@@ -303,6 +386,8 @@ export default function PortfolioUI({
                         <img src={'/' + siteData.home.mobileImage} alt="Lisa Mazzei Portfolio" className="hero-img mobile" loading="eager" />
                     </div>
                 </section>
+
+                {siteData.editions && <EditionSection editions={siteData.editions} lang={lang} activeGallery={activeGallery} />}
 
                 {siteData.projects.map((project: any) => (
                     <ProjectGallery

@@ -154,6 +154,7 @@ export default function AdminPage() {
                     <button onClick={() => setActiveTab('settings')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'settings' ? 'bold' : 'normal' }}>SEO & Settings</button>
                     <button onClick={() => setActiveTab('favicon')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'favicon' ? 'bold' : 'normal' }}>Favicon Tool</button>
                     <button onClick={() => setActiveTab('navigation')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'navigation' ? 'bold' : 'normal' }}>Navigation</button>
+                    <button onClick={() => setActiveTab('editions')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'editions' ? 'bold' : 'normal' }}>Editions</button>
                     <button onClick={() => setActiveTab('projects')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'projects' ? 'bold' : 'normal' }}>Projects List</button>
                     <button onClick={() => setActiveTab('previews')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'previews' ? 'bold' : 'normal', color: 'blue' }}>File Previews (PDF)</button>
                     <button onClick={() => setActiveTab('advanced')} style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontWeight: activeTab === 'advanced' ? 'bold' : 'normal', color: 'red' }}>Advanced JSON</button>
@@ -225,6 +226,17 @@ export default function AdminPage() {
 
                 {activeTab === 'navigation' && (
                     <NavigationEditor siteData={siteData} setSiteData={setSiteData} />
+                )}
+
+                {activeTab === 'editions' && (
+                    <EditionsEditor
+                        siteData={siteData}
+                        setSiteData={setSiteData}
+                        token={token}
+                        manifest={manifest}
+                        setManifest={setManifest}
+                        uploadBackend={uploadBackend}
+                    />
                 )}
 
                 {activeTab === 'projects' && (
@@ -309,6 +321,150 @@ function FaviconEditor({ token }: { token: string }) {
             <p>Upload a square PNG image (minimum 512x512 recommended). This will automatically generate the required favicon.ico and mobile app icons, and inject them into the site repository.</p>
             <input type="file" accept="image/png" onChange={handleUpload} disabled={loading} style={{ marginTop: '20px' }} />
             {loading && <p>Processing... Please wait.</p>}
+        </div>
+    );
+}
+
+function EditionsEditor({ siteData, setSiteData, token, manifest, setManifest, uploadBackend }: any) {
+    const editions = siteData.content.editions || [];
+    const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+
+    const updateEdition = (index: number, key: string, value: any, lang?: string) => {
+        const nextEditions = [...editions];
+        const edition = { ...nextEditions[index] };
+        edition[key] = lang ? { ...edition[key], [lang]: value } : value;
+        nextEditions[index] = edition;
+        setSiteData({ ...siteData, content: { ...siteData.content, editions: nextEditions } });
+    };
+
+    const addEdition = () => {
+        const nextEditions = [{
+            id: `new-edition-${Date.now()}`,
+            slug: 'new-edition',
+            type: 'print',
+            active: true,
+            title: { it: 'New Edition', en: 'New Edition' },
+            description: { it: '', en: '' },
+            coverImage: '',
+            coverAlt: { it: '', en: '' },
+            format: { it: '', en: '' },
+            pages: { it: '', en: '' },
+            price: 0,
+            currency: 'EUR',
+            orderEmail: 'contact@lisamazzei.com',
+            orderCta: { it: 'Disponibile su richiesta', en: 'Available on request' },
+            orderInstruction: { it: 'Invia la tua richiesta a', en: 'Send your request to' },
+            responseNote: { it: '', en: '' },
+            processingTime: { it: '', en: '' },
+            shippingTime: { it: '', en: '' },
+            shippingNote: { it: '', en: '' }
+        }, ...editions];
+        setSiteData({ ...siteData, content: { ...siteData.content, editions: nextEditions } });
+    };
+
+    const deleteEdition = (index: number) => {
+        if (!confirm('Delete this edition from the catalogue?')) return;
+        setSiteData({
+            ...siteData,
+            content: { ...siteData.content, editions: editions.filter((_: any, i: number) => i !== index) }
+        });
+    };
+
+    const uploadCover = async (index: number, file?: File) => {
+        if (!file) return;
+        setUploadingIndex(index);
+        try {
+            const result = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = () => reject(new Error('Could not read image'));
+                reader.readAsDataURL(file);
+            });
+            const base64 = result.replace(/^data:image\/\w+;base64,/, '');
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    filename: file.name,
+                    base64,
+                    backend: uploadBackend,
+                    folder: 'editions'
+                })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.url) throw new Error(data.error || 'Upload failed');
+
+            updateEdition(index, 'coverImage', data.url);
+            const edition = editions[index];
+            const nextManifest = [...(manifest?.content || []), {
+                id: data.id,
+                backend: data.backend,
+                path: data.url,
+                byteSize: data.byteSize,
+                references: [`edition:${edition.slug}`]
+            }];
+            setManifest({ ...(manifest || {}), content: nextManifest });
+        } catch (error: any) {
+            alert(`Cover upload failed: ${error.message}`);
+        } finally {
+            setUploadingIndex(null);
+        }
+    };
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <p>Editions are broad catalogue entries for photobooks, prints and future physical releases.</p>
+            <button onClick={addEdition} style={{ padding: '10px', background: '#e0e0e0', border: '1px dashed #000', cursor: 'pointer' }}>+ Add Edition</button>
+
+            {editions.map((edition: any, index: number) => (
+                <div key={edition.id || index} style={{ border: '1px solid #ccc', padding: '18px', background: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                        <h3 style={{ margin: 0 }}>{edition.title?.it || edition.slug}</h3>
+                        <button onClick={() => deleteEdition(index)} style={{ color: 'red' }}>Delete</button>
+                    </div>
+
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                        <label><input type="checkbox" checked={edition.active !== false} onChange={e => updateEdition(index, 'active', e.target.checked)} /> Visible on Editions page</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <label>Type<br /><input value={edition.type || ''} onChange={e => updateEdition(index, 'type', e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Slug<br /><input value={edition.slug || ''} onChange={e => updateEdition(index, 'slug', e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Title (IT)<br /><input value={edition.title?.it || ''} onChange={e => updateEdition(index, 'title', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Title (EN)<br /><input value={edition.title?.en || ''} onChange={e => updateEdition(index, 'title', e.target.value, 'en')} style={{ width: '100%', padding: '5px' }} /></label>
+                        </div>
+
+                        <label>Description (IT)<br /><textarea value={edition.description?.it || ''} onChange={e => updateEdition(index, 'description', e.target.value, 'it')} style={{ width: '100%', height: '80px', padding: '5px' }} /></label>
+                        <label>Description (EN)<br /><textarea value={edition.description?.en || ''} onChange={e => updateEdition(index, 'description', e.target.value, 'en')} style={{ width: '100%', height: '80px', padding: '5px' }} /></label>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                            <label>Format (IT)<br /><input value={edition.format?.it || ''} onChange={e => updateEdition(index, 'format', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Pages (IT)<br /><input value={edition.pages?.it || ''} onChange={e => updateEdition(index, 'pages', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Price (€)<br /><input type="number" min="0" value={edition.price ?? 0} onChange={e => updateEdition(index, 'price', Number(e.target.value))} style={{ width: '100%', padding: '5px' }} /></label>
+                        </div>
+
+                        <label>Cover image path<br /><input value={edition.coverImage || ''} onChange={e => updateEdition(index, 'coverImage', e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                        <label>Upload cover image<br /><input type="file" accept="image/*" disabled={uploadingIndex === index} onChange={e => uploadCover(index, e.target.files?.[0])} /></label>
+                        {uploadingIndex === index && <span>Uploading cover...</span>}
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <label>Order email<br /><input type="email" value={edition.orderEmail || ''} onChange={e => updateEdition(index, 'orderEmail', e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Currency<br /><input value={edition.currency || 'EUR'} onChange={e => updateEdition(index, 'currency', e.target.value)} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>CTA (IT)<br /><input value={edition.orderCta?.it || ''} onChange={e => updateEdition(index, 'orderCta', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>CTA (EN)<br /><input value={edition.orderCta?.en || ''} onChange={e => updateEdition(index, 'orderCta', e.target.value, 'en')} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Instruction (IT)<br /><input value={edition.orderInstruction?.it || ''} onChange={e => updateEdition(index, 'orderInstruction', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                            <label>Instruction (EN)<br /><input value={edition.orderInstruction?.en || ''} onChange={e => updateEdition(index, 'orderInstruction', e.target.value, 'en')} style={{ width: '100%', padding: '5px' }} /></label>
+                        </div>
+
+                        <label>Response/payment note (IT)<br /><textarea value={edition.responseNote?.it || ''} onChange={e => updateEdition(index, 'responseNote', e.target.value, 'it')} style={{ width: '100%', height: '55px', padding: '5px' }} /></label>
+                        <label>Response/payment note (EN)<br /><textarea value={edition.responseNote?.en || ''} onChange={e => updateEdition(index, 'responseNote', e.target.value, 'en')} style={{ width: '100%', height: '55px', padding: '5px' }} /></label>
+                        <label>Processing time (IT)<br /><input value={edition.processingTime?.it || ''} onChange={e => updateEdition(index, 'processingTime', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                        <label>Processing time (EN)<br /><input value={edition.processingTime?.en || ''} onChange={e => updateEdition(index, 'processingTime', e.target.value, 'en')} style={{ width: '100%', padding: '5px' }} /></label>
+                        <label>Shipping time (IT)<br /><input value={edition.shippingTime?.it || ''} onChange={e => updateEdition(index, 'shippingTime', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                        <label>Shipping time (EN)<br /><input value={edition.shippingTime?.en || ''} onChange={e => updateEdition(index, 'shippingTime', e.target.value, 'en')} style={{ width: '100%', padding: '5px' }} /></label>
+                        <label>Shipping note (IT)<br /><input value={edition.shippingNote?.it || ''} onChange={e => updateEdition(index, 'shippingNote', e.target.value, 'it')} style={{ width: '100%', padding: '5px' }} /></label>
+                        <label>Shipping note (EN)<br /><input value={edition.shippingNote?.en || ''} onChange={e => updateEdition(index, 'shippingNote', e.target.value, 'en')} style={{ width: '100%', padding: '5px' }} /></label>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }

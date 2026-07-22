@@ -97,6 +97,15 @@
     {
       "type": "link",
       "isExternal": false,
+      "slug": "editions",
+      "label": {
+        "it": "Editions",
+        "en": "Editions"
+      }
+    },
+    {
+      "type": "link",
+      "isExternal": false,
       "slug": "about",
       "label": {
         "it": "About/Contact",
@@ -119,6 +128,62 @@
       "en": "Lisa Mazzei is an Italian photographer and director. She holds a degree in Fine Arts from Florence and specialized in Cinematography in Rome. As one half of the creative duo Lyzard Film, she focuses on music videos for Italian artists and fashion films. She has collaborated with brands such as Kodak and been featured at at Pitti Uomo, Milano Unica, Videoclip Italia Awards, Berlin Fashion Film Festival and Corinth Photography Festival.\n\n**Contacts**\nE-mail: [contact@lisamazzei.com](mailto:contact@lisamazzei.com)\n\n**Expositions**\n- Pitti Uomo, Velvet Mi Amor, installation, Florence, Italy, 2024\n- 45° Festival di Cinema e Donne, TAPE001: GRACE, Florence, Italy, 2024\n- Milano Unica, Velvet Mi Amor, installation, Milan, Italy, 2024\n- Image Nation Paris, group exhibition, Paris, France, 2023\n- Stymphalia Environmental Museum, solo exhibition, Corinth, Greece, 2022\n\n**Awards**\n- Videoclip Italia, Futuro, Finalist, Best Rock Videoclip 2025\n- Videoclip Italia, Velvet Mi Amor, Winner, Best Styling 2025\n- Austin Lift-Off Film Festival, Uncaptured, Official Selection, 2025\n- Videoclip Italia, Apnea, Finalist, 2024\n- CANIFF, TAPE001: GRACE, Official Selection, 2024\n- Sentiero Film Factory, Velvet Mi Amor, Finalist, 2023\n- FFFMilano Fashion Film Festival Milano, TAPE001: GRACE, Official Selection, Next Youth, 2023\n- BFFF Berlino Fashion Film Festival, TAPE001: GRACE, Official Selection, Best Script, 2023\n- Sentiero Film Factory, Peccato, Premio Boomker Sound, 2023\n- Sentiero Film Factory, Panico, Finalist, 2023\n\n**Publications**\n- Artdoc Magazine, Country Mysteries – Lisa Mazzei, 2022\n- FotoNostrum, Lisa Mazzei: Everyday Mystery, Incomunicability and Loneliness Through Cinematic Photography, Issue no. 18, 2021\n- Fraction Magazine, Country Mysteries by Lisa Mazzei, Issue no. 145, 2021\n- Artwort, Goodbye Countryside il saluto nostalgico di Lisa Mazzei, 2020\n- Fisheye Magazine, Lisa Mazzei, 2020"
     }
   },
+  "editions": [
+    {
+      "id": "privateoutlands-photobook",
+      "slug": "private-outlands",
+      "type": "photobook",
+      "active": true,
+      "title": {
+        "it": "Private Outlands (2026)",
+        "en": "Private Outlands (2026)"
+      },
+      "description": {
+        "it": "Private Outlands è un progetto fotografico itinerante realizzato su pellicola di medio formato tra l'Italia e gli Stati Uniti. Il lavoro esplora la relazione tra il corpo femminile e paesaggi remoti e periferici, riscrivendo la frontiera come uno spazio intimo e femminile.",
+        "en": "Private Outlands is an itinerant photographic project shot on medium-format film between Italy and the United States. The work explores the relationship between the female body and remote, peripheral landscapes, reimagining the frontier as an intimate and female space."
+      },
+      "coverImage": "privateoutlands/img/1771880975391_lisa-mazzei-private-outlands-3.jpg",
+      "coverAlt": {
+        "it": "Fotolibro Private Outlands",
+        "en": "Private Outlands photobook"
+      },
+      "format": {
+        "it": "20 × 20 cm",
+        "en": "20 × 20 cm"
+      },
+      "pages": {
+        "it": "40 pagine",
+        "en": "40 pages"
+      },
+      "price": 90,
+      "currency": "EUR",
+      "orderEmail": "contact@lisamazzei.com",
+      "orderCta": {
+        "it": "Disponibile su richiesta",
+        "en": "Available on request"
+      },
+      "orderInstruction": {
+        "it": "Invia la tua richiesta a",
+        "en": "Send your request to"
+      },
+      "responseNote": {
+        "it": "Sarai ricontattato per il pagamento e la conferma dell'ordine.",
+        "en": "You will be contacted for payment and order confirmation."
+      },
+      "processingTime": {
+        "it": "Elaborazione dell'ordine: circa 1 settimana",
+        "en": "Order processing: approximately 1 week"
+      },
+      "shippingTime": {
+        "it": "Spedizione: da 1 a 2 settimane in base alla nazione",
+        "en": "Shipping: 1 to 2 weeks depending on destination"
+      },
+      "shippingNote": {
+        "it": "Spedizione esclusa, calcolata in base alla destinazione",
+        "en": "Shipping excluded, calculated according to destination"
+      }
+    }
+  ],
   "projects": [
     {
       "id": "new-project-1771880902371",
