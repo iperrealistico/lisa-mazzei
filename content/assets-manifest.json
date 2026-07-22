@@ -603,6 +603,15 @@
     ]
   },
   {
+    "id": "public/editions/img/private-outlands-book-cover.jpg",
+    "backend": "github",
+    "path": "editions/img/private-outlands-book-cover.jpg",
+    "byteSize": 395328,
+    "references": [
+      "edition:privateoutlands-photobook"
+    ]
+  },
+  {
     "id": "public/preview/private-outlands.pdf",
     "backend": "github",
     "path": "preview/private-outlands.pdf",
